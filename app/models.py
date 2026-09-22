@@ -50,6 +50,12 @@ class CareerGoal(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class CareerVision(SQLModel, table=True):
+    id: int = Field(default=1, primary_key=True)  # singleton row, id=1
+    content: str = ""
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 class CareerGoalHistory(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     horizon: str

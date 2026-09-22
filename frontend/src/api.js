@@ -85,6 +85,13 @@ export const api = {
     }),
   getGoalHistory: () => request('/goals/history'),
 
+  getVision: () => request('/vision'),
+  updateVision: (content) =>
+    request('/vision', {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    }),
+
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>
     request('/profile/education', { method: 'POST', body: JSON.stringify(payload) }),

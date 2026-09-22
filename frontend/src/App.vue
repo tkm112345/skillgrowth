@@ -9,6 +9,7 @@ import {
   MagicStick,
   Notebook,
   Setting,
+  Sunrise,
   TrendCharts,
 } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
@@ -51,6 +52,10 @@ onMounted(async () => {
         <el-menu-item index="/">
           <el-icon style="color: var(--hue-blue)"><DataAnalysis /></el-icon>
           <template #title>{{ t('nav.dashboard') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/vision">
+          <el-icon style="color: var(--hue-aqua)"><Sunrise /></el-icon>
+          <template #title>{{ t('nav.vision') }}</template>
         </el-menu-item>
         <el-menu-item index="/skills">
           <el-icon style="color: var(--hue-orange)"><List /></el-icon>

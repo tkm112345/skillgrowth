@@ -4,6 +4,7 @@
   },
   "nav": {
     "dashboard": "ダッシュボード",
+    "vision": "ビジョン",
     "profile": "プロフィール",
     "skills": "スキル一覧",
     "timeline": "アクティビティ",
@@ -44,6 +45,13 @@
     "horizon10Years": "10年後",
     "conceptLink": "はじめての方へ: このアプリのコンセプトを見る",
     "aiLink": "目標に向けた伸ばし方を見る（AI連携）"
+  },
+  "vision": {
+    "title": "ビジョン",
+    "subtitle": "どういうキャリアを目指したいのか、構成や期間にとらわれず、ざっくりと自由に書き記す場所です。",
+    "placeholder": "大まかにどんなキャリアを目指したいですか？",
+    "saved": "保存しました",
+    "updatedAt": "最終更新: {date}"
   },
   "profile": {
     "title": "プロフィール",

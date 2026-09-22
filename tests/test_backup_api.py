@@ -9,6 +9,7 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "skill_links",
         "career_goals",
         "career_goal_history",
+        "career_vision",
         "education",
         "employment",
         "projects",
@@ -105,6 +106,7 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "external_links": 0,
         "career_goals": 0,
         "career_goal_history": 0,
+        "career_vision": 0,
         "resume_exports": 0,
         "self_prs": 0,
     }
@@ -137,6 +139,20 @@ def test_import_career_goal_fills_only_when_empty(client):
     assert goals["5_years"] == "サンプルの5年後目標"
 
 
+def test_import_career_vision_fills_only_when_empty(client):
+    client.put("/api/vision", json={"content": "既に書いたビジョン"})
+
+    payload = {
+        "evidence": [], "skills": [], "skill_links": [], "education": [], "employment": [],
+        "projects": [], "learning_activities": [], "external_links": [], "resume_exports": [],
+        "career_vision": [{"content": "サンプルのビジョン"}],
+    }
+    resp = client.post("/api/backup/import", json=payload)
+    assert resp.status_code == 200
+    assert resp.json()["career_vision"] == 0  # already had content, so nothing was filled
+    assert client.get("/api/vision").json()["content"] == "既に書いたビジョン"
+
+
 def test_load_sample_data_populates_expected_counts(client):
     resp = client.post("/api/backup/load-sample")
     assert resp.status_code == 200
@@ -145,6 +161,7 @@ def test_load_sample_data_populates_expected_counts(client):
     assert body["skills"] == 17
     assert body["employment"] == 2
     assert body["career_goals"] == 3
+    assert body["career_vision"] == 1
     assert body["projects"] == 4
     assert body["self_prs"] == 1
 

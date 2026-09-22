@@ -61,6 +61,9 @@
     { "horizon": "5_years", "description": "Move into a Staff Engineer role: mentoring across multiple teams and owning platform-level technical strategy rather than a single team's roadmap." },
     { "horizon": "10_years", "description": "Either lead engineering for a small, focused team, or go independent as a consultant specializing in backend infrastructure and platform migrations." }
   ],
+  "career_vision": [
+    { "content": "I want to spend my career at the intersection of backend infrastructure and the teams that depend on it — deep enough in the systems to make good platform calls, close enough to the people using them to know which problems are actually worth solving.", "updated_at": "2026-08-15T00:00:00+00:00" }
+  ],
   "education": [
     { "id": "edu-1", "school": "State University", "degree": "B.S.", "major": "Computer Science", "start_date": "2015-09-01", "end_date": "2019-06-01", "achievements": "Graduated with honors. Built a course-scheduling app used by 200+ students as a capstone project.", "evidence_id": "ev-edu1" }
   ],

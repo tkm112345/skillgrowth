@@ -8,11 +8,13 @@ import Profile from '../views/Profile.vue'
 import SettingsView from '../views/Settings.vue'
 import Skills from '../views/Skills.vue'
 import Timeline from '../views/Timeline.vue'
+import Vision from '../views/Vision.vue'
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
+    { path: '/vision', name: 'vision', component: Vision },
     { path: '/profile', name: 'profile', component: Profile },
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },

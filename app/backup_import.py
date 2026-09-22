@@ -5,6 +5,7 @@ from sqlmodel import Session
 from app.models import (
     CareerGoal,
     CareerGoalHistory,
+    CareerVision,
     Education,
     Employment,
     EvidenceEntry,
@@ -32,14 +33,15 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
     Every record gets a freshly generated id, and foreign keys (evidence_id,
     skill_id, employment_id) are remapped from the old ids in `data` to the
     new ones, since re-running an import must never collide with existing
-    rows. CareerGoal is keyed by horizon (not id) and only fills in horizons
-    that are still empty, so importing never silently overwrites a goal the
-    user has already written.
+    rows. CareerGoal is keyed by horizon (not id) and CareerVision is a
+    singleton (id=1); both only fill in a value that's still empty, so
+    importing never silently overwrites a goal or vision the user has
+    already written.
 
     If `track` is given, the real id of every row this call creates (or, for
-    CareerGoal, the horizon it filled in) is appended under a table-name key
-    — used by the sample-data loader so a later reset can remove exactly
-    what it added, and nothing else.
+    CareerGoal, the horizon it filled in, or "1" for CareerVision) is
+    appended under a table-name key — used by the sample-data loader so a
+    later reset can remove exactly what it added, and nothing else.
     """
 
     def note(table: str, record_id: str) -> None:
@@ -185,6 +187,20 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("career_goal_history", entry.id)
         counts["career_goal_history"] += 1
+
+    counts["career_vision"] = 0
+    for row in data.get("career_vision", []):
+        existing = session.get(CareerVision, 1)
+        if existing is None:
+            session.add(CareerVision(id=1, content=row.get("content", ""), updated_at=_dt(row.get("updated_at"))))
+            note("career_vision", "1")
+            counts["career_vision"] += 1
+        elif not existing.content.strip():
+            existing.content = row.get("content", "")
+            existing.updated_at = _dt(row.get("updated_at")) or existing.updated_at
+            session.add(existing)
+            note("career_vision", "1")
+            counts["career_vision"] += 1
 
     counts["resume_exports"] = 0
     for row in data.get("resume_exports", []):

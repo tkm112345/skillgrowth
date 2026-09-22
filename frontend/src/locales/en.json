@@ -4,6 +4,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "vision": "Vision",
     "profile": "Profile",
     "skills": "Skills",
     "timeline": "Activity",
@@ -44,6 +45,13 @@
     "horizon10Years": "10 years",
     "conceptLink": "New here? See the concept behind this app",
     "aiLink": "See how to grow toward these goals (AI Integration)"
+  },
+  "vision": {
+    "title": "Vision",
+    "subtitle": "A rough, free-form sketch of the kind of career you're aiming for — no structure, no horizons, just what comes to mind.",
+    "placeholder": "What kind of career are you aiming for, broadly speaking?",
+    "saved": "Saved",
+    "updatedAt": "Last updated {date}"
   },
   "profile": {
     "title": "Profile",

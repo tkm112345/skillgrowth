@@ -93,6 +93,11 @@ erDiagram
     text description
     datetime created_at
   }
+  CareerVision {
+    int id "singleton row, id=1"
+    text content "no history — overwritten in place"
+    datetime updated_at
+  }
   ExportSnapshot {
     string id
     text content
@@ -180,21 +185,24 @@ new rows. This makes import purely additive and safe to run repeatedly:
 nothing is ever deleted or updated by id. The one exception is
 `CareerGoal`, which is keyed by `horizon` rather than `id` — import only
 fills in a horizon whose `description` is still empty, so it can never
-silently overwrite a goal the user has already written. `CareerGoalHistory`
-rows (see "Career goal history" below) are plain insert-only records like
-`SelfPR`, so every imported row is simply added. `Settings` is never part
-of the payload in either direction, so an LLM API key can't leak through a
-backup file.
+silently overwrite a goal the user has already written. `CareerVision`
+(see "Career vision" below) gets the same treatment, keyed by its fixed
+`id=1` instead of a horizon. `CareerGoalHistory` rows (see "Career goal
+history" below) are plain insert-only records like `SelfPR`, so every
+imported row is simply added. `Settings` is never part of the payload in
+either direction, so an LLM API key can't leak through a backup file.
 
 `load-sample` additionally passes a `track` dict into `import_backup`,
 which the function fills with `{table_name: [new_id, ...]}` as it creates
-each row (a horizon string for `career_goal` instead of an id, since that
-table has no id). The router persists these as `SampleDataRecord` rows.
-`POST /api/backup/reset-sample` reads all `SampleDataRecord` rows, deletes
+each row (a horizon string for `career_goal`, the literal string `"1"` for
+`career_vision`, instead of an id, since neither table has one). The
+router persists these as `SampleDataRecord` rows. `POST
+/api/backup/reset-sample` reads all `SampleDataRecord` rows, deletes
 exactly those ids from each real table (children before the rows they
 reference — see `RESET_TABLE_ORDER` in `app/routers/backup.py`), blanks
-the `description` of any tracked `CareerGoal` horizon, then deletes the
-`SampleDataRecord` rows themselves. Running `load-sample` more than once
+the `description` of any tracked `CareerGoal` horizon and the `content` of
+`CareerVision` if tracked, then deletes the `SampleDataRecord` rows
+themselves. Running `load-sample` more than once
 accumulates more tracked rows rather than overwriting the previous batch,
 so `reset-sample` always undoes everything sample data has ever added, not
 just the most recent load. The plain `POST /api/backup/import` path never
@@ -229,6 +237,18 @@ creates a duplicate entry. `GET /api/goals/history` returns every
 filters this client-side per horizon rather than the API taking a
 `horizon` query param, since there are only ever three horizons and the
 full list is small.
+
+## Career vision (no history, deliberately)
+
+`CareerVision` is a plain singleton (id=1, the same pattern `Settings`
+uses) rather than another `horizon`-keyed row on `CareerGoal`, since it's
+conceptually a different, looser kind of content — one free-form
+paragraph, not three time-boxed answers. `PUT /api/vision` overwrites
+`content` in place; unlike `CareerGoal`, there's no history table backing
+it, since nothing asked for one — if that changes, the shape would mirror
+`CareerGoalHistory` exactly. `GET /api/vision` returns a blank
+`CareerVision(id=1)` (never persisted) when no row exists yet, so the
+frontend never has to special-case "no vision set."
 
 ## AI Integration page (the only two LLM-optional features)
 
@@ -281,8 +301,8 @@ model name change.
 
 ## Frontend routing
 
-The SPA has one route per top-level concern (Concept, Dashboard, Skills,
-Activity, Profile, Resume, AI Integration, Settings), listed in
+The SPA has one route per top-level concern (Concept, Dashboard, Vision,
+Skills, Activity, Profile, Resume, AI Integration, Settings), listed in
 `frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
 used to be a separate Learning Log page — see "Activity ⨯ Learning Log
 merge" below. There's no server-side rendering; the FastAPI catch-all

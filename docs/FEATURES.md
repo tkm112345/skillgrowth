@@ -24,6 +24,18 @@ Turning these goals into LLM-backed suggestions happens on a separate
 page — see **AI Integration** below — so the Dashboard itself never calls
 an LLM.
 
+## Vision
+
+A single free-text box for a rough, unstructured sketch of the kind of
+career you're aiming for — no horizons, no required shape, just whatever
+comes to mind. Deliberately looser than the Dashboard's three career path
+goals: goals ask "what, by when," Vision doesn't ask anything. There's one
+value (a singleton, not a list), shown pre-filled with whatever was last
+saved and overwritten in place on Save — unlike career path goals, past
+versions aren't kept as history. Like career path goals, it's plain text
+with no LLM involvement (extraction or otherwise) and doesn't appear in
+the Activity feed.
+
 ## Profile
 
 - **Links** — a small list of label+URL pairs for showing your public work
@@ -142,17 +154,17 @@ than starting over.
   check), every LLM-backed endpoint returns the real failure reason as its
   error detail instead of a bare "Internal Server Error".
 - **Data backup** — download every career record (activity, skills,
-  profile, goals with their full history, links, self PR history, resume
-  export history) as a single JSON file. Deliberately excludes the LLM
-  connection settings (so an API key never ends up in a backup file).
+  profile, goals with their full history, vision, links, self PR history,
+  resume export history) as a single JSON file. Deliberately excludes the
+  LLM connection settings (so an API key never ends up in a backup file).
 - **Restore from backup** — upload a previously downloaded backup file to
   re-import its records. Always additive: it never deletes or overwrites
   existing rows, and only fills in a career goal if that horizon is still
   empty.
 - **Sample data** — one click loads a small fictional career history
-  (skills, quick updates, career goals, employment with nested projects,
-  education, reading/talk/certification entries, links, a self PR entry, a
-  resume snapshot) using the same import path as backup restore, so a
+  (skills, quick updates, career goals, a vision, employment with nested
+  projects, education, reading/talk/certification entries, links, a self
+  PR entry, a resume snapshot) using the same import path as backup restore, so a
   fresh install can be explored without wiring up an LLM or typing
   anything in first — including generating a resume, since that no longer
   needs one. A matching **reset** button removes exactly what

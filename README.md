@@ -36,6 +36,9 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional, editable with a full history of past edits), a skill growth
   timeline chart, a category breakdown chart, and a quick update box.
+- **Vision** — one free-form text box for a rough sketch of the kind of
+  career you're aiming for, with no time horizon or structure — a looser
+  complement to the Dashboard's three specific goals.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
 - **Skills** — the current skill picture derived from the activity log; also

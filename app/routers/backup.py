@@ -10,6 +10,7 @@ from app.db import get_session
 from app.models import (
     CareerGoal,
     CareerGoalHistory,
+    CareerVision,
     Education,
     Employment,
     EvidenceEntry,
@@ -55,6 +56,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "skill_links": dump(SkillLink),
         "career_goals": dump(CareerGoal),
         "career_goal_history": dump(CareerGoalHistory),
+        "career_vision": dump(CareerVision),
         "education": dump(Education),
         "employment": dump(Employment),
         "projects": dump(Project),
@@ -109,6 +111,14 @@ def reset_sample_data(session: Session = Depends(get_session)) -> dict:
             goal.description = ""
             session.add(goal)
             counts["career_goal"] += 1
+
+    counts["career_vision"] = 0
+    for _ in ids_by_table.get("career_vision", set()):
+        vision = session.get(CareerVision, 1)
+        if vision:
+            vision.content = ""
+            session.add(vision)
+            counts["career_vision"] += 1
 
     for r in records:
         session.delete(r)

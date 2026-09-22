@@ -5,3 +5,6 @@ __pycache__/
 data/*.db
 data/uploads/*
 !data/uploads/.gitkeep
+
+frontend/node_modules/
+frontend/dist/

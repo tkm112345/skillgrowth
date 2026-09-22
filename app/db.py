@@ -11,7 +11,13 @@ engine = create_engine(f"sqlite:///{DATA_DIR / 'skillgrowth.db'}")
 
 
 def init_db() -> None:
+    from app.models import Settings  # noqa: PLC0415 (avoid circular import at module load)
+
     SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        if session.get(Settings, 1) is None:
+            session.add(Settings(id=1))
+            session.commit()
 
 
 def get_session():

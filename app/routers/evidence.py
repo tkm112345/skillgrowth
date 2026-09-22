@@ -1,33 +1,32 @@
-import json
 import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-from fastapi.responses import RedirectResponse
-from sqlmodel import Session
+from pydantic import BaseModel
+from sqlmodel import Session, select
 
-from app import llm
+from app import llm, services
 from app.db import UPLOAD_DIR, get_session
-from app.models import EvidenceEntry
+from app.models import EvidenceEntry, Settings
 
-router = APIRouter(prefix="/evidence", tags=["evidence"])
+router = APIRouter(prefix="/api/evidence", tags=["evidence"])
+
+
+class TextEvidenceIn(BaseModel):
+    source_type: str
+    text: str
+
+
+@router.get("")
+def list_evidence(session: Session = Depends(get_session)) -> list[EvidenceEntry]:
+    return session.exec(select(EvidenceEntry).order_by(EvidenceEntry.created_at.desc())).all()
 
 
 @router.post("/text")
-def add_text_evidence(
-    source_type: str = Form(...),
-    text: str = Form(...),
-    session: Session = Depends(get_session),
-):
-    mentions = llm.extract_skills_from_text(text)
-    entry = EvidenceEntry(
-        source_type=source_type,
-        raw_input=text,
-        llm_extracted=json.dumps(mentions, ensure_ascii=False),
-    )
-    session.add(entry)
-    session.commit()
-    return RedirectResponse("/", status_code=303)
+def add_text_evidence(payload: TextEvidenceIn, session: Session = Depends(get_session)):
+    settings = session.get(Settings, 1)
+    entry, linked = services.record_evidence_and_extract(session, payload.source_type, payload.text, settings)
+    return {"evidence": entry, "linked_skills": linked}
 
 
 @router.post("/image")
@@ -40,13 +39,13 @@ def add_image_evidence(
     dest = UPLOAD_DIR / f"{uuid.uuid4()}{ext}"
     dest.write_bytes(file.file.read())
 
-    mentions = llm.extract_skills_from_image(str(dest))
-    entry = EvidenceEntry(
-        source_type=source_type,
-        raw_input=file.filename or "",
-        file_path=str(dest),
-        llm_extracted=json.dumps(mentions, ensure_ascii=False),
-    )
+    entry = EvidenceEntry(source_type=source_type, raw_input=file.filename or "", file_path=str(dest))
     session.add(entry)
     session.commit()
-    return RedirectResponse("/", status_code=303)
+    session.refresh(entry)
+
+    settings = session.get(Settings, 1)
+    matches = llm.extract_and_match_image(str(dest), services.existing_skills_payload(session), settings)
+    linked = services.apply_matches(session, entry.id, matches)
+
+    return {"evidence": entry, "linked_skills": linked}

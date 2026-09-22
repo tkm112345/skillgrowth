@@ -1,0 +1,81 @@
+:root {
+  --page-bg: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink-primary: #0b0b0b;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --border: rgba(11, 11, 11, 0.08);
+  --accent: #2a78d6;
+  --hover-wash: rgba(11, 11, 11, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0d0d0d;
+    --surface: #1a1a19;
+    --ink-primary: #ffffff;
+    --ink-secondary: #c3c2b7;
+    --ink-muted: #898781;
+    --border: rgba(255, 255, 255, 0.08);
+    --accent: #3987e5;
+    --hover-wash: rgba(255, 255, 255, 0.06);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--page-bg);
+  color: var(--ink-primary);
+  font-size: 13px;
+}
+
+.page-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle {
+  color: var(--ink-secondary);
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* ---- Minimal / flat Element Plus theme ---- */
+:root {
+  --el-color-primary: var(--accent);
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-font-size-base: 13px;
+  --el-font-size-small: 12px;
+  --el-bg-color: var(--surface);
+  --el-bg-color-page: var(--page-bg);
+  --el-bg-color-overlay: var(--surface);
+  --el-border-color: var(--border);
+  --el-border-color-light: var(--border);
+  --el-border-color-lighter: var(--border);
+  --el-text-color-primary: var(--ink-primary);
+  --el-text-color-regular: var(--ink-secondary);
+  --el-text-color-secondary: var(--ink-muted);
+  --el-text-color-placeholder: var(--ink-muted);
+  --el-fill-color-blank: var(--surface);
+  --el-box-shadow: 0 1px 2px rgba(11, 11, 11, 0.06);
+  --el-box-shadow-light: 0 1px 2px rgba(11, 11, 11, 0.06);
+  --el-box-shadow-dark: 0 2px 8px rgba(11, 11, 11, 0.1);
+  --el-menu-hover-bg-color: var(--hover-wash);
+}
+
+.el-card {
+  border-radius: 10px !important;
+}
+
+.el-button {
+  border-radius: 7px !important;
+  font-weight: 500;
+}

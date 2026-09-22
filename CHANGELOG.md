@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-22
+
 ### Added
 - A "Why" section on both the Concept page and README.md explaining the
   problem skillgrowth actually solves: career history usually ends up on
@@ -135,6 +137,7 @@ your career.
   backup and restore, one-click sample data.
 - English/Japanese UI.
 
-[Unreleased]: https://github.com/tkm112345/skillgrowth/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/tkm112345/skillgrowth/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/tkm112345/skillgrowth/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/tkm112345/skillgrowth/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tkm112345/skillgrowth/releases/tag/v0.1.0

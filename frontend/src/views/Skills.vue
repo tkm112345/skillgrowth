@@ -11,6 +11,7 @@ const skills = ref([])
 const loading = ref(true)
 const dialog = ref(false)
 const form = reactive({ name: '', category: '' })
+const editingSkillId = ref(null)
 const csvDialog = ref(false)
 const csvFile = ref(null)
 const importingCsv = ref(false)
@@ -33,13 +34,29 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
 }
 
+function openAddDialog() {
+  editingSkillId.value = null
+  Object.assign(form, { name: '', category: '' })
+  dialog.value = true
+}
+
+function openEditDialog(row) {
+  editingSkillId.value = row.id
+  Object.assign(form, { name: row.name, category: row.category })
+  dialog.value = true
+}
+
 async function submit() {
   if (!form.name.trim()) return
-  await api.addSkill(form.name, form.category)
-  Object.assign(form, { name: '', category: '' })
+  if (editingSkillId.value) {
+    await api.updateSkill(editingSkillId.value, form.name, form.category)
+    ElMessage.success(t('skills.updated'))
+  } else {
+    await api.addSkill(form.name, form.category)
+    ElMessage.success(t('skills.added'))
+  }
   dialog.value = false
   await reload()
-  ElMessage.success(t('skills.added'))
 }
 
 async function remove(id) {
@@ -75,7 +92,7 @@ async function submitCsvImport() {
     </div>
     <div class="header-actions">
       <el-button @click="csvDialog = true">{{ t('skills.importCsv') }}</el-button>
-      <el-button type="primary" @click="dialog = true">{{ t('skills.add') }}</el-button>
+      <el-button type="primary" @click="openAddDialog">{{ t('skills.add') }}</el-button>
     </div>
   </div>
 
@@ -93,8 +110,9 @@ async function submitCsvImport() {
     <el-table-column :label="t('skills.columnLastSeen')" width="120">
       <template #default="{ row }">{{ formatDate(row.last_observed_at) }}</template>
     </el-table-column>
-    <el-table-column width="80">
+    <el-table-column width="140">
       <template #default="{ row }">
+        <el-button size="small" text @click="openEditDialog(row)">{{ t('common.edit') }}</el-button>
         <el-button size="small" text type="danger" @click="remove(row.id)">{{ t('common.delete') }}</el-button>
       </template>
     </el-table-column>
@@ -102,7 +120,7 @@ async function submitCsvImport() {
 
   <el-empty v-if="!loading && skills.length === 0" :description="t('skills.noEntries')" />
 
-  <el-dialog v-model="dialog" :title="t('skills.add')" width="420px">
+  <el-dialog v-model="dialog" :title="editingSkillId ? t('skills.edit') : t('skills.add')" width="420px">
     <el-form :model="form" label-width="80px">
       <el-form-item :label="t('skills.columnSkill')">
         <el-input v-model="form.name" :placeholder="t('skills.namePlaceholder')" />
@@ -111,7 +129,9 @@ async function submitCsvImport() {
         <el-input v-model="form.category" :placeholder="t('skills.categoryPlaceholder')" />
       </el-form-item>
     </el-form>
-    <template #footer><el-button type="primary" @click="submit">{{ t('common.add') }}</el-button></template>
+    <template #footer>
+      <el-button type="primary" @click="submit">{{ editingSkillId ? t('common.save') : t('common.add') }}</el-button>
+    </template>
   </el-dialog>
 
   <el-dialog v-model="csvDialog" :title="t('skills.importCsv')" width="480px">

@@ -42,17 +42,19 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   complement to the Dashboard's three specific goals.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
-- **Skills** — the current skill picture derived from the activity log; also
-  supports adding a skill directly by name, or importing a batch from a
-  `name,category` CSV file — deliberately not resume parsing, since a
-  personal resume's layout is too format-dependent for reliable extraction.
+- **Skills** — the current skill picture derived from the activity log;
+  supports adding a skill directly by name, editing a skill's name/category
+  in place, or importing a batch from a `name,category` CSV file —
+  deliberately not resume parsing, since a personal resume's layout is too
+  format-dependent for reliable extraction.
 - **Activity** — add a reading/talk/certification entry (with optional
   certificate image upload for OCR extraction) and browse a chronological
   feed of everything that's been added, in one page.
 - **Resume** — a Self PR field (kept as paginated history, most recent
   used) plus a resume generator that fills a fixed Markdown template from
   your current data — **no LLM involved**, rendered and downloadable, with
-  past generations kept as browsable snapshots.
+  past generations kept as browsable snapshots, any of which can be edited
+  directly as Markdown afterward.
 - **AI Integration** — the only two features that call an LLM on demand:
   growth guidance toward each Dashboard goal, and a job-posting gap check
   (paste a job description to see which of its requirements you already
@@ -60,7 +62,10 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Settings** — language, theme (light/dark/system) and an accent color,
   the LLM connection (base URL / API key / model, with a test button), a
   full data backup download, restoring from a backup file, and an About
-  panel with the app version, license, and a link to file issues.
+  panel with the app version and license.
+- A **Contribute** button lives in the sidebar on every page (above the
+  copyright line) — skillgrowth is MIT-licensed and issues/PRs are
+  genuinely welcome.
 
 ## Design choices
 

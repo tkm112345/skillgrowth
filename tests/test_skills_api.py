@@ -17,6 +17,32 @@ def test_add_skill_is_case_insensitive_dedup(client):
     assert len(resp.json()) == 1
 
 
+def test_update_skill_changes_name_and_category(client):
+    created = client.post("/api/skills", json={"name": "Python", "category": "技術"}).json()
+
+    resp = client.put(f"/api/skills/{created['id']}", json={"name": "Python3", "category": "言語"})
+    assert resp.status_code == 200
+    assert resp.json()["name"] == "Python3"
+    assert resp.json()["category"] == "言語"
+
+    resp = client.get("/api/skills")
+    assert resp.json()[0]["name"] == "Python3"
+    assert resp.json()[0]["category"] == "言語"
+
+
+def test_update_skill_rejects_name_colliding_with_another_skill(client):
+    client.post("/api/skills", json={"name": "Python", "category": "技術"})
+    other = client.post("/api/skills", json={"name": "Go", "category": "技術"}).json()
+
+    resp = client.put(f"/api/skills/{other['id']}", json={"name": "python", "category": "技術"})
+    assert resp.status_code == 400
+
+
+def test_update_skill_missing_id_returns_404(client):
+    resp = client.put("/api/skills/does-not-exist", json={"name": "X", "category": "Y"})
+    assert resp.status_code == 404
+
+
 def test_delete_skill(client):
     created = client.post("/api/skills", json={"name": "Python", "category": "技術"}).json()
 

@@ -118,6 +118,29 @@ erDiagram
   }
 ```
 
+## Schema changes with no migration tool
+
+There's no Alembic (or any other migration framework) — `app/db.py::init_db()`
+calls `SQLModel.metadata.create_all(engine)`, which only creates tables that
+don't exist yet. It never alters a table that's already on disk. A brand
+new install always gets the full current schema for free; a self-hosted
+instance with real data in `data/skillgrowth.db` does not — a column added
+to a model shows up in every *new* row's INSERT statement the moment the
+code deploys, but the on-disk table still lacks it, so the very next write
+crashes with `no such column`.
+
+This actually happened when `ExportSnapshot.edited_at` was added (to
+support editing a past resume snapshot): fresh installs were fine, but any
+instance that had already generated a resume crashed the next time it
+tried to. The fix is `app/db.py::_ensure_column(engine, table, column,
+ddl_type)` — checked via `PRAGMA table_info`, and only runs `ALTER TABLE
+... ADD COLUMN` if the column is actually missing, so it's a no-op on a
+fresh install and a real fix on an upgraded one. `init_db()` calls it once
+per column that's been added after its table already shipped. **Any new
+nullable column on an existing table needs a matching `_ensure_column`
+call here** — a new table doesn't (`create_all()` handles that case
+correctly on its own).
+
 ## Evidence → skill extraction flow
 
 Every entry point that accepts free text (the Dashboard's quick update box,
@@ -163,6 +186,15 @@ this pipeline entirely — both write `Skill` rows directly (through the same
 free text to extract from. Resume parsing was deliberately not built: a
 personal resume's layout varies too much for reliable LLM extraction, so
 structured skill import goes through CSV instead.
+
+`PUT /api/skills/{id}` edits an existing `Skill`'s `name`/`category` in
+place (404 if the id doesn't exist) — for fixing an LLM extraction mistake
+without losing the skill's accumulated `SkillLink`s, first/last-observed
+dates, or evidence count, which a delete-and-re-add would reset. It runs
+the same case-insensitive collision check as `_upsert_skill`, but rejects
+(400) rather than merges if the new name matches a *different* existing
+skill, since silently merging two skills' evidence together is a bigger
+decision than a simple rename and isn't something this endpoint does.
 
 `ExternalLink` (GitHub, X, note, Zenn, a personal blog, ...) is a plain
 label+URL list with no evidence/LLM involvement — it's just a fact, not
@@ -300,6 +332,20 @@ row directly rather than reusing a paginated page — so the "Self PR"
 section is always current regardless of what the frontend happens to have
 loaded, and past drafts stay in history without cluttering the generated
 resume.
+
+`ExportSnapshot`, unlike `EvidenceEntry`/`SelfPR`/`CareerGoalHistory`, is
+*not* append-only — `PUT /api/export/{id}` edits `content` in place and
+stamps `edited_at`, 404ing if the id doesn't exist. This is a deliberate
+exception to the "never overwrite" pattern used everywhere else: a resume
+snapshot is closer to a document you own and might want to hand-polish
+(fix a phrase the template got slightly wrong, tailor one copy for a
+specific application) than it is to a historical record you'd want to
+keep every draft of, so in-place editing is the right shape here, not
+another history table. `edited_at` (nullable) exists to tell the two
+cases apart in the UI — a snapshot with `edited_at` set shows both when
+it was generated and when it was last hand-edited. Since `ExportSnapshot`
+already existed before this field was added, adding it required the
+`_ensure_column` migration step described above.
 
 ## LLM configuration
 

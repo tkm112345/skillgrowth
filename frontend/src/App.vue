@@ -8,6 +8,7 @@ import {
   List,
   MagicStick,
   Notebook,
+  Promotion,
   Setting,
   Sunrise,
   TrendCharts,
@@ -18,6 +19,8 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const { t } = useI18n()
+
+const contributeVisible = ref(false)
 
 const collapsed = ref(localStorage.getItem('skillgrowth-sidebar-collapsed') === '1')
 function toggleCollapsed() {
@@ -82,6 +85,12 @@ onMounted(async () => {
           <template #title>{{ t('nav.settings') }}</template>
         </el-menu-item>
       </el-menu>
+      <div class="contribute-wrap">
+        <el-button class="contribute-btn" :class="{ 'contribute-btn-collapsed': collapsed }" @click="contributeVisible = true">
+          <el-icon><Promotion /></el-icon>
+          <span v-if="!collapsed">{{ t('contribute.button') }}</span>
+        </el-button>
+      </div>
       <div class="sidebar-footer">
         <span v-if="!collapsed">© {{ year }} {{ t('app.brand') }}<span v-if="version"> · v{{ version }}</span></span>
         <span v-else>©</span>
@@ -96,6 +105,29 @@ onMounted(async () => {
       </el-main>
     </el-container>
   </el-container>
+
+  <el-dialog v-model="contributeVisible" :title="t('contribute.title')" width="420px">
+    <p class="contribute-line">{{ t('contribute.body') }}</p>
+    <a
+      class="contribute-link"
+      href="https://github.com/tkm112345/skillgrowth"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ t('contribute.githubLink') }} ↗
+    </a>
+    <a
+      class="contribute-link"
+      href="https://github.com/tkm112345/skillgrowth/issues"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ t('contribute.issueLink') }} ↗
+    </a>
+    <template #footer>
+      <el-button @click="contributeVisible = false">{{ t('common.close') }}</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -171,6 +203,47 @@ onMounted(async () => {
   color: var(--ink-muted);
   white-space: nowrap;
   border-top: 1px solid var(--el-border-color);
+}
+
+.contribute-wrap {
+  padding: 0 12px 8px;
+}
+
+.contribute-btn {
+  width: 100%;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.contribute-btn:hover {
+  filter: brightness(1.08);
+}
+
+.contribute-btn-collapsed {
+  width: 36px;
+  padding: 0;
+}
+
+.contribute-line {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+}
+
+.contribute-link {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contribute-link:hover {
+  text-decoration: underline;
 }
 
 .topbar {

@@ -247,15 +247,6 @@ async function resetSample() {
       <span v-if="version"> · v{{ version }}</span>
     </p>
     <p class="about-line">{{ t('settings.aboutLicense') }}</p>
-    <p class="about-line">{{ t('settings.aboutFeedback') }}</p>
-    <a
-      class="about-link"
-      href="https://github.com/tkm112345/skillgrowth/issues"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {{ t('settings.aboutGithubLink') }} ↗
-    </a>
     <template #footer>
       <el-button @click="aboutVisible = false">{{ t('common.close') }}</el-button>
     </template>
@@ -321,19 +312,6 @@ async function resetSample() {
   margin: 0 0 0.5rem;
   font-size: 0.85rem;
   color: var(--ink-secondary);
-}
-
-.about-link {
-  display: inline-block;
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.about-link:hover {
-  text-decoration: underline;
 }
 
 .backup-hint {

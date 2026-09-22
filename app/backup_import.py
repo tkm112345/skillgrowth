@@ -204,7 +204,11 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     counts["resume_exports"] = 0
     for row in data.get("resume_exports", []):
-        snapshot = ExportSnapshot(content=row["content"], generated_at=_dt(row.get("generated_at")))
+        snapshot = ExportSnapshot(
+            content=row["content"],
+            generated_at=_dt(row.get("generated_at")),
+            edited_at=_dt(row.get("edited_at")),
+        )
         session.add(snapshot)
         session.flush()
         note("resume_export", snapshot.id)

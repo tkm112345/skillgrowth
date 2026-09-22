@@ -31,6 +31,8 @@ export const api = {
   getSkills: () => request('/skills'),
   addSkill: (name, category) =>
     request('/skills', { method: 'POST', body: JSON.stringify({ name, category }) }),
+  updateSkill: (id, name, category) =>
+    request(`/skills/${id}`, { method: 'PUT', body: JSON.stringify({ name, category }) }),
   deleteSkill: (id) => request(`/skills/${id}`, { method: 'DELETE' }),
   importSkillsCsv: (file) => {
     const form = new FormData()
@@ -55,6 +57,8 @@ export const api = {
 
   getExports: (limit = 20, offset = 0) => request(`/export?limit=${limit}&offset=${offset}`),
   generateExport: () => request('/export', { method: 'POST' }),
+  updateExport: (id, content) =>
+    request(`/export/${id}`, { method: 'PUT', body: JSON.stringify({ content }) }),
 
   getSelfPRs: (limit = 20, offset = 0) => request(`/self-pr?limit=${limit}&offset=${offset}`),
   addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),

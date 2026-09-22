@@ -15,6 +15,7 @@
   },
   "common": {
     "add": "追加",
+    "edit": "編集",
     "delete": "削除",
     "cancel": "キャンセル",
     "save": "保存",
@@ -122,6 +123,8 @@
     "noEntries": "まだスキルが登録されていません",
     "add": "スキルを追加",
     "added": "スキルを追加しました",
+    "edit": "スキルを編集",
+    "updated": "スキルを更新しました",
     "namePlaceholder": "例: Python",
     "categoryPlaceholder": "例: 技術",
     "confirmDelete": "このスキルを削除しますか？（紐づくアクティビティは残ります）",
@@ -154,6 +157,8 @@
     "noEntries": "まだエクスポートがありません",
     "loadMore": "もっと見る",
     "download": "ダウンロード",
+    "editSaved": "職務経歴書を更新しました",
+    "editedAt": "（{date}に編集）",
     "selfPrHeader": "自己PR",
     "selfPrHint": "生成される職務経歴書の冒頭に含まれる、自分自身の短いアピール文です。入力した内容はすべて履歴として残り、生成時には最新のものが使われます。",
     "selfPrPlaceholder": "採用担当者に知ってほしいこと",
@@ -236,8 +241,13 @@
     "confirmResetSample": "これまでに読み込んだサンプルデータをすべて削除しますか？自分で追加したデータには影響しません。",
     "aboutHeader": "アプリについて",
     "aboutOpen": "アプリについて表示",
-    "aboutLicense": "ライセンス: MIT",
-    "aboutFeedback": "不具合の報告や、こんな機能が欲しいというアイデアがあれば、ぜひissueを立ててください。要望をお待ちしています。",
-    "aboutGithubLink": "GitHubでissueを開く"
+    "aboutLicense": "ライセンス: MIT"
+  },
+  "contribute": {
+    "button": "CONTRIBUTE",
+    "title": "コントリビュート",
+    "body": "skillgrowthはオープンソース（MITライセンス）です。不具合を見つけた、アイデアがある、自分で改善してみたい——issueもPull Requestも大歓迎です。",
+    "githubLink": "GitHubでリポジトリを開く",
+    "issueLink": "issueを立てる"
   }
 }

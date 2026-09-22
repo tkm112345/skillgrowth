@@ -65,8 +65,13 @@ goes through the CSV import on the Skills page.
   but haven't produced activity for yet.
 - **Import CSV** — bulk-add skills from a `name,category` CSV file
   (`category` column optional).
-- Both paths are deduplicated case-insensitively against existing skills,
-  and skills can also be deleted (the activity that mentioned them is kept).
+- Both paths are deduplicated case-insensitively against existing skills.
+- **Edit** a skill's name or category directly — useful for fixing an
+  LLM extraction mistake (a typo, a category you'd rather it sat under)
+  without deleting and re-adding it. Renaming to a name that collides
+  with a different existing skill (case-insensitively) is rejected rather
+  than silently merging the two.
+- Skills can also be **deleted** (the activity that mentioned them is kept).
 
 ## Activity
 
@@ -108,6 +113,12 @@ Log page, and a read-only feed that already showed the same entries):
   `.md` file. Every generation is kept as a snapshot, so past exports
   remain browsable (20 at a time, with a "Load more" button). Sections with
   no data are simply omitted.
+- **Edit a snapshot** — any past resume, not just the latest, can be edited
+  directly as raw Markdown (an "Edit" toggle switches the rendered view to
+  a textarea) and saved back in place. Useful for polishing wording the
+  template can't get exactly right, or tailoring one snapshot for a
+  specific application without generating a fresh one. An edited snapshot
+  shows both when it was generated and when it was last edited.
 
 ## AI Integration
 
@@ -174,9 +185,10 @@ than starting over.
   times you've run it) — anything you've entered yourself is left alone.
   Only the AI Integration page's two features still need a working LLM
   connection.
-- **About this app** — opens a dialog with the app name and version
-  (read from `/api/version`), the license, and a link to open a GitHub
-  issue for bugs or feature requests.
+- **About this app** — opens a dialog with the app name, version (read
+  from `/api/version`), and the license. Filing issues/PRs moved to the
+  sidebar's Contribute button (see Cross-cutting below) so it's visible
+  from every page, not just Settings.
 
 ## Cross-cutting
 
@@ -189,3 +201,8 @@ than starting over.
 - **Version** — shown in the sidebar footer, read from the backend's
   `/api/version` (itself read from the repo's `VERSION` file), so it can
   never drift from what's actually deployed.
+- **Contribute** — a prominent button sits just above the copyright line in
+  the sidebar on every page, opening a dialog that links to the GitHub repo
+  and points directly at filing an issue. skillgrowth is MIT-licensed and
+  the intent is for this to be genuinely easy to find, not buried in
+  Settings.

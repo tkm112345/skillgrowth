@@ -2,7 +2,7 @@ import csv
 import io
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlmodel import Session, func, select
 
@@ -76,6 +76,28 @@ def list_skills(session: Session = Depends(get_session)):
 @router.post("")
 def add_skill(payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
     return _upsert_skill(session, payload.name, payload.category)
+
+
+@router.put("/{skill_id}")
+def update_skill(skill_id: str, payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
+    skill = session.get(Skill, skill_id)
+    if skill is None:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Skill name cannot be empty")
+
+    duplicate = session.exec(select(Skill).where(func.lower(Skill.name) == name.lower())).first()
+    if duplicate and duplicate.id != skill_id:
+        raise HTTPException(status_code=400, detail="Another skill with this name already exists")
+
+    skill.name = name
+    skill.category = payload.category.strip() or "未分類"
+    session.add(skill)
+    session.commit()
+    session.refresh(skill)
+    return skill
 
 
 @router.post("/import-csv")

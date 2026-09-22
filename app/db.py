@@ -10,10 +10,24 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 engine = create_engine(f"sqlite:///{DATA_DIR / 'skillgrowth.db'}")
 
 
+def _ensure_column(target_engine, table: str, column: str, ddl_type: str) -> None:
+    # SQLModel.metadata.create_all() only creates missing tables — it never
+    # alters an existing table's schema. This app has no Alembic (or other
+    # migration tool), so a column added to a model after the table already
+    # exists on disk needs to be backfilled by hand, or every existing
+    # install crashes the first time that column is written to.
+    with target_engine.connect() as conn:
+        existing = {row[1] for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")}
+        if column not in existing:
+            conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}")
+            conn.commit()
+
+
 def init_db() -> None:
     from app.models import Settings  # noqa: PLC0415 (avoid circular import at module load)
 
     SQLModel.metadata.create_all(engine)
+    _ensure_column(engine, "exportsnapshot", "edited_at", "TIMESTAMP")
     with Session(engine) as session:
         if session.get(Settings, 1) is None:
             session.add(Settings(id=1))

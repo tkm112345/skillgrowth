@@ -24,6 +24,10 @@ const hasMoreSelfPR = ref(false)
 const newSelfPR = ref('')
 const submittingSelfPR = ref(false)
 
+const editingExportId = ref(null)
+const draftContent = ref('')
+const savingExport = ref(false)
+
 onMounted(async () => {
   try {
     const [page, prs] = await Promise.all([
@@ -83,6 +87,28 @@ async function generate() {
 
 function renderMarkdown(content) {
   return DOMPurify.sanitize(marked.parse(content || ''))
+}
+
+function startEditExport(snap) {
+  editingExportId.value = snap.id
+  draftContent.value = snap.content
+}
+
+function cancelEditExport() {
+  editingExportId.value = null
+}
+
+async function saveExport(snap) {
+  savingExport.value = true
+  try {
+    const updated = await api.updateExport(snap.id, draftContent.value)
+    snap.content = updated.content
+    snap.edited_at = updated.edited_at
+    editingExportId.value = null
+    ElMessage.success(t('export.editSaved'))
+  } finally {
+    savingExport.value = false
+  }
 }
 
 function download(snap) {
@@ -160,11 +186,34 @@ async function removeSelfPR(id) {
     <el-card v-for="snap in exports" :key="snap.id" shadow="never" class="export-card">
       <template #header>
         <div class="export-header">
-          <span>{{ formatDateTime(snap.generated_at) }}</span>
-          <el-button size="small" text @click="download(snap)">{{ t('export.download') }}</el-button>
+          <span>
+            {{ formatDateTime(snap.generated_at) }}
+            <span v-if="snap.edited_at" class="export-edited-badge">
+              {{ t('export.editedAt', { date: formatDateTime(snap.edited_at) }) }}
+            </span>
+          </span>
+          <div class="export-header-actions">
+            <template v-if="editingExportId === snap.id">
+              <el-button size="small" text @click="cancelEditExport">{{ t('common.cancel') }}</el-button>
+              <el-button size="small" text type="primary" :loading="savingExport" @click="saveExport(snap)">
+                {{ t('common.save') }}
+              </el-button>
+            </template>
+            <template v-else>
+              <el-button size="small" text @click="startEditExport(snap)">{{ t('common.edit') }}</el-button>
+              <el-button size="small" text @click="download(snap)">{{ t('export.download') }}</el-button>
+            </template>
+          </div>
         </div>
       </template>
-      <div class="rendered-resume" v-html="renderMarkdown(snap.content)"></div>
+      <el-input
+        v-if="editingExportId === snap.id"
+        v-model="draftContent"
+        type="textarea"
+        :rows="12"
+        class="export-edit-textarea"
+      />
+      <div v-else class="rendered-resume" v-html="renderMarkdown(snap.content)"></div>
     </el-card>
   </div>
 
@@ -185,6 +234,23 @@ async function removeSelfPR(id) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+}
+
+.export-header-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.export-edited-badge {
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.export-edit-textarea :deep(textarea) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
 }
 
 .load-more-btn {

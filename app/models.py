@@ -34,6 +34,7 @@ class ExportSnapshot(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     content: str
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    edited_at: Optional[datetime] = None
 
 
 class Settings(SQLModel, table=True):

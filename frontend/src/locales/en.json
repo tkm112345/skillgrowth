@@ -15,6 +15,7 @@
   },
   "common": {
     "add": "Add",
+    "edit": "Edit",
     "delete": "Delete",
     "cancel": "Cancel",
     "save": "Save",
@@ -122,6 +123,8 @@
     "noEntries": "No skills recorded yet",
     "add": "Add skill",
     "added": "Skill added",
+    "edit": "Edit skill",
+    "updated": "Skill updated",
     "namePlaceholder": "e.g. Python",
     "categoryPlaceholder": "e.g. Technical",
     "confirmDelete": "Delete this skill? (linked evidence is kept)",
@@ -154,6 +157,8 @@
     "noEntries": "No exports yet",
     "loadMore": "Load more",
     "download": "Download",
+    "editSaved": "Resume updated",
+    "editedAt": "(edited {date})",
     "selfPrHeader": "Self PR",
     "selfPrHint": "A short pitch for yourself, included at the top of the generated resume. Each entry is kept — the most recent one is used.",
     "selfPrPlaceholder": "What do you want a hiring manager to know about you?",
@@ -236,8 +241,13 @@
     "confirmResetSample": "Remove everything that sample data loaded (in any load so far)? Anything you've added yourself is left untouched.",
     "aboutHeader": "About this app",
     "aboutOpen": "About",
-    "aboutLicense": "License: MIT",
-    "aboutFeedback": "Found a bug, or have an idea for a feature? Please open an issue — feedback is very welcome.",
-    "aboutGithubLink": "Open an issue on GitHub"
+    "aboutLicense": "License: MIT"
+  },
+  "contribute": {
+    "button": "CONTRIBUTE",
+    "title": "Contribute",
+    "body": "skillgrowth is open source (MIT). Found a bug, have an idea, or want to improve something yourself? Issues and pull requests are both very welcome.",
+    "githubLink": "Open the repo on GitHub",
+    "issueLink": "Open an issue"
   }
 }

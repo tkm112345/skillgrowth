@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>skillgrowth</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>skillgrowth</h1>
+    <p>証拠を積み重ねると、あなたのスキル像と職務経歴書が育っていきます。</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>証拠を追加する</h2>
+
+      <form action="/evidence/text" method="post" class="card">
+        <h3>職務経歴書 / チェックイン（テキスト）</h3>
+        <label>種類
+          <select name="source_type">
+            <option value="resume">職務経歴書</option>
+            <option value="checkin">定期チェックイン</option>
+          </select>
+        </label>
+        <textarea name="text" rows="5" placeholder="経験・スキル・最近やったことを自由に記述してください" required></textarea>
+        <button type="submit">追加してスキルを抽出</button>
+      </form>
+
+      <form action="/evidence/image" method="post" enctype="multipart/form-data" class="card">
+        <h3>資格・修了証（画像）</h3>
+        <input type="hidden" name="source_type" value="certification">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">アップロードしてスキルを抽出</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>職務経歴書エクスポート</h2>
+      <form action="/export" method="post">
+        <button type="submit">現在の証拠から職務経歴書を生成</button>
+      </form>
+      {% if latest_export %}
+        <details class="card">
+          <summary>最新のエクスポート（{{ latest_export.generated_at }}）</summary>
+          <pre>{{ latest_export.content }}</pre>
+        </details>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>証拠ログ（成長タイムライン）</h2>
+      {% if not entries %}
+        <p>まだ証拠がありません。</p>
+      {% endif %}
+      <ul class="timeline">
+        {% for e in entries %}
+          <li class="card">
+            <div class="meta">{{ e.created_at }} · {{ e.source_type }}</div>
+            {% if e.mentions %}
+              <ul>
+                {% for m in e.mentions %}
+                  <li>{{ m }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">抽出結果なし</p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

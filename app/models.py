@@ -97,3 +97,14 @@ class LearningActivity(SQLModel, table=True):
     activity_date: Optional[date] = None
     notes: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+
+
+class SampleDataRecord(SQLModel, table=True):
+    """Tracks exactly which rows a `load-sample` call created, so
+    `reset-sample` can remove precisely those rows (and only those) even if
+    load-sample has been run more than once or the user has since added
+    their own real data alongside it."""
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    table_name: str
+    record_id: str  # the row's real id, or a CareerGoal horizon

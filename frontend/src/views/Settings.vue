@@ -19,6 +19,7 @@ const downloadingBackup = ref(false)
 const importing = ref(false)
 const importFile = ref(null)
 const loadingSample = ref(false)
+const resettingSample = ref(false)
 const testing = ref(false)
 const testResult = ref(null)
 
@@ -112,6 +113,19 @@ async function loadSample() {
     loadingSample.value = false
   }
 }
+
+async function resetSample() {
+  await ElMessageBox.confirm(t('settings.confirmResetSample'), t('profile.confirm'))
+  resettingSample.value = true
+  try {
+    await api.resetSampleData()
+    ElMessage.success(t('settings.sampleResetSuccess'))
+  } catch (e) {
+    ElMessage.error(t('settings.importError', { error: e.message }))
+  } finally {
+    resettingSample.value = false
+  }
+}
 </script>
 
 <template>
@@ -164,7 +178,12 @@ async function loadSample() {
   <el-card shadow="never" class="backup-card">
     <template #header>{{ t('settings.sampleHeader') }}</template>
     <p class="backup-hint">{{ t('settings.sampleHint') }}</p>
-    <el-button :loading="loadingSample" @click="loadSample">{{ t('settings.sampleLoad') }}</el-button>
+    <div class="form-actions">
+      <el-button :loading="loadingSample" @click="loadSample">{{ t('settings.sampleLoad') }}</el-button>
+      <el-button :loading="resettingSample" type="danger" plain @click="resetSample">
+        {{ t('settings.sampleReset') }}
+      </el-button>
+    </div>
   </el-card>
 </template>
 

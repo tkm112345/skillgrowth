@@ -104,7 +104,10 @@ picture rather than starting over.
 - **Test connection** — sends a minimal request with the values currently
   in the form (not necessarily saved yet) and reports success or the exact
   error, so a typo in the API key or base URL is caught immediately instead
-  of surfacing later as a failure somewhere else in the app.
+  of surfacing later as a failure somewhere else in the app. And if it does
+  surface elsewhere (a check-in, a resume generation, a gap check), every
+  LLM-backed endpoint returns the real failure reason as its error detail
+  instead of a bare "Internal Server Error".
 - **Data backup** — download every career record (evidence, skills,
   profile, goals, learning log, links, resume export history) as a single
   JSON file. Deliberately excludes the LLM connection settings (so an API
@@ -114,10 +117,15 @@ picture rather than starting over.
   existing rows, and only fills in a career goal if that horizon is still
   empty.
 - **Sample data** — one click loads a small fictional career history
-  (skills, employment with nested projects, education, learning log,
-  links, a resume snapshot) using the same import path as backup restore,
-  so a fresh install can be explored without wiring up an LLM or typing
-  anything in first.
+  (skills, quick updates, career goals, employment with nested projects,
+  education, learning log, links, a resume snapshot) using the same import
+  path as backup restore, so a fresh install can be explored without
+  wiring up an LLM or typing anything in first. A matching **reset**
+  button removes exactly what sample-loading added (tracked by id across
+  every load, however many times you've run it) — anything you've entered
+  yourself is left alone. Generating a resume or running the job-gap/growth
+  checks still needs a working LLM connection, since sample data only
+  seeds the database, not the LLM-backed features.
 
 ## Cross-cutting
 

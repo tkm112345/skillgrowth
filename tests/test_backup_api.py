@@ -137,10 +137,47 @@ def test_load_sample_data_populates_expected_counts(client):
     resp = client.post("/api/backup/load-sample")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["evidence"] == 14
-    assert body["skills"] == 15
+    assert body["evidence"] == 16
+    assert body["skills"] == 17
     assert body["employment"] == 2
+    assert body["career_goals"] == 3
     assert body["projects"] == 4
 
     skills = client.get("/api/skills").json()
     assert any(s["name"] == "Python" for s in skills)
+
+
+def test_reset_sample_removes_only_sample_rows(client):
+    client.post("/api/skills", json={"name": "MyRealSkill", "category": "技術"})
+    client.post("/api/backup/load-sample")
+
+    resp = client.post("/api/backup/reset-sample")
+    assert resp.status_code == 200
+
+    skills = client.get("/api/skills").json()
+    assert [s["name"] for s in skills] == ["MyRealSkill"]
+    assert client.get("/api/evidence").json() == []
+    assert client.get("/api/profile/employment").json() == []
+
+    goals = {g["horizon"]: g["description"] for g in client.get("/api/goals").json()}
+    assert all(desc == "" for desc in goals.values())
+
+
+def test_reset_sample_does_not_touch_goal_user_already_wrote(client):
+    client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "自分の目標"})
+    client.post("/api/backup/load-sample")
+
+    client.post("/api/backup/reset-sample")
+
+    goals = {g["horizon"]: g["description"] for g in client.get("/api/goals").json()}
+    assert goals["this_year"] == "自分の目標"  # this_year was never filled by sample, so untouched
+    assert goals["5_years"] == ""
+
+
+def test_reset_sample_is_idempotent(client):
+    client.post("/api/backup/load-sample")
+    client.post("/api/backup/reset-sample")
+
+    resp = client.post("/api/backup/reset-sample")
+    assert resp.status_code == 200
+    assert client.get("/api/skills").json() == []

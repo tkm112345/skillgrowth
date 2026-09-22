@@ -198,6 +198,9 @@
     "sampleHeader": "Try it with sample data",
     "sampleHint": "Load a small fictional career history (skills, employment, projects, learning log) so you can see what a populated app looks like. Adds records — safe to run on an empty install, but will mix in with any real data you've already added.",
     "sampleLoad": "Load sample data",
-    "confirmLoadSample": "Load the bundled sample data into your app now?"
+    "confirmLoadSample": "Load the bundled sample data into your app now?",
+    "sampleReset": "Reset sample data",
+    "sampleResetSuccess": "Sample data removed.",
+    "confirmResetSample": "Remove everything that sample data loaded (in any load so far)? Anything you've added yourself is left untouched."
   }
 }

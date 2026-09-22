@@ -24,7 +24,7 @@ def _d(value: str | None) -> date | None:
     return date.fromisoformat(value) if value else None
 
 
-def import_backup(session: Session, data: dict) -> dict:
+def import_backup(session: Session, data: dict, track: dict[str, list[str]] | None = None) -> dict:
     """Restore (or seed) records from a backup-shaped dict.
 
     Every record gets a freshly generated id, and foreign keys (evidence_id,
@@ -33,7 +33,17 @@ def import_backup(session: Session, data: dict) -> dict:
     rows. CareerGoal is keyed by horizon (not id) and only fills in horizons
     that are still empty, so importing never silently overwrites a goal the
     user has already written.
+
+    If `track` is given, the real id of every row this call creates (or, for
+    CareerGoal, the horizon it filled in) is appended under a table-name key
+    — used by the sample-data loader so a later reset can remove exactly
+    what it added, and nothing else.
     """
+
+    def note(table: str, record_id: str) -> None:
+        if track is not None:
+            track.setdefault(table, []).append(record_id)
+
     counts: dict[str, int] = {}
 
     evidence_id_map: dict[str, str] = {}
@@ -47,6 +57,7 @@ def import_backup(session: Session, data: dict) -> dict:
         session.add(entry)
         session.flush()
         evidence_id_map[row["id"]] = entry.id
+        note("evidence", entry.id)
     counts["evidence"] = len(evidence_id_map)
 
     skill_id_map: dict[str, str] = {}
@@ -60,6 +71,7 @@ def import_backup(session: Session, data: dict) -> dict:
         session.add(skill)
         session.flush()
         skill_id_map[row["id"]] = skill.id
+        note("skill", skill.id)
     counts["skills"] = len(skill_id_map)
 
     counts["skill_links"] = 0
@@ -68,14 +80,15 @@ def import_backup(session: Session, data: dict) -> dict:
         sk_id = skill_id_map.get(row["skill_id"])
         if not ev_id or not sk_id:
             continue
-        session.add(
-            SkillLink(
-                evidence_id=ev_id,
-                skill_id=sk_id,
-                mention_text=row["mention_text"],
-                created_at=_dt(row["created_at"]),
-            )
+        link = SkillLink(
+            evidence_id=ev_id,
+            skill_id=sk_id,
+            mention_text=row["mention_text"],
+            created_at=_dt(row["created_at"]),
         )
+        session.add(link)
+        session.flush()
+        note("skill_link", link.id)
         counts["skill_links"] += 1
 
     employment_id_map: dict[str, str] = {}
@@ -91,56 +104,61 @@ def import_backup(session: Session, data: dict) -> dict:
         session.add(emp)
         session.flush()
         employment_id_map[row["id"]] = emp.id
+        note("employment", emp.id)
     counts["employment"] = len(employment_id_map)
 
     counts["education"] = 0
     for row in data.get("education", []):
-        session.add(
-            Education(
-                school=row["school"],
-                degree=row.get("degree", ""),
-                major=row.get("major", ""),
-                start_date=_d(row.get("start_date")),
-                end_date=_d(row.get("end_date")),
-                achievements=row.get("achievements", ""),
-                evidence_id=evidence_id_map.get(row.get("evidence_id")),
-            )
+        edu = Education(
+            school=row["school"],
+            degree=row.get("degree", ""),
+            major=row.get("major", ""),
+            start_date=_d(row.get("start_date")),
+            end_date=_d(row.get("end_date")),
+            achievements=row.get("achievements", ""),
+            evidence_id=evidence_id_map.get(row.get("evidence_id")),
         )
+        session.add(edu)
+        session.flush()
+        note("education", edu.id)
         counts["education"] += 1
 
     counts["projects"] = 0
     for row in data.get("projects", []):
-        session.add(
-            Project(
-                employment_id=employment_id_map.get(row.get("employment_id")),
-                title=row["title"],
-                role=row.get("role", ""),
-                start_date=_d(row.get("start_date")),
-                end_date=_d(row.get("end_date")),
-                description=row.get("description", ""),
-                evidence_id=evidence_id_map.get(row.get("evidence_id")),
-            )
+        project = Project(
+            employment_id=employment_id_map.get(row.get("employment_id")),
+            title=row["title"],
+            role=row.get("role", ""),
+            start_date=_d(row.get("start_date")),
+            end_date=_d(row.get("end_date")),
+            description=row.get("description", ""),
+            evidence_id=evidence_id_map.get(row.get("evidence_id")),
         )
+        session.add(project)
+        session.flush()
+        note("project", project.id)
         counts["projects"] += 1
 
     counts["learning_activities"] = 0
     for row in data.get("learning_activities", []):
-        session.add(
-            LearningActivity(
-                activity_type=row["activity_type"],
-                title=row["title"],
-                activity_date=_d(row.get("activity_date")),
-                notes=row.get("notes", ""),
-                evidence_id=evidence_id_map.get(row.get("evidence_id")),
-            )
+        activity = LearningActivity(
+            activity_type=row["activity_type"],
+            title=row["title"],
+            activity_date=_d(row.get("activity_date")),
+            notes=row.get("notes", ""),
+            evidence_id=evidence_id_map.get(row.get("evidence_id")),
         )
+        session.add(activity)
+        session.flush()
+        note("learning_activity", activity.id)
         counts["learning_activities"] += 1
 
     counts["external_links"] = 0
     for row in data.get("external_links", []):
-        session.add(
-            ExternalLink(label=row["label"], url=row["url"], created_at=_dt(row.get("created_at")))
-        )
+        link = ExternalLink(label=row["label"], url=row["url"], created_at=_dt(row.get("created_at")))
+        session.add(link)
+        session.flush()
+        note("external_link", link.id)
         counts["external_links"] += 1
 
     counts["career_goals"] = 0
@@ -148,15 +166,20 @@ def import_backup(session: Session, data: dict) -> dict:
         existing = session.get(CareerGoal, row["horizon"])
         if existing is None:
             session.add(CareerGoal(horizon=row["horizon"], description=row.get("description", "")))
+            note("career_goal", row["horizon"])
             counts["career_goals"] += 1
         elif not existing.description.strip():
             existing.description = row.get("description", "")
             session.add(existing)
+            note("career_goal", row["horizon"])
             counts["career_goals"] += 1
 
     counts["resume_exports"] = 0
     for row in data.get("resume_exports", []):
-        session.add(ExportSnapshot(content=row["content"], generated_at=_dt(row.get("generated_at"))))
+        snapshot = ExportSnapshot(content=row["content"], generated_at=_dt(row.get("generated_at")))
+        session.add(snapshot)
+        session.flush()
+        note("resume_export", snapshot.id)
         counts["resume_exports"] += 1
 
     session.commit()

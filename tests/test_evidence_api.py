@@ -38,3 +38,14 @@ def test_second_checkin_reuses_matched_skill(client, monkeypatch):
     skills = client.get("/api/skills").json()
     assert len(skills) == 1
     assert skills[0]["evidence_count"] == 2
+
+
+def test_llm_failure_surfaces_as_502_with_clear_detail(client, monkeypatch):
+    def fake_extract(text, existing_skills, settings):
+        raise llm.LLMRequestError("Incorrect API key provided")
+
+    monkeypatch.setattr(llm, "extract_and_match_text", fake_extract)
+
+    resp = client.post("/api/evidence/text", json={"source_type": "checkin", "text": "anything"})
+    assert resp.status_code == 502
+    assert "Incorrect API key provided" in resp.json()["detail"]

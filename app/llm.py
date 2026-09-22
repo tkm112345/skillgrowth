@@ -23,8 +23,20 @@ name（正規化した短い名称）と category（技術/資格/マネジメ�
 """
 
 
+class LLMRequestError(RuntimeError):
+    """Raised when a request to the configured LLM endpoint fails, so
+    callers get a clear, catchable error instead of a raw SDK exception."""
+
+
 def _client(settings: Settings) -> OpenAI:
     return OpenAI(base_url=settings.openai_base_url, api_key=settings.openai_api_key or "not-needed")
+
+
+def _complete(settings: Settings, **kwargs):
+    try:
+        return _client(settings).chat.completions.create(**kwargs)
+    except Exception as e:
+        raise LLMRequestError(str(e)) from e
 
 
 def test_connection(settings: Settings) -> dict:
@@ -73,7 +85,8 @@ def _parse_json_object(raw: str) -> dict:
 
 def extract_and_match_text(text: str, existing_skills: list[dict], settings: Settings) -> list[dict]:
     system_prompt = MATCH_PROMPT.format(existing_skills=_existing_skills_block(existing_skills))
-    resp = _client(settings).chat.completions.create(
+    resp = _complete(
+        settings,
         model=settings.llm_model,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -90,7 +103,8 @@ def extract_and_match_image(image_path: str, existing_skills: list[dict], settin
     mime = "image/png" if ext == "png" else "image/jpeg"
 
     system_prompt = MATCH_PROMPT.format(existing_skills=_existing_skills_block(existing_skills))
-    resp = _client(settings).chat.completions.create(
+    resp = _complete(
+        settings,
         model=settings.llm_vision_model,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -108,7 +122,8 @@ def extract_and_match_image(image_path: str, existing_skills: list[dict], settin
 
 def gap_check(job_description: str, current_skills: list[dict], settings: Settings) -> dict:
     skills_block = "\n".join(f"- {s['name']}（{s['category']}）" for s in current_skills) or "(なし)"
-    resp = _client(settings).chat.completions.create(
+    resp = _complete(
+        settings,
         model=settings.llm_model,
         messages=[
             {
@@ -139,7 +154,8 @@ def goal_growth_guidance(goals: list[dict], current_skills: list[dict], settings
     skills_block = "\n".join(f"- {s['name']}（{s['category']}）" for s in current_skills) or "(なし)"
     goals_block = "\n".join(f"- {g['horizon_label']}: {g['description']}" for g in goals)
 
-    resp = _client(settings).chat.completions.create(
+    resp = _complete(
+        settings,
         model=settings.llm_model,
         messages=[
             {
@@ -163,7 +179,8 @@ def goal_growth_guidance(goals: list[dict], current_skills: list[dict], settings
 
 
 def generate_resume(skill_summaries: list[str], settings: Settings) -> str:
-    resp = _client(settings).chat.completions.create(
+    resp = _complete(
+        settings,
         model=settings.llm_model,
         messages=[
             {

@@ -4,9 +4,27 @@ async function request(path, options = {}) {
     ...options,
   })
   if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${await res.text()}`)
+    throw new Error(await errorMessage(res))
   }
   return res.status === 204 ? null : res.json()
+}
+
+async function errorMessage(res) {
+  try {
+    const body = await res.json()
+    if (body.detail) return typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+  } catch (e) {
+    // response body wasn't JSON (or was empty); fall through to the generic message
+  }
+  return `API error ${res.status}`
+}
+
+async function requestForm(path, form) {
+  const res = await fetch(`/api${path}`, { method: 'POST', body: form })
+  if (!res.ok) {
+    throw new Error(await errorMessage(res))
+  }
+  return res.json()
 }
 
 export const api = {
@@ -17,10 +35,7 @@ export const api = {
   importSkillsCsv: (file) => {
     const form = new FormData()
     form.append('file', file)
-    return fetch('/api/skills/import-csv', { method: 'POST', body: form }).then((res) => {
-      if (!res.ok) throw new Error(`API error ${res.status}`)
-      return res.json()
-    })
+    return requestForm('/skills/import-csv', form)
   },
   getSkillTimeline: () => request('/skills/timeline'),
   getSkill: (id) => request(`/skills/${id}`),
@@ -35,10 +50,7 @@ export const api = {
     const form = new FormData()
     form.append('source_type', 'certification')
     form.append('file', file)
-    return fetch('/api/evidence/image', { method: 'POST', body: form }).then((res) => {
-      if (!res.ok) throw new Error(`API error ${res.status}`)
-      return res.json()
-    })
+    return requestForm('/evidence/image', form)
   },
 
   getExports: (limit = 20, offset = 0) => request(`/export?limit=${limit}&offset=${offset}`),
@@ -57,6 +69,7 @@ export const api = {
   getBackup: () => request('/backup/export'),
   importBackup: (data) => request('/backup/import', { method: 'POST', body: JSON.stringify(data) }),
   loadSampleData: () => request('/backup/load-sample', { method: 'POST' }),
+  resetSampleData: () => request('/backup/reset-sample', { method: 'POST' }),
 
   getGoals: () => request('/goals'),
   updateGoal: (horizon, description) =>

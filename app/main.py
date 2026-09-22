@@ -1,18 +1,24 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
 from app.db import init_db  # noqa: E402
+from app.llm import LLMRequestError  # noqa: E402
 from app.routers import backup, evidence, export, goals, learning, profile, settings, skills  # noqa: E402
 
 VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
 
 app = FastAPI(title="skillgrowth", version=VERSION)
+
+
+@app.exception_handler(LLMRequestError)
+def handle_llm_request_error(request: Request, exc: LLMRequestError) -> JSONResponse:
+    return JSONResponse(status_code=502, content={"detail": f"LLM request failed: {exc}"})
 
 
 @app.get("/api/version")

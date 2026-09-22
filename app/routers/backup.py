@@ -16,6 +16,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     Project,
+    SampleDataRecord,
     Skill,
     SkillLink,
 )
@@ -23,6 +24,19 @@ from app.models import (
 router = APIRouter(prefix="/api/backup", tags=["backup"])
 
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent.parent / "sample_data.json"
+
+# Deletion order matters: children before the rows they reference.
+RESET_TABLE_ORDER: list[tuple[str, type]] = [
+    ("skill_link", SkillLink),
+    ("project", Project),
+    ("employment", Employment),
+    ("education", Education),
+    ("learning_activity", LearningActivity),
+    ("external_link", ExternalLink),
+    ("resume_export", ExportSnapshot),
+    ("skill", Skill),
+    ("evidence", EvidenceEntry),
+]
 
 
 @router.get("/export")
@@ -53,4 +67,45 @@ def import_backup_endpoint(payload: dict, session: Session = Depends(get_session
 @router.post("/load-sample")
 def load_sample_data(session: Session = Depends(get_session)) -> dict:
     data = json.loads(SAMPLE_DATA_PATH.read_text())
-    return import_backup(session, data)
+    track: dict[str, list[str]] = {}
+    counts = import_backup(session, data, track=track)
+
+    for table_name, ids in track.items():
+        for record_id in ids:
+            session.add(SampleDataRecord(table_name=table_name, record_id=record_id))
+    session.commit()
+
+    return counts
+
+
+@router.post("/reset-sample")
+def reset_sample_data(session: Session = Depends(get_session)) -> dict:
+    records = session.exec(select(SampleDataRecord)).all()
+    ids_by_table: dict[str, set[str]] = {}
+    for r in records:
+        ids_by_table.setdefault(r.table_name, set()).add(r.record_id)
+
+    counts: dict[str, int] = {}
+    for table_name, model in RESET_TABLE_ORDER:
+        ids = ids_by_table.get(table_name, set())
+        deleted = 0
+        for record_id in ids:
+            obj = session.get(model, record_id)
+            if obj:
+                session.delete(obj)
+                deleted += 1
+        counts[table_name] = deleted
+
+    counts["career_goal"] = 0
+    for horizon in ids_by_table.get("career_goal", set()):
+        goal = session.get(CareerGoal, horizon)
+        if goal:
+            goal.description = ""
+            session.add(goal)
+            counts["career_goal"] += 1
+
+    for r in records:
+        session.delete(r)
+
+    session.commit()
+    return counts

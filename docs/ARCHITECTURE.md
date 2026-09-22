@@ -174,6 +174,37 @@ silently overwrite a goal the user has already written. `Settings` is
 never part of the payload in either direction, so an LLM API key can't
 leak through a backup file.
 
+`load-sample` additionally passes a `track` dict into `import_backup`,
+which the function fills with `{table_name: [new_id, ...]}` as it creates
+each row (a horizon string for `career_goal` instead of an id, since that
+table has no id). The router persists these as `SampleDataRecord` rows.
+`POST /api/backup/reset-sample` reads all `SampleDataRecord` rows, deletes
+exactly those ids from each real table (children before the rows they
+reference — see `RESET_TABLE_ORDER` in `app/routers/backup.py`), blanks
+the `description` of any tracked `CareerGoal` horizon, then deletes the
+`SampleDataRecord` rows themselves. Running `load-sample` more than once
+accumulates more tracked rows rather than overwriting the previous batch,
+so `reset-sample` always undoes everything sample data has ever added, not
+just the most recent load. The plain `POST /api/backup/import` path never
+writes to `SampleDataRecord`, so restoring a real backup is never
+reset-able this way — only sample data is.
+
+## LLM error handling
+
+Every `app/llm.py` function that calls the configured endpoint goes
+through `_complete()`, which wraps `openai`'s SDK call and re-raises any
+failure as `LLMRequestError` (a plain `RuntimeError` subclass — no
+FastAPI/HTTP dependency inside `llm.py`). `app/main.py` registers a global
+`@app.exception_handler(LLMRequestError)` that turns it into a `502` with
+`{"detail": "LLM request failed: <reason>"}`. This is the single place
+that decides how LLM failures look over HTTP — router code never needs
+its own try/except for this, and the frontend's `api.js` already surfaces
+any `detail` field from an error response, so the user sees the real
+reason (e.g. an invalid API key) instead of a bare "Internal Server
+Error". `test_connection()` is the one exception: it deliberately catches
+errors itself and returns `{"ok": false, "message": ...}`, since Settings'
+"Test connection" button is designed to report failure as data, not throw.
+
 ## Goal-based growth guidance
 
 `POST /api/goals/growth-guidance` reads all three `CareerGoal` rows, drops

@@ -12,9 +12,11 @@
     { "id": "ev-learn2", "source_type": "learning_activity", "raw_input": "Gave a meetup talk, Scaling Payments at Initech, on public speaking and presenting technical work to a mixed audience.", "file_path": null, "created_at": "2025-08-01T09:00:00+00:00" },
     { "id": "ev-learn3", "source_type": "learning_activity", "raw_input": "Attended KubeCon 2026, focused on Kubernetes operations and platform engineering talks.", "file_path": null, "created_at": "2025-09-10T09:00:00+00:00" },
     { "id": "ev-learn4", "source_type": "learning_activity", "raw_input": "Earned the AWS Certified Solutions Architect - Associate certification.", "file_path": null, "created_at": "2025-11-05T09:00:00+00:00" },
+    { "id": "ev-checkin0", "source_type": "checkin", "raw_input": "Wrote a design doc for splitting our monolith's payments module into a separate service.", "file_path": null, "created_at": "2025-06-15T09:00:00+00:00" },
     { "id": "ev-checkin1", "source_type": "checkin", "raw_input": "Started learning GraphQL to modernize our API layer at work.", "file_path": null, "created_at": "2026-01-15T09:00:00+00:00" },
     { "id": "ev-checkin2", "source_type": "checkin", "raw_input": "Set up Terraform for our infrastructure-as-code migration this quarter.", "file_path": null, "created_at": "2026-04-20T09:00:00+00:00" },
-    { "id": "ev-checkin3", "source_type": "checkin", "raw_input": "Mentoring two junior engineers on system design now.", "file_path": null, "created_at": "2026-08-01T09:00:00+00:00" }
+    { "id": "ev-checkin3", "source_type": "checkin", "raw_input": "Mentoring two junior engineers on system design now.", "file_path": null, "created_at": "2026-08-01T09:00:00+00:00" },
+    { "id": "ev-checkin4", "source_type": "checkin", "raw_input": "Kicked off a proof-of-concept for migrating batch jobs to serverless functions.", "file_path": null, "created_at": "2026-09-10T09:00:00+00:00" }
   ],
   "skills": [
     { "id": "sk-python", "name": "Python", "category": "Technical", "first_observed_at": "2025-03-15T09:00:00+00:00", "last_observed_at": "2025-03-15T09:00:00+00:00" },
@@ -31,7 +33,9 @@
     { "id": "sk-aws", "name": "AWS Solutions Architect", "category": "Certification", "first_observed_at": "2025-11-05T09:00:00+00:00", "last_observed_at": "2025-11-05T09:00:00+00:00" },
     { "id": "sk-graphql", "name": "GraphQL", "category": "Technical", "first_observed_at": "2026-01-15T09:00:00+00:00", "last_observed_at": "2026-01-15T09:00:00+00:00" },
     { "id": "sk-terraform", "name": "Terraform", "category": "Technical", "first_observed_at": "2026-04-20T09:00:00+00:00", "last_observed_at": "2026-04-20T09:00:00+00:00" },
-    { "id": "sk-mentoring", "name": "Mentoring", "category": "Soft Skill", "first_observed_at": "2026-08-01T09:00:00+00:00", "last_observed_at": "2026-08-01T09:00:00+00:00" }
+    { "id": "sk-mentoring", "name": "Mentoring", "category": "Soft Skill", "first_observed_at": "2026-08-01T09:00:00+00:00", "last_observed_at": "2026-08-01T09:00:00+00:00" },
+    { "id": "sk-api-design", "name": "API Design", "category": "Technical", "first_observed_at": "2025-06-15T09:00:00+00:00", "last_observed_at": "2025-06-15T09:00:00+00:00" },
+    { "id": "sk-serverless", "name": "Serverless", "category": "Technical", "first_observed_at": "2026-09-10T09:00:00+00:00", "last_observed_at": "2026-09-10T09:00:00+00:00" }
   ],
   "skill_links": [
     { "evidence_id": "ev-proj1", "skill_id": "sk-python", "mention_text": "Python", "created_at": "2025-03-15T09:00:00+00:00" },
@@ -48,9 +52,15 @@
     { "evidence_id": "ev-learn4", "skill_id": "sk-aws", "mention_text": "AWS Certified Solutions Architect - Associate", "created_at": "2025-11-05T09:00:00+00:00" },
     { "evidence_id": "ev-checkin1", "skill_id": "sk-graphql", "mention_text": "GraphQL", "created_at": "2026-01-15T09:00:00+00:00" },
     { "evidence_id": "ev-checkin2", "skill_id": "sk-terraform", "mention_text": "Terraform", "created_at": "2026-04-20T09:00:00+00:00" },
-    { "evidence_id": "ev-checkin3", "skill_id": "sk-mentoring", "mention_text": "Mentoring two junior engineers", "created_at": "2026-08-01T09:00:00+00:00" }
+    { "evidence_id": "ev-checkin3", "skill_id": "sk-mentoring", "mention_text": "Mentoring two junior engineers", "created_at": "2026-08-01T09:00:00+00:00" },
+    { "evidence_id": "ev-checkin0", "skill_id": "sk-api-design", "mention_text": "design doc for splitting our monolith's payments module", "created_at": "2025-06-15T09:00:00+00:00" },
+    { "evidence_id": "ev-checkin4", "skill_id": "sk-serverless", "mention_text": "migrating batch jobs to serverless functions", "created_at": "2026-09-10T09:00:00+00:00" }
   ],
-  "career_goals": [],
+  "career_goals": [
+    { "horizon": "this_year", "description": "Get comfortable enough with GraphQL and Terraform to lead the API modernization project end-to-end." },
+    { "horizon": "5_years", "description": "Move into a Staff Engineer role: mentoring across multiple teams and owning platform-level technical strategy rather than a single team's roadmap." },
+    { "horizon": "10_years", "description": "Either lead engineering for a small, focused team, or go independent as a consultant specializing in backend infrastructure and platform migrations." }
+  ],
   "education": [
     { "id": "edu-1", "school": "State University", "degree": "B.S.", "major": "Computer Science", "start_date": "2015-09-01", "end_date": "2019-06-01", "achievements": "Graduated with honors. Built a course-scheduling app used by 200+ students as a capstone project.", "evidence_id": "ev-edu1" }
   ],

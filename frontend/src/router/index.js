@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import AiIntegration from '../views/AiIntegration.vue'
 import Concept from '../views/Concept.vue'
 import Dashboard from '../views/Dashboard.vue'
 import ExportView from '../views/Export.vue'
@@ -18,6 +19,7 @@ export default createRouter({
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },
     { path: '/export', name: 'export', component: ExportView },
+    { path: '/ai', name: 'ai', component: AiIntegration },
     { path: '/concept', name: 'concept', component: Concept },
     { path: '/settings', name: 'settings', component: SettingsView },
   ],

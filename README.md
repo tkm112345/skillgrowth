@@ -7,7 +7,8 @@ Every piece of evidence you feed it — a quick update, a certification
 photo, an education/employment/project record, a learning log entry — is
 kept as an append-only evidence log. An LLM extracts skills from that
 evidence and matches them against skills you already have, so your skill
-picture and a ready-to-use resume can be derived from the log at any time.
+picture and a ready-to-use resume can be derived from the log at any time —
+the resume itself is generated from a fixed template, no LLM required.
 Skills can also be added directly (one at a time, or in bulk via CSV) when
 you don't have free-text evidence to extract from.
 
@@ -21,8 +22,8 @@ flowchart LR
   E --> L[LLM extraction + matching]
   L --> S
   S --> V[Current skill view]
-  S --> X[Resume export]
-  S --> G[Job posting gap check]
+  S --> X[Resume export - no LLM]
+  S --> G[AI Integration: job gap check / growth guidance]
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full data model and
@@ -34,7 +35,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional), a skill growth timeline chart, a category breakdown chart, and a
-  quick update box, and growth guidance toward each goal.
+  quick update box.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
 - **Learning log** — reading, talks given/attended, certifications (with
@@ -44,9 +45,14 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   `name,category` CSV file — deliberately not resume parsing, since a
   personal resume's layout is too format-dependent for reliable extraction.
 - **Evidence log** — a chronological feed of everything that has been added.
-- **Resume** — generates a resume (Markdown, rendered and downloadable) from
-  the current skill picture, and a job-posting gap check (paste a job
-  description to see which of its requirements you already meet).
+- **Resume** — a Self PR field (kept as history, most recent used) plus a
+  resume generator that fills a fixed Markdown template from your current
+  data — **no LLM involved**, rendered and downloadable, with past
+  generations kept as browsable snapshots.
+- **AI Integration** — the only two features that call an LLM on demand:
+  growth guidance toward each Dashboard goal, and a job-posting gap check
+  (paste a job description to see which of its requirements you already
+  meet).
 - **Settings** — LLM connection (base URL / API key / model, with a test
   button), a full data backup download, and restoring from a backup file.
 - English by default, switchable to Japanese from the top bar.
@@ -88,6 +94,8 @@ frontend separately with hot reload.
 - The "current skills" view is read from the database directly, but the
   match/merge step that keeps it deduplicated runs at evidence-ingestion
   time via an LLM call — quality depends on the configured model.
+- Generated resumes follow a fixed set of sections and aren't customizable
+  per-export; edit the downloaded Markdown by hand for anything beyond that.
 
 ## License
 

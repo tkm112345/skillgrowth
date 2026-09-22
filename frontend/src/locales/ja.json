@@ -9,6 +9,7 @@
     "skills": "スキル一覧",
     "timeline": "証拠ログ",
     "export": "職務経歴書",
+    "ai": "AI連携",
     "concept": "コンセプト",
     "settings": "設定"
   },
@@ -41,9 +42,7 @@
     "horizon5Years": "5年後",
     "horizon10Years": "10年後",
     "conceptLink": "はじめての方へ: このアプリのコンセプトを見る",
-    "guidanceButton": "目標に向けた伸ばし方を見る",
-    "guidanceNeedsGoal": "まず上に目標を1つ以上書いてください。",
-    "guidanceError": "取得に失敗しました: {error}"
+    "aiLink": "目標に向けた伸ばし方を見る（AI連携）"
   },
   "profile": {
     "title": "プロフィール",
@@ -139,19 +138,19 @@
   },
   "export": {
     "title": "職務経歴書",
-    "subtitle": "現在のスキルから職務経歴書を生成し、求人票との適合度も確認できます。",
-    "generate": "現在の証拠から職務経歴書を生成",
+    "subtitle": "現在のプロフィールデータから職務経歴書を生成します——LLMは使わず、決まった構成にデータを流し込むだけです。",
+    "generate": "現在のデータから職務経歴書を生成",
     "generateSuccess": "職務経歴書を生成しました",
     "generateError": "生成に失敗しました: {error}",
     "noEntries": "まだエクスポートがありません",
     "loadMore": "もっと見る",
     "download": "ダウンロード",
-    "gapCheckHeader": "求人票とのギャップチェック",
-    "gapCheckHint": "求人票を貼り付けると、現在のスキルとの適合度を確認できます。",
-    "gapCheckPlaceholder": "求人票の文章をここに貼り付けてください",
-    "gapCheckRun": "自分のスキルと照合する",
-    "gapCheckMatched": "既に満たしている項目",
-    "gapCheckMissing": "まだ見つからない項目"
+    "selfPrHeader": "自己PR",
+    "selfPrHint": "生成される職務経歴書の冒頭に含まれる、自分自身の短いアピール文です。入力した内容はすべて履歴として残り、生成時には最新のものが使われます。",
+    "selfPrPlaceholder": "採用担当者に知ってほしいこと",
+    "selfPrSubmit": "追加",
+    "selfPrAdded": "自己PRを保存しました",
+    "confirmDeleteSelfPr": "この自己PRを削除しますか？"
   },
   "concept": {
     "title": "コンセプト",
@@ -160,7 +159,7 @@
     "loopEvidence": "証拠(近況メモ・資格証・プロジェクトメモなど)",
     "loopExtraction": "LLMによる抽出・照合",
     "loopSkillPicture": "スキル像(都度再計算ではなく永続化)",
-    "loopReflect": "振り返り: 職務経歴書 / 求人ギャップ / 目標に向けた成長ガイダンス",
+    "loopReflect": "振り返り: 職務経歴書（LLM不使用）+ 任意でAI連携（求人ギャップ / 目標に向けた成長ガイダンス）",
     "loopNote": "これは一直線のプロセスではなく、ループです。職務経歴書・求人ギャップチェック・成長ガイダンスといった振り返りの結果が、次に何を近況メモに書くかのきっかけになります。ループを回すたびに前の状態に戻るのではなく、同じ「追記型の証拠ログ」の上に少しずつ積み重なっていきます。ダッシュボード・プロフィール・学習ログ・スキル一覧など、このアプリの各画面はすべてこの同じログを異なる角度から見ているだけです。",
     "principlesHeader": "設計方針",
     "selfHostedTitle": "シングルユーザー・セルフホスト",
@@ -171,6 +170,22 @@
     "pluggableLlmBody": "OpenAI互換のChat Completions APIであれば、クラウドAPIでもローカルのOllamaでも利用できます。設定はSettings画面から行い、コードには埋め込みません。",
     "evidenceNotAssessmentTitle": "自己評価ではなく証拠ベース",
     "evidenceNotAssessmentBody": "スキルは記憶を頼りにスキルマトリクスを埋めるのではなく、職務経歴書・資格証・プロジェクトの説明など、既に手元にあるものから主に生まれます。"
+  },
+  "ai": {
+    "title": "AI連携",
+    "subtitle": "ここにある機能はLLMを呼び出します。それ以外のこのアプリの機能——職務経歴書の生成も含め——はLLMなしで動作します。",
+    "guidanceHeader": "目標に向けた伸ばし方",
+    "guidanceHint": "ダッシュボードで書いたキャリアパスの目標それぞれについて、現在のスキルを踏まえて次に何を伸ばすべきかをLLMが提案します。",
+    "guidanceButton": "目標に向けた伸ばし方を見る",
+    "guidanceNeedsGoal": "まずダッシュボードで目標を1つ以上書いてください。",
+    "guidanceError": "取得に失敗しました: {error}",
+    "gapCheckHeader": "求人票とのギャップチェック",
+    "gapCheckHint": "求人票を貼り付けると、現在のスキルとの適合度を確認できます。",
+    "gapCheckPlaceholder": "求人票の文章をここに貼り付けてください",
+    "gapCheckRun": "自分のスキルと照合する",
+    "gapCheckMatched": "既に満たしている項目",
+    "gapCheckMissing": "まだ見つからない項目",
+    "gapCheckError": "確認に失敗しました: {error}"
   },
   "settings": {
     "title": "設定",

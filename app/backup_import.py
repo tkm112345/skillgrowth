@@ -11,6 +11,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     Project,
+    SelfPR,
     Skill,
     SkillLink,
 )
@@ -181,6 +182,14 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("resume_export", snapshot.id)
         counts["resume_exports"] += 1
+
+    counts["self_prs"] = 0
+    for row in data.get("self_prs", []):
+        entry = SelfPR(content=row["content"], created_at=_dt(row.get("created_at")))
+        session.add(entry)
+        session.flush()
+        note("self_pr", entry.id)
+        counts["self_prs"] += 1
 
     session.commit()
     return counts

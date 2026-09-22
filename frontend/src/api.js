@@ -55,11 +55,17 @@ export const api = {
 
   getExports: (limit = 20, offset = 0) => request(`/export?limit=${limit}&offset=${offset}`),
   generateExport: () => request('/export', { method: 'POST' }),
+
+  getSelfPRs: () => request('/self-pr'),
+  addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),
+  deleteSelfPR: (id) => request(`/self-pr/${id}`, { method: 'DELETE' }),
+
   gapCheck: (jobDescription) =>
-    request('/export/gap-check', {
+    request('/ai/gap-check', {
       method: 'POST',
       body: JSON.stringify({ job_description: jobDescription }),
     }),
+  getGrowthGuidance: () => request('/ai/growth-guidance', { method: 'POST' }),
 
   getSettings: () => request('/settings'),
   updateSettings: (payload) =>
@@ -77,7 +83,6 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ horizon, description }),
     }),
-  getGrowthGuidance: () => request('/goals/growth-guidance', { method: 'POST' }),
 
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>

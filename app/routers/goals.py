@@ -4,9 +4,8 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from app import llm
 from app.db import get_session
-from app.models import CareerGoal, Settings, Skill
+from app.models import CareerGoal
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 
@@ -36,20 +35,3 @@ def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_se
     session.commit()
     session.refresh(goal)
     return goal
-
-
-@router.post("/growth-guidance")
-def growth_guidance(session: Session = Depends(get_session)) -> dict:
-    existing = {g.horizon: g for g in session.exec(select(CareerGoal)).all()}
-    goals_payload = [
-        {"horizon": h, "horizon_label": HORIZON_LABELS[h], "description": existing[h].description}
-        for h in HORIZONS
-        if h in existing and existing[h].description.strip()
-    ]
-    if not goals_payload:
-        return {"by_horizon": []}
-
-    settings = session.get(Settings, 1)
-    skills = session.exec(select(Skill)).all()
-    current_skills = [{"name": s.name, "category": s.category} for s in skills]
-    return llm.goal_growth_guidance(goals_payload, current_skills, settings)

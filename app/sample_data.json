@@ -88,7 +88,14 @@
     {
       "id": "resume-1",
       "generated_at": "2026-08-15T10:00:00+00:00",
-      "content": "# Resume Summary\n\n## Summary\nBackend-leaning software engineer with experience spanning payments infrastructure, realtime analytics platforms, and open-source tooling.\n\n## Experience\n- **Senior Software Engineer, Northwind Analytics** (2023-01 - present): Tech lead for a realtime analytics dashboard built with React and WebSockets.\n- **Backend Engineer, Initech Software** (2019-07 - 2022-12): Redesigned the payments API for multi-currency support; built internal deploy tooling with Docker.\n\n## Skills\nPython, SQL, JavaScript, React, WebSockets, Docker, Kubernetes, GraphQL, Terraform, Project Management, Mentoring, Public Speaking\n\n## Certifications\nAWS Certified Solutions Architect - Associate\n"
+      "content": "# Resume\n\n## Self PR\n\nBackend-leaning software engineer with experience spanning payments infrastructure, realtime analytics platforms, and open-source tooling. I care most about making systems that are boring to operate — clear ownership, low-latency payments paths, and deploy tooling that lets a team ship without fear.\n\n## Work History\n\n### Northwind Analytics / Product Engineering\nSenior Software Engineer (2023-01-15 – Present)\n\n- **Realtime analytics dashboard** — Tech lead (2023-03-01 – Present)\n  Leading a 4-person team building a realtime analytics dashboard with React and WebSockets.\n\n### Initech Software / Platform Engineering\nBackend Engineer (2019-07-01 – 2022-12-31)\n\n- **Payments API redesign** — Lead backend developer (2020-02-01 – 2020-09-01)\n  Rebuilt the payments service to support multi-currency transactions, reducing p99 latency by 40%.\n- **Internal deploy tooling** — Contributor (2021-03-01 – 2021-06-01)\n  Built a CLI to automate staging deployments with Docker, cutting release time from 2 hours to 15 minutes.\n\n## Other Projects\n\n- **csv2json (open source)** — Maintainer (2022-01-01 – Present)\n  Maintain a small open-source CLI tool for converting CSV to JSON, around 500 GitHub stars.\n\n## Education\n\n### State University\nB.S. Computer Science (2015-09-01 – 2019-06-01)\nGraduated with honors. Built a course-scheduling app used by 200+ students as a capstone project.\n\n## Skills\n\n- **Certification**: AWS Solutions Architect\n- **Domain Knowledge**: Distributed Systems\n- **Management**: Project Management\n- **Soft Skill**: Mentoring, Public Speaking\n- **Technical**: API Design, CLI Tooling, Docker, GraphQL, JavaScript, Kubernetes, Python, React, SQL, Serverless, Terraform, WebSockets\n\n## Certifications\n\n- AWS Certified Solutions Architect - Associate (2025-11-05)\n"
+    }
+  ],
+  "self_prs": [
+    {
+      "id": "selfpr-1",
+      "created_at": "2026-08-15T09:00:00+00:00",
+      "content": "Backend-leaning software engineer with experience spanning payments infrastructure, realtime analytics platforms, and open-source tooling. I care most about making systems that are boring to operate — clear ownership, low-latency payments paths, and deploy tooling that lets a team ship without fear."
     }
   ]
 }

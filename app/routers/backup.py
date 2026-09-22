@@ -17,6 +17,7 @@ from app.models import (
     LearningActivity,
     Project,
     SampleDataRecord,
+    SelfPR,
     Skill,
     SkillLink,
 )
@@ -36,6 +37,7 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("resume_export", ExportSnapshot),
     ("skill", Skill),
     ("evidence", EvidenceEntry),
+    ("self_pr", SelfPR),
 ]
 
 
@@ -56,6 +58,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "learning_activities": dump(LearningActivity),
         "external_links": dump(ExternalLink),
         "resume_exports": dump(ExportSnapshot),
+        "self_prs": dump(SelfPR),
     }
 
 

@@ -14,6 +14,7 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "learning_activities",
         "external_links",
         "resume_exports",
+        "self_prs",
     ]:
         assert body[key] == []
 
@@ -103,6 +104,7 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "external_links": 0,
         "career_goals": 0,
         "resume_exports": 0,
+        "self_prs": 0,
     }
 
     employment = client.get("/api/profile/employment").json()
@@ -142,6 +144,7 @@ def test_load_sample_data_populates_expected_counts(client):
     assert body["employment"] == 2
     assert body["career_goals"] == 3
     assert body["projects"] == 4
+    assert body["self_prs"] == 1
 
     skills = client.get("/api/skills").json()
     assert any(s["name"] == "Python" for s in skills)

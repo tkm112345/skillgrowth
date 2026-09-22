@@ -205,15 +205,45 @@ Error". `test_connection()` is the one exception: it deliberately catches
 errors itself and returns `{"ok": false, "message": ...}`, since Settings'
 "Test connection" button is designed to report failure as data, not throw.
 
-## Goal-based growth guidance
+## AI Integration page (the only two LLM-optional features)
 
-`POST /api/goals/growth-guidance` reads all three `CareerGoal` rows, drops
-any with an empty `description` (goals are optional), and — only if at
-least one remains — sends the non-empty goals plus the current skill list
-to `llm.goal_growth_guidance`, which returns per-horizon advice. No goals
-set means no LLM call. This is the same shape as `gap_check` (compare
-current skills against a target and report the delta), just with the
-target being the user's own stated goals instead of a pasted job posting.
+Every other advisory feature in the app happens without calling an LLM at
+request time (extraction still uses one, at evidence-add time). The two
+exceptions live together under `/api/ai` and the `/ai` page, so it's
+obvious to the user which parts of the app talk to a model on demand:
+
+`POST /api/ai/growth-guidance` reads all three `CareerGoal` rows (written
+from the free-text goal fields on the Dashboard), drops any with an empty
+`description` (goals are optional), and — only if at least one remains —
+sends the non-empty goals plus the current skill list to
+`llm.goal_growth_guidance`, which returns per-horizon advice. No goals set
+means no LLM call.
+
+`POST /api/ai/gap-check` takes a pasted job posting and compares it
+against the current skill list the same way — matched vs. missing — just
+with the target being a job posting instead of the user's own goals.
+
+Both routers previously lived under `/api/goals` and `/api/export`
+respectively; they were split out into `app/routers/ai.py` so that moving
+or removing "the AI stuff" never means touching the goals or resume
+routers.
+
+## Resume export (no LLM)
+
+`POST /api/export` calls `app/resume_builder.py::build_resume_markdown`,
+which is pure and deterministic — no LLM, no network call. It builds a
+fixed set of Markdown sections in a fixed order (Self PR → Work History →
+Other Projects → Education → Skills → Certifications) directly from
+`Employment`/`Project`/`Education`/`Skill`/`LearningActivity` rows; any
+section with no data is omitted. This replaced an earlier LLM-based
+`generate_resume()` — layout variance and hallucination risk weren't
+worth it for a document meant to be copy-pasted as-is.
+
+`SelfPR` is append-only, like evidence: `POST /api/self-pr` always inserts
+a new row rather than editing one in place, `GET /api/self-pr` lists them
+newest-first for display, and `build_resume_markdown` uses only the most
+recent row's `content` for the "Self PR" section — so past drafts stay in
+history without cluttering the generated resume.
 
 ## LLM configuration
 

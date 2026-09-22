@@ -16,9 +16,10 @@
 - **Stats row** — total skills, category count, and skills added in the
   last 7 days. Placed at the bottom of the page by design — the growth
   timeline and goals are the point, the counters are secondary.
-- **Growth guidance** — for any goal you've written, the LLM suggests what
-  to develop next given your current skills. Only calls the LLM for goals
-  that actually have text.
+
+Turning these goals into LLM-backed suggestions happens on a separate
+page — see **AI Integration** below — so the Dashboard itself never calls
+an LLM.
 
 ## Profile
 
@@ -73,27 +74,47 @@ life of the app.
 
 ## Resume
 
-Both features here are about how you look to an employer, so they live
-under one heading rather than a generic "Export":
+- **Self PR** — a free-text pitch about yourself, included at the top of
+  the generated resume. Adding one never overwrites the last: every entry
+  is kept, so past drafts stay in history, and the resume always uses the
+  most recent one.
+- **Generate resume** — assembles the current skill picture, work/education
+  history, and latest Self PR into Markdown, following a fixed set of
+  sections (Self PR → Work History → Other Projects → Education → Skills →
+  Certifications) — **no LLM involved**, just your existing data filled
+  into that template, so it works even without an LLM configured. Rendered
+  as formatted HTML in the UI (not raw Markdown text) and downloadable as a
+  `.md` file. Every generation is kept as a snapshot, so past exports
+  remain browsable (20 at a time, with a "Load more" button). Sections with
+  no data are simply omitted.
 
-- **Generate resume** — assembles the current skill picture into a
-  Markdown resume via the LLM. Rendered as formatted HTML in the UI (not
-  raw Markdown text) and downloadable as a `.md` file. Every generation is
-  kept as a snapshot, so past exports remain browsable (20 at a time, with
-  a "Load more" button).
+## AI Integration
+
+The only two features in the app that call an LLM at your request (evidence
+extraction also uses one, but that happens automatically as you add
+evidence, not from this page):
+
+- **Growth guidance** — for any career path goal you've written on the
+  Dashboard, the LLM suggests what to develop next given your current
+  skills. Only calls the LLM for goals that actually have text; if none
+  do, nothing is sent.
 - **Job posting gap check** — paste a job description; the LLM compares it
   against your current skills and returns what you already meet, what's
   missing, and a short summary.
+
+Keeping both under one page makes it obvious which parts of the app are
+LLM-optional (everything else) versus LLM-required (just these two).
 
 ## Concept
 
 An in-app page explaining the product's core loop and its four design
 principles (self-hosted/single-user, free-text skills, pluggable LLM,
 evidence over self-assessment). The loop is drawn as a circle, not a
-straight line: evidence → extraction → skill picture → reflect (resume
-export, job gap check, or goal-based growth guidance) → back into what you
-check in about next. Each pass around adds to the same accumulating skill
-picture rather than starting over.
+straight line: evidence → extraction → skill picture → reflect (a
+template-based resume, or optionally the AI Integration page's job gap
+check / goal-based growth guidance) → back into what you check in about
+next. Each pass around adds to the same accumulating skill picture rather
+than starting over.
 
 ## Settings
 
@@ -105,27 +126,27 @@ picture rather than starting over.
   in the form (not necessarily saved yet) and reports success or the exact
   error, so a typo in the API key or base URL is caught immediately instead
   of surfacing later as a failure somewhere else in the app. And if it does
-  surface elsewhere (a check-in, a resume generation, a gap check), every
-  LLM-backed endpoint returns the real failure reason as its error detail
-  instead of a bare "Internal Server Error".
+  surface elsewhere (a quick update, a growth guidance request, a gap
+  check), every LLM-backed endpoint returns the real failure reason as its
+  error detail instead of a bare "Internal Server Error".
 - **Data backup** — download every career record (evidence, skills,
-  profile, goals, learning log, links, resume export history) as a single
-  JSON file. Deliberately excludes the LLM connection settings (so an API
-  key never ends up in a backup file).
+  profile, goals, learning log, links, self PR history, resume export
+  history) as a single JSON file. Deliberately excludes the LLM connection
+  settings (so an API key never ends up in a backup file).
 - **Restore from backup** — upload a previously downloaded backup file to
   re-import its records. Always additive: it never deletes or overwrites
   existing rows, and only fills in a career goal if that horizon is still
   empty.
 - **Sample data** — one click loads a small fictional career history
   (skills, quick updates, career goals, employment with nested projects,
-  education, learning log, links, a resume snapshot) using the same import
-  path as backup restore, so a fresh install can be explored without
-  wiring up an LLM or typing anything in first. A matching **reset**
+  education, learning log, links, a self PR entry, a resume snapshot) using
+  the same import path as backup restore, so a fresh install can be
+  explored without wiring up an LLM or typing anything in first — including
+  generating a resume, since that no longer needs one. A matching **reset**
   button removes exactly what sample-loading added (tracked by id across
   every load, however many times you've run it) — anything you've entered
-  yourself is left alone. Generating a resume or running the job-gap/growth
-  checks still needs a working LLM connection, since sample data only
-  seeds the database, not the LLM-backed features.
+  yourself is left alone. Only the AI Integration page's two features still
+  need a working LLM connection.
 
 ## Cross-cutting
 
@@ -134,6 +155,10 @@ picture rather than starting over.
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
   to an icon rail; the state is remembered per browser.
 - **Light/dark mode** — follows the OS/browser preference automatically.
+- **Category/type color coding** — categories, activity types, and evidence
+  source types are each assigned one of 8 accent hues by a deterministic
+  hash of their name, so the same category always gets the same color
+  across the app without maintaining an explicit color list per page.
 - **Version** — shown in the sidebar footer, read from the backend's
   `/api/version` (itself read from the repo's `VERSION` file), so it can
   never drift from what's actually deployed.

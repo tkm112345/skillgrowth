@@ -6,6 +6,7 @@ import {
   Files,
   Fold,
   List,
+  MagicStick,
   Notebook,
   Reading,
   Setting,
@@ -47,32 +48,36 @@ onMounted(async () => {
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" router class="nav">
         <el-menu-item index="/concept">
-          <el-icon><Compass /></el-icon>
+          <el-icon style="color: var(--hue-blue)"><Compass /></el-icon>
           <template #title>{{ t('nav.concept') }}</template>
         </el-menu-item>
         <el-menu-item index="/">
-          <el-icon><DataAnalysis /></el-icon>
+          <el-icon style="color: var(--hue-blue)"><DataAnalysis /></el-icon>
           <template #title>{{ t('nav.dashboard') }}</template>
         </el-menu-item>
         <el-menu-item index="/learning">
-          <el-icon><Reading /></el-icon>
+          <el-icon style="color: var(--hue-aqua)"><Reading /></el-icon>
           <template #title>{{ t('nav.learning') }}</template>
         </el-menu-item>
         <el-menu-item index="/skills">
-          <el-icon><List /></el-icon>
+          <el-icon style="color: var(--hue-orange)"><List /></el-icon>
           <template #title>{{ t('nav.skills') }}</template>
         </el-menu-item>
         <el-menu-item index="/timeline">
-          <el-icon><TrendCharts /></el-icon>
+          <el-icon style="color: var(--hue-magenta)"><TrendCharts /></el-icon>
           <template #title>{{ t('nav.timeline') }}</template>
         </el-menu-item>
         <el-menu-item index="/profile">
-          <el-icon><Notebook /></el-icon>
+          <el-icon style="color: var(--hue-violet)"><Notebook /></el-icon>
           <template #title>{{ t('nav.profile') }}</template>
         </el-menu-item>
         <el-menu-item index="/export">
-          <el-icon><Files /></el-icon>
+          <el-icon style="color: var(--hue-green)"><Files /></el-icon>
           <template #title>{{ t('nav.export') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/ai">
+          <el-icon style="color: var(--hue-yellow)"><MagicStick /></el-icon>
+          <template #title>{{ t('nav.ai') }}</template>
         </el-menu-item>
         <el-menu-item index="/settings">
           <el-icon><Setting /></el-icon>

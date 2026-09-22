@@ -99,6 +99,12 @@ class LearningActivity(SQLModel, table=True):
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
 
 
+class SelfPR(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    content: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 class SampleDataRecord(SQLModel, table=True):
     """Tracks exactly which rows a `load-sample` call created, so
     `reset-sample` can remove precisely those rows (and only those) even if

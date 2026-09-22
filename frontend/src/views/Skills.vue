@@ -4,6 +4,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
+import { tagStyle } from '../hue'
 
 const { t, locale } = useI18n()
 const skills = ref([])
@@ -81,7 +82,7 @@ async function submitCsvImport() {
   <el-table :data="skills" v-loading="loading" style="width: 100%">
     <el-table-column prop="name" :label="t('skills.columnSkill')" min-width="200" />
     <el-table-column :label="t('skills.columnCategory')" width="140">
-      <template #default="{ row }"><el-tag>{{ row.category }}</el-tag></template>
+      <template #default="{ row }"><el-tag :style="tagStyle(row.category)" plain>{{ row.category }}</el-tag></template>
     </el-table-column>
     <el-table-column :label="t('skills.columnEvidence')" width="90">
       <template #default="{ row }">{{ row.evidence_count }}</template>

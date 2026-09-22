@@ -9,7 +9,7 @@ load_dotenv()
 
 from app.db import init_db  # noqa: E402
 from app.llm import LLMRequestError  # noqa: E402
-from app.routers import backup, evidence, export, goals, learning, profile, settings, skills  # noqa: E402
+from app.routers import ai, backup, evidence, export, goals, learning, profile, self_pr, settings, skills  # noqa: E402
 
 VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
 
@@ -34,6 +34,8 @@ app.include_router(goals.router)
 app.include_router(profile.router)
 app.include_router(learning.router)
 app.include_router(backup.router)
+app.include_router(ai.router)
+app.include_router(self_pr.router)
 
 
 @app.on_event("startup")

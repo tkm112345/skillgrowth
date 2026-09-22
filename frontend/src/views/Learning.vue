@@ -4,6 +4,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
+import { tagStyle } from '../hue'
 
 const { t } = useI18n()
 
@@ -76,7 +77,7 @@ async function remove(id) {
 
   <el-table :data="activities" v-loading="loading" style="width: 100%; margin-top: 1rem">
     <el-table-column :label="t('learning.type')" width="110">
-      <template #default="{ row }"><el-tag>{{ typeLabel(row.activity_type) }}</el-tag></template>
+      <template #default="{ row }"><el-tag :style="tagStyle(row.activity_type)" plain>{{ typeLabel(row.activity_type) }}</el-tag></template>
     </el-table-column>
     <el-table-column prop="title" :label="t('learning.titleLabel')" min-width="180" />
     <el-table-column prop="activity_date" :label="t('learning.date')" width="120" />

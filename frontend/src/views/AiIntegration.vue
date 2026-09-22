@@ -1,0 +1,177 @@
+<script setup>
+import { ElMessage } from 'element-plus'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import { api } from '../api'
+
+const { t } = useI18n()
+
+const goals = ref([])
+const loading = ref(true)
+const guidance = ref(null)
+const loadingGuidance = ref(false)
+
+onMounted(async () => {
+  try {
+    goals.value = await api.getGoals()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
+})
+
+const hasAnyGoal = computed(() => goals.value.some((g) => g.description.trim()))
+
+async function fetchGuidance() {
+  loadingGuidance.value = true
+  try {
+    guidance.value = await api.getGrowthGuidance()
+  } catch (e) {
+    ElMessage.error(t('ai.guidanceError', { error: e.message }))
+  } finally {
+    loadingGuidance.value = false
+  }
+}
+
+// -- gap check --
+const jobDescription = ref('')
+const checking = ref(false)
+const gapResult = ref(null)
+
+async function runGapCheck() {
+  if (!jobDescription.value.trim()) return
+  checking.value = true
+  try {
+    gapResult.value = await api.gapCheck(jobDescription.value)
+  } catch (e) {
+    ElMessage.error(t('ai.gapCheckError', { error: e.message }))
+  } finally {
+    checking.value = false
+  }
+}
+</script>
+
+<template>
+  <h1 class="page-title">{{ t('ai.title') }}</h1>
+  <p class="page-subtitle">{{ t('ai.subtitle') }}</p>
+
+  <el-card shadow="never" class="section-card accent-violet" v-loading="loading">
+    <template #header>{{ t('ai.guidanceHeader') }}</template>
+    <p class="hint">{{ t('ai.guidanceHint') }}</p>
+
+    <el-button
+      :disabled="!hasAnyGoal"
+      :loading="loadingGuidance"
+      @click="fetchGuidance"
+    >
+      {{ t('ai.guidanceButton') }}
+    </el-button>
+    <p v-if="!hasAnyGoal" class="need-goal-hint">{{ t('ai.guidanceNeedsGoal') }}</p>
+
+    <div v-if="guidance && guidance.by_horizon.length" class="guidance-result">
+      <div v-for="item in guidance.by_horizon" :key="item.horizon" class="guidance-item">
+        <div class="guidance-horizon">{{ item.horizon }}</div>
+        <p class="guidance-advice">{{ item.advice }}</p>
+      </div>
+    </div>
+  </el-card>
+
+  <el-card shadow="never" class="section-card accent-magenta">
+    <template #header>{{ t('ai.gapCheckHeader') }}</template>
+    <p class="hint">{{ t('ai.gapCheckHint') }}</p>
+    <el-input
+      v-model="jobDescription"
+      type="textarea"
+      :rows="6"
+      :placeholder="t('ai.gapCheckPlaceholder')"
+    />
+    <el-button type="primary" :loading="checking" @click="runGapCheck" class="gap-check-btn">
+      {{ t('ai.gapCheckRun') }}
+    </el-button>
+
+    <div v-if="gapResult" class="gap-result">
+      <p>{{ gapResult.summary }}</p>
+      <div class="gap-columns">
+        <div>
+          <div class="gap-label matched">{{ t('ai.gapCheckMatched') }}</div>
+          <el-tag v-for="(m, i) in gapResult.matched" :key="i" type="success" class="gap-tag">{{ m }}</el-tag>
+        </div>
+        <div>
+          <div class="gap-label missing">{{ t('ai.gapCheckMissing') }}</div>
+          <el-tag v-for="(m, i) in gapResult.missing" :key="i" type="danger" class="gap-tag">{{ m }}</el-tag>
+        </div>
+      </div>
+    </div>
+  </el-card>
+</template>
+
+<style scoped>
+.section-card {
+  margin-bottom: 1rem;
+}
+
+.hint {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin-top: 0;
+}
+
+.need-goal-hint {
+  display: inline-block;
+  margin: 0.75rem 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.guidance-result {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--el-border-color);
+}
+
+.guidance-item {
+  margin-bottom: 0.75rem;
+}
+
+.guidance-item:last-child {
+  margin-bottom: 0;
+}
+
+.guidance-horizon {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.guidance-advice {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.gap-check-btn {
+  margin-top: 0.75rem;
+}
+
+.gap-result {
+  margin-top: 1rem;
+}
+
+.gap-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.gap-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.gap-tag {
+  margin: 0 0.4rem 0.4rem 0;
+}
+</style>

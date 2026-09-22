@@ -1,6 +1,6 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { marked } from 'marked'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -16,15 +16,22 @@ const loadingMore = ref(false)
 const hasMore = ref(false)
 const generating = ref(false)
 
+const selfPRs = ref([])
+const loadingSelfPR = ref(true)
+const newSelfPR = ref('')
+const submittingSelfPR = ref(false)
+
 onMounted(async () => {
   try {
-    const page = await api.getExports(PAGE_SIZE, 0)
+    const [page, prs] = await Promise.all([api.getExports(PAGE_SIZE, 0), api.getSelfPRs()])
     exports.value = page
     hasMore.value = page.length === PAGE_SIZE
+    selfPRs.value = prs
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
+    loadingSelfPR.value = false
   }
 })
 
@@ -72,25 +79,50 @@ function formatDateTime(iso) {
   return new Date(iso).toLocaleString(locale.value)
 }
 
-// -- gap check --
-const jobDescription = ref('')
-const checking = ref(false)
-const gapResult = ref(null)
-
-async function runGapCheck() {
-  if (!jobDescription.value.trim()) return
-  checking.value = true
+async function submitSelfPR() {
+  if (!newSelfPR.value.trim()) return
+  submittingSelfPR.value = true
   try {
-    gapResult.value = await api.gapCheck(jobDescription.value)
+    const entry = await api.addSelfPR(newSelfPR.value)
+    selfPRs.value.unshift(entry)
+    newSelfPR.value = ''
+    ElMessage.success(t('export.selfPrAdded'))
   } finally {
-    checking.value = false
+    submittingSelfPR.value = false
   }
+}
+
+async function removeSelfPR(id) {
+  await ElMessageBox.confirm(t('export.confirmDeleteSelfPr'), t('profile.confirm'))
+  await api.deleteSelfPR(id)
+  selfPRs.value = selfPRs.value.filter((e) => e.id !== id)
 }
 </script>
 
 <template>
   <h1 class="page-title">{{ t('export.title') }}</h1>
   <p class="page-subtitle">{{ t('export.subtitle') }}</p>
+
+  <el-card shadow="never" class="export-card accent-green" v-loading="loadingSelfPR">
+    <template #header>{{ t('export.selfPrHeader') }}</template>
+    <p class="self-pr-hint">{{ t('export.selfPrHint') }}</p>
+    <el-input
+      v-model="newSelfPR"
+      type="textarea"
+      :rows="4"
+      :placeholder="t('export.selfPrPlaceholder')"
+    />
+    <el-button type="primary" :loading="submittingSelfPR" @click="submitSelfPR" class="self-pr-btn">
+      {{ t('export.selfPrSubmit') }}
+    </el-button>
+
+    <el-collapse v-if="selfPRs.length" class="self-pr-history">
+      <el-collapse-item v-for="pr in selfPRs" :key="pr.id" :title="formatDateTime(pr.created_at)">
+        <p class="self-pr-content">{{ pr.content }}</p>
+        <el-button size="small" text type="danger" @click="removeSelfPR(pr.id)">{{ t('common.delete') }}</el-button>
+      </el-collapse-item>
+    </el-collapse>
+  </el-card>
 
   <el-button type="primary" :loading="generating" @click="generate">{{ t('export.generate') }}</el-button>
 
@@ -111,39 +143,12 @@ async function runGapCheck() {
   </el-button>
 
   <el-empty v-if="!loading && exports.length === 0" :description="t('export.noEntries')" />
-
-  <el-card shadow="never" class="export-card gap-check-card">
-    <template #header>{{ t('export.gapCheckHeader') }}</template>
-    <p class="gap-check-hint">{{ t('export.gapCheckHint') }}</p>
-    <el-input
-      v-model="jobDescription"
-      type="textarea"
-      :rows="6"
-      :placeholder="t('export.gapCheckPlaceholder')"
-    />
-    <el-button type="primary" :loading="checking" @click="runGapCheck" class="gap-check-btn">
-      {{ t('export.gapCheckRun') }}
-    </el-button>
-
-    <div v-if="gapResult" class="gap-result">
-      <p>{{ gapResult.summary }}</p>
-      <div class="gap-columns">
-        <div>
-          <div class="gap-label matched">{{ t('export.gapCheckMatched') }}</div>
-          <el-tag v-for="(m, i) in gapResult.matched" :key="i" type="success" class="gap-tag">{{ m }}</el-tag>
-        </div>
-        <div>
-          <div class="gap-label missing">{{ t('export.gapCheckMissing') }}</div>
-          <el-tag v-for="(m, i) in gapResult.missing" :key="i" type="danger" class="gap-tag">{{ m }}</el-tag>
-        </div>
-      </div>
-    </div>
-  </el-card>
 </template>
 
 <style scoped>
 .export-card {
   margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .export-header {
@@ -169,33 +174,22 @@ async function runGapCheck() {
   margin: 1rem 0 0.5rem;
 }
 
-.gap-check-hint {
+.self-pr-hint {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin-top: 0;
 }
 
-.gap-check-btn {
+.self-pr-btn {
   margin-top: 0.75rem;
 }
 
-.gap-result {
+.self-pr-history {
   margin-top: 1rem;
 }
 
-.gap-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.gap-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-
-.gap-tag {
-  margin: 0 0.4rem 0.4rem 0;
+.self-pr-content {
+  white-space: pre-wrap;
+  font-size: 0.85rem;
 }
 </style>

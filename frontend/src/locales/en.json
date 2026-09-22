@@ -9,6 +9,7 @@
     "skills": "Skills",
     "timeline": "Evidence Log",
     "export": "Resume",
+    "ai": "AI Integration",
     "concept": "Concept",
     "settings": "Settings"
   },
@@ -41,9 +42,7 @@
     "horizon5Years": "5 years",
     "horizon10Years": "10 years",
     "conceptLink": "New here? See the concept behind this app",
-    "guidanceButton": "See how to grow toward these goals",
-    "guidanceNeedsGoal": "Write at least one goal above first.",
-    "guidanceError": "Failed to get guidance: {error}"
+    "aiLink": "See how to grow toward these goals (AI Integration)"
   },
   "profile": {
     "title": "Profile",
@@ -139,19 +138,19 @@
   },
   "export": {
     "title": "Resume",
-    "subtitle": "Generate a resume from your current skills, and check how it stacks up against a job posting.",
-    "generate": "Generate resume from current evidence",
+    "subtitle": "Generate a resume from your current profile data — no LLM involved, just your data filled into a fixed set of sections.",
+    "generate": "Generate resume from current data",
     "generateSuccess": "Resume generated",
     "generateError": "Failed to generate: {error}",
     "noEntries": "No exports yet",
     "loadMore": "Load more",
     "download": "Download",
-    "gapCheckHeader": "Job posting gap check",
-    "gapCheckHint": "Paste a job posting to see how it lines up against your current skills.",
-    "gapCheckPlaceholder": "Paste the job description here",
-    "gapCheckRun": "Check against my skills",
-    "gapCheckMatched": "You already have",
-    "gapCheckMissing": "Not found yet"
+    "selfPrHeader": "Self PR",
+    "selfPrHint": "A short pitch for yourself, included at the top of the generated resume. Each entry is kept — the most recent one is used.",
+    "selfPrPlaceholder": "What do you want a hiring manager to know about you?",
+    "selfPrSubmit": "Add",
+    "selfPrAdded": "Self PR saved",
+    "confirmDeleteSelfPr": "Delete this Self PR entry?"
   },
   "concept": {
     "title": "Concept",
@@ -160,7 +159,7 @@
     "loopEvidence": "Evidence (a quick update, a certificate, project notes...)",
     "loopExtraction": "LLM extraction & matching",
     "loopSkillPicture": "Skill picture (persisted, not recomputed each view)",
-    "loopReflect": "Reflect: resume export, job gap check, growth guidance toward your goals",
+    "loopReflect": "Reflect: a template-based resume (no LLM), plus optional AI Integration — job gap check, growth guidance toward your goals",
     "loopNote": "This isn't a straight line — it's a loop. Every reflection (a resume, a gap check, a growth suggestion) feeds back into what you check in about next, so each pass adds to the same accumulating skill picture instead of starting over. Every screen in this app — Dashboard, Profile, Learning Log, Skills — is a different view onto that same append-only evidence log.",
     "principlesHeader": "Design principles",
     "selfHostedTitle": "Single user, self-hosted",
@@ -171,6 +170,22 @@
     "pluggableLlmBody": "Talks to any OpenAI-compatible chat completions endpoint — a cloud API or a local Ollama server. Configured from Settings, not hardcoded.",
     "evidenceNotAssessmentTitle": "Evidence, not self-assessment",
     "evidenceNotAssessmentBody": "Skills mostly come from things you already have (a resume, a certificate, a project description) rather than from filling out a skill matrix from memory."
+  },
+  "ai": {
+    "title": "AI Integration",
+    "subtitle": "The features here call an LLM. Everything else in this app — including generating your resume — works without one.",
+    "guidanceHeader": "Growth guidance toward your goals",
+    "guidanceHint": "For each career path goal you've written on the Dashboard, the LLM suggests what to develop next given your current skills.",
+    "guidanceButton": "See how to grow toward these goals",
+    "guidanceNeedsGoal": "Write at least one goal on the Dashboard first.",
+    "guidanceError": "Failed to get guidance: {error}",
+    "gapCheckHeader": "Job posting gap check",
+    "gapCheckHint": "Paste a job posting to see how it lines up against your current skills.",
+    "gapCheckPlaceholder": "Paste the job description here",
+    "gapCheckRun": "Check against my skills",
+    "gapCheckMatched": "You already have",
+    "gapCheckMissing": "Not found yet",
+    "gapCheckError": "Failed to check: {error}"
   },
   "settings": {
     "title": "Settings",

@@ -15,8 +15,6 @@ const loading = ref(true)
 const savingGoal = ref('')
 const checkinText = ref('')
 const submittingCheckin = ref(false)
-const guidance = ref(null)
-const loadingGuidance = ref(false)
 
 const horizonLabelKeys = {
   this_year: 'dashboard.horizonThisYear',
@@ -48,19 +46,6 @@ async function saveGoal(goal) {
     ElMessage.success(t('dashboard.goalSaved'))
   } finally {
     savingGoal.value = ''
-  }
-}
-
-const hasAnyGoal = computed(() => goals.value.some((g) => g.description.trim()))
-
-async function fetchGuidance() {
-  loadingGuidance.value = true
-  try {
-    guidance.value = await api.getGrowthGuidance()
-  } catch (e) {
-    ElMessage.error(t('dashboard.guidanceError', { error: e.message }))
-  } finally {
-    loadingGuidance.value = false
   }
 }
 
@@ -159,7 +144,7 @@ const categoryOption = computed(() => {
 
   <router-link to="/concept" class="concept-link">{{ t('dashboard.conceptLink') }} →</router-link>
 
-  <el-card shadow="never" class="chart-card">
+  <el-card shadow="never" class="chart-card accent-blue">
     <template #header>{{ t('dashboard.checkinHeader') }}</template>
     <el-input
       v-model="checkinText"
@@ -177,7 +162,7 @@ const categoryOption = computed(() => {
     </el-button>
   </el-card>
 
-  <el-card shadow="never" class="chart-card">
+  <el-card shadow="never" class="chart-card accent-violet">
     <template #header>{{ t('dashboard.goalsHeader') }}</template>
     <el-row :gutter="16">
       <el-col :span="8" v-for="goal in goals" :key="goal.horizon">
@@ -193,43 +178,28 @@ const categoryOption = computed(() => {
       </el-col>
     </el-row>
 
-    <el-button
-      :disabled="!hasAnyGoal"
-      :loading="loadingGuidance"
-      @click="fetchGuidance"
-      class="guidance-btn"
-    >
-      {{ t('dashboard.guidanceButton') }}
-    </el-button>
-    <p v-if="!hasAnyGoal" class="guidance-hint">{{ t('dashboard.guidanceNeedsGoal') }}</p>
-
-    <div v-if="guidance && guidance.by_horizon.length" class="guidance-result">
-      <div v-for="item in guidance.by_horizon" :key="item.horizon" class="guidance-item">
-        <div class="guidance-horizon">{{ item.horizon }}</div>
-        <p class="guidance-advice">{{ item.advice }}</p>
-      </div>
-    </div>
+    <router-link to="/ai" class="ai-link">{{ t('dashboard.aiLink') }} →</router-link>
   </el-card>
 
-  <el-card shadow="never" class="chart-card">
+  <el-card shadow="never" class="chart-card accent-aqua">
     <template #header>{{ t('dashboard.growthHeader') }}</template>
     <v-chart v-if="!loading" :option="growthOption" autoresize style="height: 260px" />
   </el-card>
 
-  <el-card shadow="never" class="chart-card">
+  <el-card shadow="never" class="chart-card accent-orange">
     <template #header>{{ t('dashboard.categoryHeader') }}</template>
     <v-chart v-if="!loading" :option="categoryOption" autoresize style="height: 260px" />
   </el-card>
 
   <el-row :gutter="16" class="stats">
     <el-col :span="8">
-      <el-card shadow="never"><div class="stat-label">{{ t('dashboard.statTotalSkills') }}</div><div class="stat-value">{{ skills.length }}</div></el-card>
+      <el-card shadow="never" class="stat-card accent-blue"><div class="stat-label">{{ t('dashboard.statTotalSkills') }}</div><div class="stat-value">{{ skills.length }}</div></el-card>
     </el-col>
     <el-col :span="8">
-      <el-card shadow="never"><div class="stat-label">{{ t('dashboard.statCategories') }}</div><div class="stat-value">{{ categoryCount }}</div></el-card>
+      <el-card shadow="never" class="stat-card accent-violet"><div class="stat-label">{{ t('dashboard.statCategories') }}</div><div class="stat-value">{{ categoryCount }}</div></el-card>
     </el-col>
     <el-col :span="8">
-      <el-card shadow="never"><div class="stat-label">{{ t('dashboard.statRecent') }}</div><div class="stat-value">{{ recentCount }}</div></el-card>
+      <el-card shadow="never" class="stat-card accent-aqua"><div class="stat-label">{{ t('dashboard.statRecent') }}</div><div class="stat-value">{{ recentCount }}</div></el-card>
     </el-col>
   </el-row>
 </template>
@@ -262,41 +232,17 @@ const categoryOption = computed(() => {
   margin-top: 0.75rem;
 }
 
-.guidance-btn {
-  margin-top: 1rem;
-}
-
-.guidance-hint {
+.ai-link {
   display: inline-block;
-  margin: 1rem 0 0 0.75rem;
-  font-size: 0.8rem;
-  color: var(--ink-muted);
-}
-
-.guidance-result {
   margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--el-border-color);
-}
-
-.guidance-item {
-  margin-bottom: 0.75rem;
-}
-
-.guidance-item:last-child {
-  margin-bottom: 0;
-}
-
-.guidance-horizon {
+  font-size: 0.85rem;
+  color: var(--hue-violet);
+  text-decoration: none;
   font-weight: 600;
-  font-size: 0.85rem;
-  margin-bottom: 0.25rem;
 }
 
-.guidance-advice {
-  color: var(--ink-secondary);
-  font-size: 0.85rem;
-  margin: 0;
+.ai-link:hover {
+  text-decoration: underline;
 }
 
 .stats {

@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
+import { tagStyle } from '../hue'
 
 const PAGE_SIZE = 50
 
@@ -66,7 +67,7 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
       :timestamp="formatDateTime(entry.created_at)"
     >
       <el-card shadow="never">
-        <el-tag size="small">{{ sourceLabel(entry.source_type) }}</el-tag>
+        <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
         <p>{{ entry.raw_input || t('timeline.image') }}</p>
       </el-card>
     </el-timeline-item>

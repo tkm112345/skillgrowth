@@ -19,7 +19,7 @@ name（正規化した短い名称）と category（技術/資格/マネジメ�
 ]
 
 既存スキル一覧:
-{existing_skills}
+__EXISTING_SKILLS__
 """
 
 
@@ -84,7 +84,7 @@ def _parse_json_object(raw: str) -> dict:
 
 
 def extract_and_match_text(text: str, existing_skills: list[dict], settings: Settings) -> list[dict]:
-    system_prompt = MATCH_PROMPT.format(existing_skills=_existing_skills_block(existing_skills))
+    system_prompt = MATCH_PROMPT.replace("__EXISTING_SKILLS__", _existing_skills_block(existing_skills))
     resp = _complete(
         settings,
         model=settings.llm_model,
@@ -102,7 +102,7 @@ def extract_and_match_image(image_path: str, existing_skills: list[dict], settin
     ext = image_path.rsplit(".", 1)[-1].lower()
     mime = "image/png" if ext == "png" else "image/jpeg"
 
-    system_prompt = MATCH_PROMPT.format(existing_skills=_existing_skills_block(existing_skills))
+    system_prompt = MATCH_PROMPT.replace("__EXISTING_SKILLS__", _existing_skills_block(existing_skills))
     resp = _complete(
         settings,
         model=settings.llm_vision_model,
@@ -176,22 +176,3 @@ def goal_growth_guidance(goals: list[dict], current_skills: list[dict], settings
     )
     data = _parse_json_object(resp.choices[0].message.content or "{}")
     return {"by_horizon": data.get("by_horizon", [])}
-
-
-def generate_resume(skill_summaries: list[str], settings: Settings) -> str:
-    resp = _complete(
-        settings,
-        model=settings.llm_model,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "以下は蓄積されたスキル・経験・資格の一覧です。"
-                    "これらを統合し、職務経歴書として読める形式のMarkdown文書を作成してください。"
-                    "職務要約、経験・スキル、資格の各セクションを含めてください。"
-                ),
-            },
-            {"role": "user", "content": "\n".join(f"- {s}" for s in skill_summaries)},
-        ],
-    )
-    return resp.choices[0].message.content or ""

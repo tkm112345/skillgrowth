@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const principleKeys = ['selfHosted', 'freeText', 'pluggableLlm', 'evidenceNotAssessment']
+const principleKeys = ['selfHosted', 'freeText', 'llmOptional', 'pluggableLlm', 'evidenceNotAssessment']
 
 const loopSteps = ['loopEvidence', 'loopExtraction', 'loopSkillPicture', 'loopReflect']
 const SIDES = ['top', 'right', 'bottom', 'left']

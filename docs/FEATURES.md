@@ -150,14 +150,18 @@ LLM-optional (everything else) versus LLM-required (just these two).
 
 ## Concept
 
-An in-app page explaining the product's core loop and its four design
-principles (self-hosted/single-user, free-text skills, pluggable LLM,
-activity over self-assessment). The loop is drawn as a circle, not a
-straight line: activity → extraction → skill picture → reflect (a
-template-based resume, or optionally the AI Integration page's job gap
-check / goal-based growth guidance) → back into what you check in about
-next. Each pass around adds to the same accumulating skill picture rather
-than starting over.
+An in-app page explaining the product's core loop and its five design
+principles (self-hosted/single-user, free-text skills, LLM-optional not
+LLM-required, pluggable LLM, activity over self-assessment). The loop is
+drawn as a circle, not a straight line: activity → extraction → skill
+picture → reflect (a template-based resume, or optionally the AI
+Integration page's job gap check / goal-based growth guidance) → back
+into what you check in about next. Each pass around adds to the same
+accumulating skill picture rather than starting over. The loop itself is
+scoped to turning free text into skills — it's skipped entirely for a
+direct skill add or CSV import, and career path goals, Vision, Self PR,
+and resume generation all sit outside it, with no LLM involved at any
+point.
 
 ## Settings
 

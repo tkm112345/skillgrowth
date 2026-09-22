@@ -74,9 +74,14 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Free-text skills.** No fixed taxonomy. Skills are stored as the natural
   language the LLM extracts from your activity (or that you type directly),
   not normalized IDs.
-- **Pluggable LLM.** Talks to any OpenAI-compatible chat completions
-  endpoint — a cloud API or a local Ollama server
-  (`http://localhost:11434/v1`). Configured from the Settings page.
+- **LLM-optional, not LLM-required.** Extracting skills from free text and
+  the two AI Integration features are the only things that call an LLM.
+  Adding/editing skills by hand, career path goals, Vision, Self PR,
+  resume generation, and backup/restore all work with none configured.
+- **Pluggable LLM.** When a feature does call one, it talks to any
+  OpenAI-compatible chat completions endpoint — a cloud API or a local
+  Ollama server (`http://localhost:11434/v1`). Configured from the
+  Settings page.
 - **Activity, not self-assessment.** Skills mostly come from things you
   already have (certificates, project notes, a CSV export from wherever you
   already track this) rather than from filling out a skill matrix — though

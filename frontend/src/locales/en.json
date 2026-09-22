@@ -8,7 +8,7 @@
     "learning": "Learning Log",
     "skills": "Skills",
     "timeline": "Evidence Log",
-    "export": "Export",
+    "export": "Resume",
     "concept": "Concept",
     "settings": "Settings"
   },
@@ -136,8 +136,8 @@
     "sourceLearningActivity": "Learning activity"
   },
   "export": {
-    "title": "Export",
-    "subtitle": "Generate a resume from your current skill picture.",
+    "title": "Resume",
+    "subtitle": "Generate a resume from your current skills, and check how it stacks up against a job posting.",
     "generate": "Generate resume from current evidence",
     "generateSuccess": "Resume generated",
     "generateError": "Failed to generate: {error}",
@@ -178,6 +178,10 @@
     "visionModel": "Model (vision)",
     "save": "Save",
     "saveSuccess": "Saved",
-    "saveError": "Failed to save: {error}"
+    "saveError": "Failed to save: {error}",
+    "backupHeader": "Data backup",
+    "backupHint": "Download all of your career data (evidence, skills, profile, goals, learning log, links, resume history) as a single JSON file. Your LLM connection settings are not included.",
+    "backupDownload": "Download backup",
+    "backupError": "Failed to download backup: {error}"
   }
 }

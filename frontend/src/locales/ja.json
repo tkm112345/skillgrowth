@@ -8,7 +8,7 @@
     "learning": "学習ログ",
     "skills": "スキル一覧",
     "timeline": "証拠ログ",
-    "export": "エクスポート",
+    "export": "職務経歴書",
     "concept": "コンセプト",
     "settings": "設定"
   },
@@ -136,8 +136,8 @@
     "sourceLearningActivity": "学習ログ"
   },
   "export": {
-    "title": "エクスポート",
-    "subtitle": "現在のスキル像から、職務経歴書を生成します。",
+    "title": "職務経歴書",
+    "subtitle": "現在のスキルから職務経歴書を生成し、求人票との適合度も確認できます。",
     "generate": "現在の証拠から職務経歴書を生成",
     "generateSuccess": "職務経歴書を生成しました",
     "generateError": "生成に失敗しました: {error}",
@@ -178,6 +178,10 @@
     "visionModel": "モデル（画像）",
     "save": "保存",
     "saveSuccess": "保存しました",
-    "saveError": "保存に失敗しました: {error}"
+    "saveError": "保存に失敗しました: {error}",
+    "backupHeader": "データのバックアップ",
+    "backupHint": "証拠ログ・スキル・プロフィール・目標・学習ログ・リンク・職務経歴書の生成履歴など、キャリアデータ全体を1つのJSONファイルとしてダウンロードします。LLM接続設定は含まれません。",
+    "backupDownload": "バックアップをダウンロード",
+    "backupError": "バックアップのダウンロードに失敗しました: {error}"
   }
 }

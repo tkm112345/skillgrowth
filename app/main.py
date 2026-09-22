@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 load_dotenv()
 
 from app.db import init_db  # noqa: E402
-from app.routers import evidence, export, goals, learning, profile, settings, skills  # noqa: E402
+from app.routers import backup, evidence, export, goals, learning, profile, settings, skills  # noqa: E402
 
 app = FastAPI(title="skillgrowth")
 app.include_router(evidence.router)
@@ -18,6 +18,7 @@ app.include_router(settings.router)
 app.include_router(goals.router)
 app.include_router(profile.router)
 app.include_router(learning.router)
+app.include_router(backup.router)
 
 
 @app.on_event("startup")

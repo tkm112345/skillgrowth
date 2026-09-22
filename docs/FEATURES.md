@@ -69,7 +69,10 @@ Education/Employment/Project/Learning Log entry — labeled by source type.
 (Manually added and CSV-imported skills don't appear here — they bypass the
 evidence log entirely, since there's no free text behind them.)
 
-## Export
+## Resume
+
+Both features here are about how you look to an employer, so they live
+under one heading rather than a generic "Export":
 
 - **Generate resume** — assembles the current skill picture into a
   Markdown resume via the LLM. Rendered as formatted HTML in the UI (not
@@ -91,10 +94,15 @@ picture rather than starting over.
 
 ## Settings
 
-LLM connection (base URL, API key, text model, vision model), stored in the
-database and editable from the UI — no `.env` editing or restart required.
-Works against any OpenAI-compatible chat completions endpoint: a cloud API
-or a local Ollama server.
+- **LLM connection** — base URL, API key, text model, vision model, stored
+  in the database and editable from the UI — no `.env` editing or restart
+  required. Works against any OpenAI-compatible chat completions endpoint:
+  a cloud API or a local Ollama server.
+- **Data backup** — download every career record (evidence, skills,
+  profile, goals, learning log, links, resume export history) as a single
+  JSON file. Deliberately excludes the LLM connection settings (so an API
+  key never ends up in a backup file). Import is not implemented yet — this
+  is export-only for now.
 
 ## Cross-cutting
 

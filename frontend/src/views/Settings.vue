@@ -15,6 +15,7 @@ const form = reactive({
 })
 const loading = ref(true)
 const saving = ref(false)
+const downloadingBackup = ref(false)
 
 onMounted(async () => {
   try {
@@ -38,6 +39,24 @@ async function save() {
     saving.value = false
   }
 }
+
+async function downloadBackup() {
+  downloadingBackup.value = true
+  try {
+    const data = await api.getBackup()
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `skillgrowth-backup-${data.exported_at.slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error(t('settings.backupError', { error: e.message }))
+  } finally {
+    downloadingBackup.value = false
+  }
+}
 </script>
 
 <template>
@@ -59,10 +78,27 @@ async function save() {
     </el-form-item>
     <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
   </el-form>
+
+  <el-card shadow="never" class="backup-card">
+    <template #header>{{ t('settings.backupHeader') }}</template>
+    <p class="backup-hint">{{ t('settings.backupHint') }}</p>
+    <el-button :loading="downloadingBackup" @click="downloadBackup">{{ t('settings.backupDownload') }}</el-button>
+  </el-card>
 </template>
 
 <style scoped>
 .form {
   max-width: 480px;
+}
+
+.backup-card {
+  max-width: 480px;
+  margin-top: 1.5rem;
+}
+
+.backup-hint {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin-top: 0;
 }
 </style>

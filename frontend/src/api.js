@@ -52,6 +52,7 @@ export const api = {
   getSettings: () => request('/settings'),
   updateSettings: (payload) =>
     request('/settings', { method: 'PUT', body: JSON.stringify(payload) }),
+  getBackup: () => request('/backup/export'),
 
   getGoals: () => request('/goals'),
   updateGoal: (horizon, description) =>

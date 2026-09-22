@@ -203,6 +203,7 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "themeColor": "Accent color",
+    "llmHeader": "LLM connection",
     "baseUrl": "Base URL",
     "apiKey": "API Key",
     "textModel": "Model (text)",

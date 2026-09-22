@@ -203,6 +203,7 @@
     "themeLight": "ライト",
     "themeDark": "ダーク",
     "themeColor": "テーマカラー",
+    "llmHeader": "LLM接続",
     "baseUrl": "Base URL",
     "apiKey": "API Key",
     "textModel": "モデル（テキスト）",

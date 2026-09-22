@@ -89,8 +89,15 @@ body {
   font-size: 0.85rem;
 }
 
-/* ---- Minimal / flat Element Plus theme ---- */
-:root {
+/* ---- Minimal / flat Element Plus theme ----
+   `html:root` (not plain `:root`) is intentional: Element Plus's own dark
+   stylesheet sets these same variables under `html.dark`, which has higher
+   specificity (element + class) than a bare `:root` (pseudo-class only) —
+   so in dark mode our overrides were silently losing to Element Plus's
+   stock palette, and --accent changes had no visible effect via
+   --el-color-primary. `html:root` matches `html.dark`'s specificity, and
+   this file loads after Element Plus's CSS, so ours wins the tie. */
+html:root {
   --el-color-primary: var(--accent);
   --el-border-radius-base: 8px;
   --el-border-radius-small: 6px;

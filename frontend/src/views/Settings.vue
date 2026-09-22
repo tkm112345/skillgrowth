@@ -179,33 +179,36 @@ async function resetSample() {
     </div>
   </el-card>
 
-  <el-form :model="form" label-width="160px" v-loading="loading">
-    <el-form-item :label="t('settings.baseUrl')">
-      <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
-    </el-form-item>
-    <el-form-item :label="t('settings.apiKey')">
-      <el-input v-model="form.openai_api_key" type="password" show-password />
-    </el-form-item>
-    <el-form-item :label="t('settings.textModel')">
-      <el-input v-model="form.llm_model" placeholder="gpt-4o-mini" />
-    </el-form-item>
-    <el-form-item :label="t('settings.visionModel')">
-      <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
-    </el-form-item>
-    <div class="form-actions">
-      <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
-      <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
-    </div>
+  <el-card shadow="never" class="backup-card accent-yellow">
+    <template #header>{{ t('settings.llmHeader') }}</template>
+    <el-form :model="form" label-width="160px" v-loading="loading">
+      <el-form-item :label="t('settings.baseUrl')">
+        <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
+      </el-form-item>
+      <el-form-item :label="t('settings.apiKey')">
+        <el-input v-model="form.openai_api_key" type="password" show-password />
+      </el-form-item>
+      <el-form-item :label="t('settings.textModel')">
+        <el-input v-model="form.llm_model" placeholder="gpt-4o-mini" />
+      </el-form-item>
+      <el-form-item :label="t('settings.visionModel')">
+        <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
+      </el-form-item>
+      <div class="form-actions">
+        <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
+        <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
+      </div>
 
-    <el-alert
-      v-if="testResult"
-      class="test-result"
-      :type="testResult.ok ? 'success' : 'error'"
-      :title="testResult.ok ? t('settings.testSuccess') : t('settings.testFailure', { error: testResult.message })"
-      :closable="false"
-      show-icon
-    />
-  </el-form>
+      <el-alert
+        v-if="testResult"
+        class="test-result"
+        :type="testResult.ok ? 'success' : 'error'"
+        :title="testResult.ok ? t('settings.testSuccess') : t('settings.testFailure', { error: testResult.message })"
+        :closable="false"
+        show-icon
+      />
+    </el-form>
+  </el-card>
 
   <el-card shadow="never" class="backup-card">
     <template #header>{{ t('settings.backupHeader') }}</template>

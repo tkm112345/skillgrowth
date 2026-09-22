@@ -133,10 +133,22 @@ Log page, and a read-only feed that already showed the same entries):
 
 ## AI Integration
 
-The only two features in the app that call an LLM at your request (activity
+The only features in the app that call an LLM at your request (activity
 extraction also uses one, but that happens automatically as you add
 activity, not from this page):
 
+- **Career Consult** — a chat with an AI career consultant grounded in
+  your actual data: skills, activity, education, work history, Self PR,
+  Vision, and career path goals are all sent as context on every message,
+  so advice is specific to you rather than generic. Conversations are
+  saved (a list of past ones, each with an auto-generated title from its
+  first message, lives on this page) and can be resumed or deleted later.
+  Unlike the two single-shot features below, this is a genuine multi-turn
+  conversation — the full message history of a conversation is resent
+  with every reply, so the AI keeps context as you go back and forth. If
+  your message is saved but the AI's reply fails (e.g. a bad LLM
+  connection), the message you wrote is never lost — only the reply
+  fails.
 - **Growth guidance** — for any career path goal you've written on the
   Dashboard, the LLM suggests what to develop next given your current
   skills. Only calls the LLM for goals that actually have text; if none
@@ -145,8 +157,9 @@ activity, not from this page):
   against your current skills and returns what you already meet, what's
   missing, and a short summary.
 
-Keeping both under one page makes it obvious which parts of the app are
-LLM-optional (everything else) versus LLM-required (just these two).
+Keeping all three under one page makes it obvious which parts of the app
+are LLM-optional (everything else) versus LLM-required (just these
+three).
 
 ## Concept
 
@@ -168,14 +181,14 @@ separate branch for the fifth:
 
 Step 4 flows straight back into step 1 — that's the main loop, and it's
 the path drawn as a closed circle. Step 5 (**Prepare** — resume
-generation, a job-posting gap check, growth guidance toward your goals)
-is deliberately *not* part of that circle: it's an occasional detour off
-of step 4, drawn as a separate branch, not a step every pass through the
-loop takes. Its note that the LLM-backed features here "haven't been
-thoroughly vetted yet" isn't about them being unbuilt — all three exist
-and work — it's a reliability caveat: this app hasn't accumulated enough
-real-world use yet to vouch for how good the LLM's suggestions actually
-are.
+generation, a job-posting gap check, growth guidance toward your goals,
+and now a Career Consult conversation) is deliberately *not* part of that
+circle: it's an occasional detour off of step 4, drawn as a separate
+branch, not a step every pass through the loop takes. Its note that the
+LLM-backed features here "haven't been thoroughly vetted yet" isn't about
+them being unbuilt — all of them exist and work — it's a reliability
+caveat: this app hasn't accumulated enough real-world use yet to vouch
+for how good the LLM's suggestions actually are.
 
 Many of this app's screens — Dashboard, Profile, Activity, Skills — are
 different views onto that same append-only activity log, added to a

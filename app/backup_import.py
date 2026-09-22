@@ -6,6 +6,8 @@ from app.models import (
     CareerGoal,
     CareerGoalHistory,
     CareerVision,
+    ConsultMessage,
+    ConsultSession,
     Education,
     Employment,
     EvidenceEntry,
@@ -226,6 +228,35 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("self_pr", entry.id)
         counts["self_prs"] += 1
+
+    consult_session_id_map: dict[str, str] = {}
+    for row in data.get("consult_sessions", []):
+        consult_session = ConsultSession(
+            title=row.get("title", ""),
+            created_at=_dt(row.get("created_at")),
+            updated_at=_dt(row.get("updated_at")),
+        )
+        session.add(consult_session)
+        session.flush()
+        consult_session_id_map[row["id"]] = consult_session.id
+        note("consult_session", consult_session.id)
+    counts["consult_sessions"] = len(consult_session_id_map)
+
+    counts["consult_messages"] = 0
+    for row in data.get("consult_messages", []):
+        session_id = consult_session_id_map.get(row["session_id"])
+        if not session_id:
+            continue
+        message = ConsultMessage(
+            session_id=session_id,
+            role=row["role"],
+            content=row["content"],
+            created_at=_dt(row.get("created_at")),
+        )
+        session.add(message)
+        session.flush()
+        note("consult_message", message.id)
+        counts["consult_messages"] += 1
 
     session.commit()
     return counts

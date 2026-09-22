@@ -10,6 +10,14 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- Career Consult: a saved, multi-turn chat with an AI career consultant
+  on the AI Integration page. Every message sends the full conversation
+  history plus a context block built from your skills, activity,
+  education, work history, Self PR, Vision, and career path goals, so
+  advice is grounded in real data rather than generic. Conversations
+  persist (list, resume, delete) and are included in data backup/restore.
+  If the AI's reply fails, the message you sent is never lost — it's
+  committed before the LLM is even called.
 - Resume snapshots can be edited directly as Markdown after generation, in
   place, with an `edited_at` timestamp shown alongside the original
   generation date.

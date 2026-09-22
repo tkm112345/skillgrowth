@@ -23,6 +23,21 @@ __EXISTING_SKILLS__
 """
 
 
+CONSULT_SYSTEM_PROMPT = """あなたは経験豊富なキャリアコンサルタントです。
+相談者本人が実際にこのアプリに記録してきたキャリアデータ（職歴・学歴・プロジェクト・
+スキル・自己PR・ビジョン・キャリア目標）が以下に与えられます。
+
+このデータを踏まえて、一般論ではなく相談者本人の状況に即した具体的なアドバイスを
+してください。データからは分からないことを一般論で埋めず、必要なら質問してください。
+
+返答は__LOCALE__で行ってください。
+
+--- 相談者のキャリアデータ ---
+__CONTEXT__
+--- ここまで ---
+"""
+
+
 class LLMRequestError(RuntimeError):
     """Raised when a request to the configured LLM endpoint fails, so
     callers get a clear, catchable error instead of a raw SDK exception."""
@@ -148,6 +163,17 @@ def gap_check(job_description: str, current_skills: list[dict], settings: Settin
         "missing": data.get("missing", []),
         "summary": data.get("summary", ""),
     }
+
+
+def career_consult_reply(messages: list[dict], context: str, locale: str, settings: Settings) -> str:
+    locale_name = "日本語" if locale == "ja" else "English"
+    system_prompt = CONSULT_SYSTEM_PROMPT.replace("__CONTEXT__", context).replace("__LOCALE__", locale_name)
+    resp = _complete(
+        settings,
+        model=settings.llm_model,
+        messages=[{"role": "system", "content": system_prompt}, *messages],
+    )
+    return resp.choices[0].message.content or ""
 
 
 def goal_growth_guidance(goals: list[dict], current_skills: list[dict], settings: Settings) -> dict:

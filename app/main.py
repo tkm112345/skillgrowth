@@ -12,6 +12,7 @@ from app.llm import LLMRequestError  # noqa: E402
 from app.routers import (  # noqa: E402
     ai,
     backup,
+    consult,
     evidence,
     export,
     goals,
@@ -49,6 +50,7 @@ app.include_router(backup.router)
 app.include_router(ai.router)
 app.include_router(self_pr.router)
 app.include_router(vision.router)
+app.include_router(consult.router)
 
 
 @app.on_event("startup")

@@ -72,6 +72,18 @@ export const api = {
   selectSelfPR: (id) => request(`/self-pr/${id}/select`, { method: 'PUT' }),
   deleteSelfPR: (id) => request(`/self-pr/${id}`, { method: 'DELETE' }),
 
+  getConsultSessions: (limit = 20, offset = 0) =>
+    request(`/consult/sessions?limit=${limit}&offset=${offset}`),
+  createConsultSession: () => request('/consult/sessions', { method: 'POST' }),
+  getConsultSession: (id) => request(`/consult/sessions/${id}`),
+  deleteConsultSession: (id) => request(`/consult/sessions/${id}`, { method: 'DELETE' }),
+  getConsultMessages: (sessionId) => request(`/consult/sessions/${sessionId}/messages`),
+  sendConsultMessage: (sessionId, content, locale) =>
+    request(`/consult/sessions/${sessionId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ content, locale }),
+    }),
+
   gapCheck: (jobDescription) =>
     request('/ai/gap-check', {
       method: 'POST',

@@ -17,6 +17,8 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "external_links",
         "resume_exports",
         "self_prs",
+        "consult_sessions",
+        "consult_messages",
     ]:
         assert body[key] == []
 
@@ -109,6 +111,8 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "career_vision": 0,
         "resume_exports": 0,
         "self_prs": 0,
+        "consult_sessions": 0,
+        "consult_messages": 0,
     }
 
     employment = client.get("/api/profile/employment").json()

@@ -23,7 +23,7 @@ flowchart LR
   L --> S
   S --> V[Current skill view]
   S --> X[Resume export - no LLM]
-  S --> G[AI Integration: job gap check / growth guidance]
+  S --> G[AI Integration: career consult / job gap check / growth guidance]
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full data model and
@@ -55,10 +55,12 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   your current data — **no LLM involved**, rendered and downloadable, with
   past generations kept as browsable snapshots, any of which can be edited
   directly as Markdown afterward.
-- **AI Integration** — the only two features that call an LLM on demand:
-  growth guidance toward each Dashboard goal, and a job-posting gap check
-  (paste a job description to see which of its requirements you already
-  meet).
+- **AI Integration** — the only features that call an LLM on demand:
+  Career Consult (a saved, multi-turn chat with an AI career consultant,
+  grounded in your actual skills/activity/history/goals on every
+  message), growth guidance toward each Dashboard goal, and a
+  job-posting gap check (paste a job description to see which of its
+  requirements you already meet).
 - **Settings** — language, theme (light/dark/system) and an accent color,
   the LLM connection (base URL / API key / model, with a test button), a
   full data backup download, restoring from a backup file, and an About
@@ -75,7 +77,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   language the LLM extracts from your activity (or that you type directly),
   not normalized IDs.
 - **LLM-optional, not LLM-required.** Extracting skills from free text and
-  the two AI Integration features are the only things that call an LLM.
+  the AI Integration features are the only things that call an LLM.
   Adding/editing skills by hand, career path goals, Vision, Self PR,
   resume generation, and backup/restore all work with none configured.
 - **Pluggable LLM.** When a feature does call one, it talks to any
@@ -129,9 +131,10 @@ A typical first session looks like this:
    your data poured into a fixed template — so this works even before
    step 1. Every generation is kept, so you can always go back to an
    earlier version.
-7. **AI Integration**, only if you configured an LLM in step 1: paste a
-   job posting for a gap check against your current skills, or ask for
-   growth guidance toward the goals you wrote in step 5.
+7. **AI Integration**, only if you configured an LLM in step 1: start a
+   Career Consult conversation, paste a job posting for a gap check
+   against your current skills, or ask for growth guidance toward the
+   goals you wrote in step 5.
 8. **Settings → Data backup**, occasionally: downloads everything (except
    the LLM connection settings) as one JSON file. Restoring it later — on
    this instance or a fresh one — is purely additive, so it's safe to

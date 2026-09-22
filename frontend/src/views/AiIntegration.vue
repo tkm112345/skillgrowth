@@ -2,15 +2,21 @@
 import { ElMessage } from 'element-plus'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import { api } from '../api'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const router = useRouter()
 
 const goals = ref([])
 const loading = ref(true)
 const guidance = ref(null)
 const loadingGuidance = ref(false)
+
+const sessions = ref([])
+const loadingSessions = ref(true)
+const startingSession = ref(false)
 
 onMounted(async () => {
   try {
@@ -20,7 +26,28 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  try {
+    sessions.value = await api.getConsultSessions()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingSessions.value = false
+  }
 })
+
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString(locale.value)
+}
+
+async function startConsult() {
+  startingSession.value = true
+  try {
+    const session = await api.createConsultSession()
+    router.push(`/consult/${session.id}`)
+  } finally {
+    startingSession.value = false
+  }
+}
 
 const hasAnyGoal = computed(() => goals.value.some((g) => g.description.trim()))
 
@@ -56,6 +83,24 @@ async function runGapCheck() {
 <template>
   <h1 class="page-title">{{ t('ai.title') }}</h1>
   <p class="page-subtitle">{{ t('ai.subtitle') }}</p>
+
+  <el-card shadow="never" class="section-card accent-aqua" v-loading="loadingSessions">
+    <template #header>{{ t('ai.consultHeader') }}</template>
+    <p class="hint">{{ t('ai.consultHint') }}</p>
+
+    <el-button type="primary" :loading="startingSession" @click="startConsult">
+      {{ t('ai.consultStart') }}
+    </el-button>
+
+    <ul v-if="sessions.length" class="consult-session-list">
+      <li v-for="s in sessions" :key="s.id">
+        <router-link :to="`/consult/${s.id}`" class="consult-session-link">
+          {{ s.title || t('ai.consultUntitled') }}
+        </router-link>
+        <span class="consult-session-date">{{ formatDate(s.updated_at) }}</span>
+      </li>
+    </ul>
+  </el-card>
 
   <el-card shadow="never" class="section-card accent-violet" v-loading="loading">
     <template #header>{{ t('ai.guidanceHeader') }}</template>
@@ -116,6 +161,39 @@ async function runGapCheck() {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin-top: 0;
+}
+
+.consult-session-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0.75rem 0 0;
+  border-top: 1px solid var(--el-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.consult-session-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.consult-session-link {
+  color: var(--ink-primary);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.consult-session-link:hover {
+  text-decoration: underline;
+}
+
+.consult-session-date {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  font-size: 0.75rem;
 }
 
 .need-goal-hint {

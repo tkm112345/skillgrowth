@@ -11,6 +11,8 @@ from app.models import (
     CareerGoal,
     CareerGoalHistory,
     CareerVision,
+    ConsultMessage,
+    ConsultSession,
     Education,
     Employment,
     EvidenceEntry,
@@ -41,6 +43,8 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("evidence", EvidenceEntry),
     ("self_pr", SelfPR),
     ("career_goal_history", CareerGoalHistory),
+    ("consult_message", ConsultMessage),
+    ("consult_session", ConsultSession),
 ]
 
 
@@ -64,6 +68,8 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "external_links": dump(ExternalLink),
         "resume_exports": dump(ExportSnapshot),
         "self_prs": dump(SelfPR),
+        "consult_sessions": dump(ConsultSession),
+        "consult_messages": dump(ConsultMessage),
     }
 
 

@@ -32,6 +32,7 @@ erDiagram
   EvidenceEntry ||--o| LearningActivity : "backs"
   Employment ||--o{ Project : "may contain"
   CareerGoal ||--o{ CareerGoalHistory : "past versions (matched by horizon, not a real FK)"
+  ConsultSession ||--o{ ConsultMessage : "has"
 
   EvidenceEntry {
     string id
@@ -97,6 +98,19 @@ erDiagram
     int id "singleton row, id=1"
     text content "no history — overwritten in place"
     datetime updated_at
+  }
+  ConsultSession {
+    string id
+    text title "set from the first message"
+    datetime created_at
+    datetime updated_at
+  }
+  ConsultMessage {
+    string id
+    string session_id
+    string role "user or assistant"
+    text content
+    datetime created_at
   }
   ExportSnapshot {
     string id
@@ -305,12 +319,14 @@ it, since nothing asked for one — if that changes, the shape would mirror
 `CareerVision(id=1)` (never persisted) when no row exists yet, so the
 frontend never has to special-case "no vision set."
 
-## AI Integration page (the only two LLM-optional features)
+## AI Integration page (the only LLM-optional features)
 
 Every other advisory feature in the app happens without calling an LLM at
-request time (extraction still uses one, at evidence-add time). The two
-exceptions live together under `/api/ai` and the `/ai` page, so it's
-obvious to the user which parts of the app talk to a model on demand:
+request time (extraction still uses one, at evidence-add time). These
+exceptions live together under `/api/ai` (plus `/api/consult` for Career
+Consult, kept as its own router since it's a materially different shape
+— see below) and the `/ai` page, so it's obvious to the user which parts
+of the app talk to a model on demand:
 
 `POST /api/ai/growth-guidance` reads all three `CareerGoal` rows (written
 from the free-text goal fields on the Dashboard), drops any with an empty
@@ -327,6 +343,51 @@ Both routers previously lived under `/api/goals` and `/api/export`
 respectively; they were split out into `app/routers/ai.py` so that moving
 or removing "the AI stuff" never means touching the goals or resume
 routers.
+
+## Career Consult (multi-turn, unlike the rest of the app's LLM calls)
+
+Every other LLM-backed feature in this app is a single request/response —
+one call in, one structured result out, nothing kept between calls.
+Career Consult is the first genuinely stateful one: a chat with an AI
+career consultant, where the whole point is that it remembers what was
+already said. Two tables back it, in `app/routers/consult.py`:
+`ConsultSession` (id, `title`, `created_at`, `updated_at`) and
+`ConsultMessage` (id, `session_id`, `role` — `"user"` or `"assistant"` —
+`content`, `created_at`). Both are new tables, so no `_ensure_column`
+migration was needed for them.
+
+`POST /api/consult/sessions/{id}/messages` does four things in order:
+1. Saves the user's message and commits immediately — before calling the
+   LLM at all — so a failed reply (bad connection, rate limit, whatever)
+   never loses what the user typed. This is the same "commit first, then
+   attempt the risky part" ordering `services.record_evidence_and_extract`
+   already uses for evidence extraction.
+2. Re-reads the session's full message history and hands it to
+   `llm.career_consult_reply` as the OpenAI-style `messages` list — the
+   entire conversation is resent on every turn, since this app has no
+   context-window management or summarization. A very long-running
+   conversation will eventually hit the configured model's context limit;
+   nothing here handles that case today.
+3. Builds a context block via `app/career_context.py::build_consult_context`
+   — the same `build_resume_markdown` output the resume uses (skills,
+   work history, education, Self PR), plus Vision and career path goals
+   appended, which the resume deliberately leaves out but a career
+   consultant needs. This whole block is injected into the system prompt
+   (`llm.CONSULT_SYSTEM_PROMPT`) fresh on every message, not just once at
+   session start, so the AI's picture of the user is never stale even
+   mid-conversation.
+4. Saves the assistant's reply, bumps `ConsultSession.updated_at` (so the
+   session list on the AI Integration page sorts by recency), and sets
+   `title` from the first ~40 characters of the first user message if it
+   wasn't already set.
+
+Sessions are listed/fetched/deleted like every other paginated resource
+in this app (`limit`/`offset` on the list endpoint); deleting a session
+cascades to its messages in the router itself (no ON DELETE CASCADE at
+the DB level, consistent with how `DELETE /api/skills/{id}` handles its
+`SkillLink` rows). Both tables are included in backup export/import,
+with `ConsultMessage.session_id` remapped through a fresh id map on
+import — the same pattern used for every other foreign-keyed table.
 
 ## Resume export (no LLM)
 
@@ -398,10 +459,14 @@ The SPA has one route per top-level concern (Concept, Dashboard, Vision,
 Skills, Activity, Profile, Resume, AI Integration, Settings), listed in
 `frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
 used to be a separate Learning Log page — see "Activity ⨯ Learning Log
-merge" below. There's no server-side rendering; the FastAPI catch-all
-route in `app/main.py::spa_fallback` returns `index.html` for any
-non-`/api` path so client-side routing (`vue-router`'s history mode) works
-on a hard refresh.
+merge" below. `/consult/:id` (`Consult.vue`) is the one exception to
+"one route per concern" and the first parameterized route in the app —
+each saved conversation gets its own URL, reached from the Career Consult
+card on the AI Integration page rather than from the sidebar. There's no
+server-side rendering; the FastAPI catch-all route in
+`app/main.py::spa_fallback` returns `index.html` for any non-`/api` path
+so client-side routing (`vue-router`'s history mode) works on a hard
+refresh.
 
 That same catch-all route also has to serve the handful of files Vite
 copies from `frontend/public/` into `frontend/dist/` verbatim (`favicon.svg`,

@@ -37,13 +37,13 @@ const year = new Date().getFullYear()
         <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" router class="nav">
+        <el-menu-item index="/concept">
+          <el-icon><Compass /></el-icon>
+          <template #title>{{ t('nav.concept') }}</template>
+        </el-menu-item>
         <el-menu-item index="/">
           <el-icon><DataAnalysis /></el-icon>
           <template #title>{{ t('nav.dashboard') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/profile">
-          <el-icon><Notebook /></el-icon>
-          <template #title>{{ t('nav.profile') }}</template>
         </el-menu-item>
         <el-menu-item index="/learning">
           <el-icon><Reading /></el-icon>
@@ -57,13 +57,13 @@ const year = new Date().getFullYear()
           <el-icon><TrendCharts /></el-icon>
           <template #title>{{ t('nav.timeline') }}</template>
         </el-menu-item>
+        <el-menu-item index="/profile">
+          <el-icon><Notebook /></el-icon>
+          <template #title>{{ t('nav.profile') }}</template>
+        </el-menu-item>
         <el-menu-item index="/export">
           <el-icon><Files /></el-icon>
           <template #title>{{ t('nav.export') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/concept">
-          <el-icon><Compass /></el-icon>
-          <template #title>{{ t('nav.concept') }}</template>
         </el-menu-item>
         <el-menu-item index="/settings">
           <el-icon><Setting /></el-icon>

@@ -1,4 +1,5 @@
 <script setup>
+import { ElMessage } from 'element-plus'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -23,8 +24,13 @@ function sourceLabel(sourceType) {
 }
 
 onMounted(async () => {
-  entries.value = await api.getEvidence()
-  loading.value = false
+  try {
+    entries.value = await api.getEvidence()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))

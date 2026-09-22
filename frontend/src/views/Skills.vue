@@ -19,8 +19,13 @@ async function reload() {
 }
 
 onMounted(async () => {
-  await reload()
-  loading.value = false
+  try {
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 function formatDate(iso) {

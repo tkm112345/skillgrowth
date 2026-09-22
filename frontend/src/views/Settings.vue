@@ -17,9 +17,14 @@ const loading = ref(true)
 const saving = ref(false)
 
 onMounted(async () => {
-  const settings = await api.getSettings()
-  Object.assign(form, settings)
-  loading.value = false
+  try {
+    const settings = await api.getSettings()
+    Object.assign(form, settings)
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 async function save() {

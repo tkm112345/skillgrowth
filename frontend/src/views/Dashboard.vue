@@ -31,9 +31,14 @@ async function reloadSkillData() {
 }
 
 onMounted(async () => {
-  const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals()])
-  goals.value = goalList
-  loading.value = false
+  try {
+    const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals()])
+    goals.value = goalList
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 async function saveGoal(goal) {

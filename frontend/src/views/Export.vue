@@ -13,8 +13,13 @@ const loading = ref(true)
 const generating = ref(false)
 
 onMounted(async () => {
-  exports.value = await api.getExports()
-  loading.value = false
+  try {
+    exports.value = await api.getExports()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 async function generate() {

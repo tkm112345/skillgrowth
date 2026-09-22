@@ -27,8 +27,13 @@ async function reload() {
 }
 
 onMounted(async () => {
-  await reload()
-  loading.value = false
+  try {
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loading.value = false
+  }
 })
 
 function projectsFor(employmentId) {
@@ -116,19 +121,6 @@ async function removeLink(id) {
 
   <section class="section" v-loading="loading">
     <div class="section-header">
-      <h2>{{ t('profile.linksHeader') }}</h2>
-      <el-button size="small" @click="linkDialog = true">{{ t('common.add') }}</el-button>
-    </div>
-    <div class="links-row" v-if="links.length">
-      <el-tag v-for="l in links" :key="l.id" closable @close="removeLink(l.id)" class="link-tag">
-        <a :href="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
-      </el-tag>
-    </div>
-    <el-empty v-if="!loading && links.length === 0" :description="t('profile.noEntries')" />
-  </section>
-
-  <section class="section" v-loading="loading">
-    <div class="section-header">
       <h2>{{ t('profile.educationHeader') }}</h2>
       <el-button size="small" @click="eduDialog = true">{{ t('common.add') }}</el-button>
     </div>
@@ -175,6 +167,19 @@ async function removeLink(id) {
       <p v-if="p.description">{{ p.description }}</p>
       <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
     </el-card>
+  </section>
+
+  <section class="section" v-loading="loading">
+    <div class="section-header">
+      <h2>{{ t('profile.linksHeader') }}</h2>
+      <el-button size="small" @click="linkDialog = true">{{ t('common.add') }}</el-button>
+    </div>
+    <div class="links-row" v-if="links.length">
+      <el-tag v-for="l in links" :key="l.id" closable @close="removeLink(l.id)" class="link-tag">
+        <a :href="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+      </el-tag>
+    </div>
+    <el-empty v-if="!loading && links.length === 0" :description="t('profile.noEntries')" />
   </section>
 
   <el-dialog v-model="eduDialog" :title="t('profile.addEducation')" width="480px">

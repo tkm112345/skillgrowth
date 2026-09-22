@@ -18,7 +18,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "none": "None",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "loadError": "Failed to load. Check your connection and try reloading the page."
   },
   "dashboard": {
     "title": "Dashboard",

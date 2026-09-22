@@ -163,8 +163,14 @@ three).
 
 ## Concept
 
-An in-app page explaining the product's core loop and its five design
-principles (self-hosted/single-user, free-text skills, LLM-optional not
+An in-app page opening with **why this exists** — career data usually
+ends up on someone else's platform (a recruiter's site, an employer's
+internal system) and was never really yours to keep, so skillgrowth
+exists to put that record on your own server, built on your own
+initiative rather than only when a job search or review forces the
+question (see the README's "Why" section for the same explanation) —
+followed by the product's core loop and its five design principles
+(self-hosted/single-user, free-text skills, LLM-optional not
 LLM-required, pluggable LLM, activity over self-assessment).
 
 The loop is five steps, drawn as a circle for the first four with a

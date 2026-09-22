@@ -47,6 +47,11 @@ const arcPaths = computed(() => {
   <h1 class="page-title">{{ t('concept.title') }}</h1>
   <p class="page-subtitle">{{ t('concept.tagline') }}</p>
 
+  <el-card shadow="never" class="section-card accent-blue">
+    <template #header>{{ t('concept.whyHeader') }}</template>
+    <p class="motivation">{{ t('concept.motivation') }}</p>
+  </el-card>
+
   <el-card shadow="never" class="section-card">
     <template #header>{{ t('concept.loopHeader') }}</template>
 
@@ -315,6 +320,13 @@ const arcPaths = computed(() => {
 .loop-note {
   color: var(--ink-secondary);
   font-size: 0.85rem;
+  margin: 0;
+}
+
+.motivation {
+  color: var(--ink-secondary);
+  font-size: 0.88rem;
+  line-height: 1.6;
   margin: 0;
 }
 

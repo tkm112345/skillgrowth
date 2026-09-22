@@ -175,6 +175,8 @@
   "concept": {
     "title": "Concept",
     "tagline": "A tool for your career and skill growth that grows together with you, instead of asking you to fill out a static profile once.",
+    "whyHeader": "Why this exists",
+    "motivation": "Your career history keeps ending up on someone else's platform — a recruiter's site during a job search, your employer's internal system the rest of the time. That data was never really yours, and when you leave, it stays behind. What's actually left in your own hands, if anything, is a handful of scattered Word and Excel files. skillgrowth exists to fix that: a career record that lives on your own server, built on your own initiative, independent of whichever company happens to be holding your data this year.",
     "loopHeader": "The core loop",
     "loopVision": "Sketch out, even roughly, the kind of career you want to build — in Vision or on the Dashboard",
     "loopSkillTrack": "Keep recording and updating the skills and activity you actually have",

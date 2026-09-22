@@ -3,6 +3,22 @@
 A self-hosted tool for your career and skill growth that grows together
 with you, instead of asking you to fill out a static profile once.
 
+## Why
+
+Your career history keeps ending up on someone else's platform. During a
+job search, it's a recruiter's site. During a performance review, it's
+your employer's internal HR system. Either way, that data was never
+really yours — and when you leave, it stays behind. What you're actually
+left holding, if anything, is a handful of scattered Word and Excel files
+you happened to save yourself.
+
+skillgrowth exists to fix that: your career record — skills, evidence,
+history, resume — lives on your own server, under your own control, built
+up on your own initiative rather than only when a job search or an annual
+review forces you to think about it. The goal is a skill set that's
+genuinely yours, portable across employers, not something a company's
+database happens to be holding onto this year.
+
 Every piece of activity you feed it — a quick update, a certification
 photo, an education/employment/project record, a reading/talk/certification
 entry — is kept as an append-only activity log. An LLM extracts skills
@@ -98,6 +114,24 @@ docker compose up --build
 Open http://localhost:8000, then set your LLM connection under Settings.
 Want to see what a populated app looks like first? Settings → "Try it with
 sample data" loads a small fictional career history with one click.
+
+### Example LLM configurations
+
+Any OpenAI-compatible Chat Completions endpoint works. A few confirmed to
+work as of this writing:
+
+| Provider | Base URL | API key | Notes |
+|---|---|---|---|
+| OpenAI | `https://api.openai.com/v1` | an OpenAI API key | the default |
+| Ollama (local) | `http://localhost:11434/v1` | anything non-empty | run a model locally, no external calls |
+| Claude (Anthropic) | `https://api.anthropic.com/v1/` | an Anthropic API key | Anthropic's docs describe this OpenAI-compatible layer as being for quick evaluation, not a long-term production integration — some features (e.g. prompt caching) aren't available through it |
+| Gemini (Google) | `https://generativelanguage.googleapis.com/v1beta/openai/` | a Gemini API key from Google AI Studio | documented as beta by Google |
+
+None of these let you authenticate with a consumer subscription login
+(e.g. a Claude Pro/Max or ChatGPT Plus account) instead of a billed API
+key — neither Anthropic nor OpenAI allow that for third-party
+applications, so a metered API key is the only option regardless of
+provider.
 
 ## Usage
 

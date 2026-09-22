@@ -10,6 +10,17 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A "Why" section on both the Concept page and README.md explaining the
+  problem skillgrowth actually solves: career history usually ends up on
+  someone else's platform (a recruiter's site, an employer's internal
+  system) and was never really yours to keep — skillgrowth exists so you
+  can own and keep building that record yourself, on your own server, on
+  your own initiative.
+- README.md documents confirmed-working example LLM configurations
+  (OpenAI, Ollama, Claude, Gemini) with base URLs and provider-specific
+  caveats, plus a note that neither Anthropic nor OpenAI allow
+  third-party apps to authenticate via a consumer subscription login —
+  an API key is the only option for any provider.
 - Career Consult: a saved, multi-turn chat with an AI career consultant
   on the AI Integration page. Every message sends the full conversation
   history plus a context block built from your skills, activity,

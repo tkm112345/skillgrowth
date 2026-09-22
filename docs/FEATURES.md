@@ -16,6 +16,9 @@
 - **Stats row** — total skills, category count, and skills added in the
   last 7 days. Placed at the bottom of the page by design — the growth
   timeline and goals are the point, the counters are secondary.
+- **Growth guidance** — for any goal you've written, the LLM suggests what
+  to develop next given your current skills. Only calls the LLM for goals
+  that actually have text.
 
 ## Profile
 
@@ -78,11 +81,13 @@ evidence log entirely, since there's no free text behind them.)
 
 ## Concept
 
-An in-app page explaining the product's core loop (evidence → extraction →
-skill picture → resume/gap check) and its four design principles
-(self-hosted/single-user, free-text skills, pluggable LLM, evidence over
-self-assessment) — the same content as this repo's README, made visible
-inside the running app itself.
+An in-app page explaining the product's core loop and its four design
+principles (self-hosted/single-user, free-text skills, pluggable LLM,
+evidence over self-assessment). The loop is drawn as a circle, not a
+straight line: evidence → extraction → skill picture → reflect (resume
+export, job gap check, or goal-based growth guidance) → back into what you
+check in about next. Each pass around adds to the same accumulating skill
+picture rather than starting over.
 
 ## Settings
 

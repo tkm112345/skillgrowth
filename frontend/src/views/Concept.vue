@@ -1,9 +1,46 @@
 <script setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 const principleKeys = ['selfHosted', 'freeText', 'pluggableLlm', 'evidenceNotAssessment']
+
+const loopSteps = ['loopEvidence', 'loopExtraction', 'loopSkillPicture', 'loopReflect']
+
+const CENTER = 120
+const NODE_R = 78
+const LABEL_R = 108
+
+function polarToCartesian(angleDeg, r) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180
+  return { x: CENTER + r * Math.cos(rad), y: CENTER + r * Math.sin(rad) }
+}
+
+const nodes = computed(() =>
+  loopSteps.map((key, i) => {
+    const angle = (360 / loopSteps.length) * i
+    const point = polarToCartesian(angle, NODE_R)
+    const labelPoint = polarToCartesian(angle, LABEL_R)
+    return {
+      key,
+      num: i + 1,
+      x: point.x,
+      y: point.y,
+      labelLeftPct: (labelPoint.x / (CENTER * 2)) * 100,
+      labelTopPct: (labelPoint.y / (CENTER * 2)) * 100,
+    }
+  }),
+)
+
+const arcPaths = computed(() => {
+  const n = loopSteps.length
+  return Array.from({ length: n }, (_, i) => {
+    const start = polarToCartesian((360 / n) * i, NODE_R)
+    const end = polarToCartesian((360 / n) * (i + 1), NODE_R)
+    return `M ${start.x} ${start.y} A ${NODE_R} ${NODE_R} 0 0 1 ${end.x} ${end.y}`
+  })
+})
 </script>
 
 <template>
@@ -12,27 +49,64 @@ const principleKeys = ['selfHosted', 'freeText', 'pluggableLlm', 'evidenceNotAss
 
   <el-card shadow="never" class="section-card">
     <template #header>{{ t('concept.loopHeader') }}</template>
-    <div class="loop">
-      <div class="loop-step">
-        <div class="loop-badge">1</div>
-        <div class="loop-label">{{ t('concept.loopEvidence') }}</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-step">
-        <div class="loop-badge">2</div>
-        <div class="loop-label">{{ t('concept.loopExtraction') }}</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-step">
-        <div class="loop-badge">3</div>
-        <div class="loop-label">{{ t('concept.loopSkillPicture') }}</div>
-      </div>
-      <div class="loop-arrow">→</div>
-      <div class="loop-step">
-        <div class="loop-badge">4</div>
-        <div class="loop-label">{{ t('concept.loopOutput') }}</div>
+
+    <div class="loop-circle">
+      <svg viewBox="0 0 240 240" class="loop-svg">
+        <defs>
+          <marker
+            id="loop-arrow"
+            viewBox="0 0 10 10"
+            refX="7"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+          </marker>
+        </defs>
+        <path
+          v-for="(d, i) in arcPaths"
+          :key="i"
+          :d="d"
+          fill="none"
+          stroke="var(--accent)"
+          stroke-width="2"
+          marker-end="url(#loop-arrow)"
+        />
+        <circle
+          v-for="node in nodes"
+          :key="node.key"
+          :cx="node.x"
+          :cy="node.y"
+          r="14"
+          fill="var(--surface)"
+          stroke="var(--accent)"
+          stroke-width="2"
+        />
+        <text
+          v-for="node in nodes"
+          :key="`${node.key}-num`"
+          :x="node.x"
+          :y="node.y"
+          text-anchor="middle"
+          dominant-baseline="central"
+          class="loop-num"
+        >
+          {{ node.num }}
+        </text>
+      </svg>
+
+      <div
+        v-for="node in nodes"
+        :key="`${node.key}-label`"
+        class="loop-label"
+        :style="{ left: `${node.labelLeftPct}%`, top: `${node.labelTopPct}%` }"
+      >
+        {{ t(`concept.${node.key}`) }}
       </div>
     </div>
+
     <p class="loop-note">{{ t('concept.loopNote') }}</p>
   </el-card>
 
@@ -50,49 +124,39 @@ const principleKeys = ['selfHosted', 'freeText', 'pluggableLlm', 'evidenceNotAss
   margin-bottom: 1rem;
 }
 
-.loop {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.loop-circle {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0.5rem auto 1.5rem;
+  aspect-ratio: 1 / 1;
 }
 
-.loop-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  width: 110px;
+.loop-svg {
+  width: 100%;
+  height: 100%;
 }
 
-.loop-badge {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--hover-wash);
-  color: var(--ink-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
+.loop-num {
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink-primary);
 }
 
 .loop-label {
-  font-size: 0.8rem;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 108px;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.3;
   color: var(--ink-secondary);
-}
-
-.loop-arrow {
-  color: var(--ink-muted);
 }
 
 .loop-note {
   color: var(--ink-secondary);
   font-size: 0.85rem;
-  margin-top: 1rem;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .principle {

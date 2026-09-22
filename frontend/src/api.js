@@ -59,6 +59,7 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ horizon, description }),
     }),
+  getGrowthGuidance: () => request('/goals/growth-guidance', { method: 'POST' }),
 
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>

@@ -15,6 +15,8 @@ const loading = ref(true)
 const savingGoal = ref('')
 const checkinText = ref('')
 const submittingCheckin = ref(false)
+const guidance = ref(null)
+const loadingGuidance = ref(false)
 
 const horizonLabelKeys = {
   this_year: 'dashboard.horizonThisYear',
@@ -41,6 +43,19 @@ async function saveGoal(goal) {
     ElMessage.success(t('dashboard.goalSaved'))
   } finally {
     savingGoal.value = ''
+  }
+}
+
+const hasAnyGoal = computed(() => goals.value.some((g) => g.description.trim()))
+
+async function fetchGuidance() {
+  loadingGuidance.value = true
+  try {
+    guidance.value = await api.getGrowthGuidance()
+  } catch (e) {
+    ElMessage.error(t('dashboard.guidanceError', { error: e.message }))
+  } finally {
+    loadingGuidance.value = false
   }
 }
 
@@ -172,6 +187,23 @@ const categoryOption = computed(() => {
         <span v-if="savingGoal === goal.horizon" class="saving">{{ t('dashboard.goalSaving') }}</span>
       </el-col>
     </el-row>
+
+    <el-button
+      :disabled="!hasAnyGoal"
+      :loading="loadingGuidance"
+      @click="fetchGuidance"
+      class="guidance-btn"
+    >
+      {{ t('dashboard.guidanceButton') }}
+    </el-button>
+    <p v-if="!hasAnyGoal" class="guidance-hint">{{ t('dashboard.guidanceNeedsGoal') }}</p>
+
+    <div v-if="guidance && guidance.by_horizon.length" class="guidance-result">
+      <div v-for="item in guidance.by_horizon" :key="item.horizon" class="guidance-item">
+        <div class="guidance-horizon">{{ item.horizon }}</div>
+        <p class="guidance-advice">{{ item.advice }}</p>
+      </div>
+    </div>
   </el-card>
 
   <el-card shadow="never" class="chart-card">
@@ -223,6 +255,43 @@ const categoryOption = computed(() => {
 
 .checkin-btn {
   margin-top: 0.75rem;
+}
+
+.guidance-btn {
+  margin-top: 1rem;
+}
+
+.guidance-hint {
+  display: inline-block;
+  margin: 1rem 0 0 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.guidance-result {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--el-border-color);
+}
+
+.guidance-item {
+  margin-bottom: 0.75rem;
+}
+
+.guidance-item:last-child {
+  margin-bottom: 0;
+}
+
+.guidance-horizon {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.guidance-advice {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .stats {

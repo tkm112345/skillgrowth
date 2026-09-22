@@ -151,6 +151,16 @@ structured skill import goes through CSV instead.
 label+URL list with no evidence/LLM involvement — it's just a fact, not
 something to extract skills from.
 
+## Goal-based growth guidance
+
+`POST /api/goals/growth-guidance` reads all three `CareerGoal` rows, drops
+any with an empty `description` (goals are optional), and — only if at
+least one remains — sends the non-empty goals plus the current skill list
+to `llm.goal_growth_guidance`, which returns per-horizon advice. No goals
+set means no LLM call. This is the same shape as `gap_check` (compare
+current skills against a target and report the delta), just with the
+target being the user's own stated goals instead of a pasted job posting.
+
 ## LLM configuration
 
 `Settings` is a singleton DB row (id=1), editable from the Settings page. It

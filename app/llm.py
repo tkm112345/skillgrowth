@@ -33,17 +33,29 @@ def _existing_skills_block(existing_skills: list[dict]) -> str:
     return "\n".join(f"- {s['id']}: {s['name']}" for s in existing_skills)
 
 
-def _parse_json_array(raw: str) -> list[dict]:
+def _strip_code_fence(raw: str) -> str:
     raw = raw.strip()
     if raw.startswith("```"):
         raw = raw.strip("`")
         if raw.startswith("json"):
             raw = raw[4:]
+    return raw
+
+
+def _parse_json_array(raw: str) -> list[dict]:
     try:
-        data = json.loads(raw)
+        data = json.loads(_strip_code_fence(raw))
         return data if isinstance(data, list) else []
     except json.JSONDecodeError:
         return []
+
+
+def _parse_json_object(raw: str) -> dict:
+    try:
+        data = json.loads(_strip_code_fence(raw))
+        return data if isinstance(data, dict) else {}
+    except json.JSONDecodeError:
+        return {}
 
 
 def extract_and_match_text(text: str, existing_skills: list[dict], settings: Settings) -> list[dict]:
@@ -102,20 +114,39 @@ def gap_check(job_description: str, current_skills: list[dict], settings: Settin
             {"role": "user", "content": job_description},
         ],
     )
-    raw = (resp.choices[0].message.content or "{}").strip()
-    if raw.startswith("```"):
-        raw = raw.strip("`")
-        if raw.startswith("json"):
-            raw = raw[4:]
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError:
-        data = {}
+    data = _parse_json_object(resp.choices[0].message.content or "{}")
     return {
         "matched": data.get("matched", []),
         "missing": data.get("missing", []),
         "summary": data.get("summary", ""),
     }
+
+
+def goal_growth_guidance(goals: list[dict], current_skills: list[dict], settings: Settings) -> dict:
+    skills_block = "\n".join(f"- {s['name']}（{s['category']}）" for s in current_skills) or "(なし)"
+    goals_block = "\n".join(f"- {g['horizon_label']}: {g['description']}" for g in goals)
+
+    resp = _client(settings).chat.completions.create(
+        model=settings.llm_model,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "あなたはキャリアアドバイザーです。ユーザーの現在のスキル一覧と、"
+                    "期間ごとのキャリア目標が与えられます。現在のスキルから見て、"
+                    "各目標に近づくために伸ばすべきスキルや取るべき行動を、"
+                    "目標ごとに具体的に提案してください。\n\n"
+                    "出力は次の形式のJSONオブジェクトのみ。入力された目標と同じ数・同じ順序の"
+                    "要素を含めること。\n"
+                    '{"by_horizon": [{"horizon": "目標の見出し", "advice": "具体的な提案(2〜4文)"}]}\n\n'
+                    f"現在のスキル一覧:\n{skills_block}"
+                ),
+            },
+            {"role": "user", "content": goals_block},
+        ],
+    )
+    data = _parse_json_object(resp.choices[0].message.content or "{}")
+    return {"by_horizon": data.get("by_horizon", [])}
 
 
 def generate_resume(skill_summaries: list[str], settings: Settings) -> str:

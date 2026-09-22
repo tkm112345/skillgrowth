@@ -8,7 +8,6 @@ import {
   List,
   MagicStick,
   Notebook,
-  Reading,
   Setting,
   TrendCharts,
 } from '@element-plus/icons-vue'
@@ -52,10 +51,6 @@ onMounted(async () => {
         <el-menu-item index="/">
           <el-icon style="color: var(--hue-blue)"><DataAnalysis /></el-icon>
           <template #title>{{ t('nav.dashboard') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/learning">
-          <el-icon style="color: var(--hue-aqua)"><Reading /></el-icon>
-          <template #title>{{ t('nav.learning') }}</template>
         </el-menu-item>
         <el-menu-item index="/skills">
           <el-icon style="color: var(--hue-orange)"><List /></el-icon>

@@ -9,6 +9,7 @@ from app.backup_import import import_backup
 from app.db import get_session
 from app.models import (
     CareerGoal,
+    CareerGoalHistory,
     Education,
     Employment,
     EvidenceEntry,
@@ -38,6 +39,7 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("skill", Skill),
     ("evidence", EvidenceEntry),
     ("self_pr", SelfPR),
+    ("career_goal_history", CareerGoalHistory),
 ]
 
 
@@ -52,6 +54,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "skills": dump(Skill),
         "skill_links": dump(SkillLink),
         "career_goals": dump(CareerGoal),
+        "career_goal_history": dump(CareerGoalHistory),
         "education": dump(Education),
         "employment": dump(Employment),
         "projects": dump(Project),

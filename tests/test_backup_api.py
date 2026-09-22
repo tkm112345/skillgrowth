@@ -8,6 +8,7 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "skills",
         "skill_links",
         "career_goals",
+        "career_goal_history",
         "education",
         "employment",
         "projects",
@@ -103,6 +104,7 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "learning_activities": 0,
         "external_links": 0,
         "career_goals": 0,
+        "career_goal_history": 0,
         "resume_exports": 0,
         "self_prs": 0,
     }

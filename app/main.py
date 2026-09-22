@@ -46,8 +46,15 @@ def on_startup():
 FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 if FRONTEND_DIST.exists():
+    DIST_ROOT = FRONTEND_DIST.resolve()
     app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
 
     @app.get("/{full_path:path}")
     def spa_fallback(full_path: str):
+        # Serves files copied into dist from frontend/public (favicon.svg,
+        # icons.svg, ...) directly; anything else falls back to index.html
+        # so client-side routing can take over.
+        candidate = (DIST_ROOT / full_path).resolve()
+        if full_path and candidate.is_file() and candidate.is_relative_to(DIST_ROOT):
+            return FileResponse(candidate)
         return FileResponse(FRONTEND_DIST / "index.html")

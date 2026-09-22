@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.models import CareerGoal
+from app.models import CareerGoal, CareerGoalHistory
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 
@@ -29,9 +29,16 @@ def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_se
     goal = session.get(CareerGoal, horizon)
     if goal is None:
         goal = CareerGoal(horizon=horizon)
+    if goal.description != payload.description:
+        session.add(CareerGoalHistory(horizon=horizon, description=payload.description))
     goal.description = payload.description
     goal.updated_at = datetime.now(timezone.utc)
     session.add(goal)
     session.commit()
     session.refresh(goal)
     return goal
+
+
+@router.get("/history")
+def list_goal_history(session: Session = Depends(get_session)) -> list[CareerGoalHistory]:
+    return session.exec(select(CareerGoalHistory).order_by(CareerGoalHistory.created_at.desc())).all()

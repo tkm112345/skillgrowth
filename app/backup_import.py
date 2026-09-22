@@ -4,6 +4,7 @@ from sqlmodel import Session
 
 from app.models import (
     CareerGoal,
+    CareerGoalHistory,
     Education,
     Employment,
     EvidenceEntry,
@@ -174,6 +175,16 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
             session.add(existing)
             note("career_goal", row["horizon"])
             counts["career_goals"] += 1
+
+    counts["career_goal_history"] = 0
+    for row in data.get("career_goal_history", []):
+        entry = CareerGoalHistory(
+            horizon=row["horizon"], description=row["description"], created_at=_dt(row.get("created_at"))
+        )
+        session.add(entry)
+        session.flush()
+        note("career_goal_history", entry.id)
+        counts["career_goal_history"] += 1
 
     counts["resume_exports"] = 0
     for row in data.get("resume_exports", []):

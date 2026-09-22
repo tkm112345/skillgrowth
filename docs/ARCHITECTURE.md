@@ -14,10 +14,13 @@
 
 ## Data model
 
-The evidence log is the source of truth. `Skill` is a materialized entity
-derived from it, not recomputed on every read — this is what makes the skill
-growth timeline and category charts possible without repeated LLM calls on
-every page view.
+The activity log (the `EvidenceEntry` table — the name predates the
+user-facing "Activity" wording, but renaming it would touch every router,
+service, and migration for no behavioral gain, so the class name stays)
+is the source of truth. `Skill` is a materialized entity derived from it,
+not recomputed on every read — this is what makes the skill growth
+timeline and category charts possible without repeated LLM calls on every
+page view.
 
 ```mermaid
 erDiagram
@@ -28,6 +31,7 @@ erDiagram
   EvidenceEntry ||--o| Project : "backs"
   EvidenceEntry ||--o| LearningActivity : "backs"
   Employment ||--o{ Project : "may contain"
+  CareerGoal ||--o{ CareerGoalHistory : "past versions (matched by horizon, not a real FK)"
 
   EvidenceEntry {
     string id
@@ -80,8 +84,14 @@ erDiagram
     text notes
   }
   CareerGoal {
+    string horizon "this_year/5_years/10_years, primary key"
+    text description "current value only"
+  }
+  CareerGoalHistory {
+    string id
     string horizon "this_year/5_years/10_years"
     text description
+    datetime created_at
   }
   ExportSnapshot {
     string id
@@ -170,9 +180,11 @@ new rows. This makes import purely additive and safe to run repeatedly:
 nothing is ever deleted or updated by id. The one exception is
 `CareerGoal`, which is keyed by `horizon` rather than `id` — import only
 fills in a horizon whose `description` is still empty, so it can never
-silently overwrite a goal the user has already written. `Settings` is
-never part of the payload in either direction, so an LLM API key can't
-leak through a backup file.
+silently overwrite a goal the user has already written. `CareerGoalHistory`
+rows (see "Career goal history" below) are plain insert-only records like
+`SelfPR`, so every imported row is simply added. `Settings` is never part
+of the payload in either direction, so an LLM API key can't leak through a
+backup file.
 
 `load-sample` additionally passes a `track` dict into `import_backup`,
 which the function fills with `{table_name: [new_id, ...]}` as it creates
@@ -204,6 +216,19 @@ reason (e.g. an invalid API key) instead of a bare "Internal Server
 Error". `test_connection()` is the one exception: it deliberately catches
 errors itself and returns `{"ok": false, "message": ...}`, since Settings'
 "Test connection" button is designed to report failure as data, not throw.
+
+## Career goal history
+
+`CareerGoal` (keyed by `horizon`) still holds only the current value, so
+reads stay a 3-row lookup. `PUT /api/goals/{horizon}` additionally writes
+a `CareerGoalHistory` row, but only when `description` actually differs
+from the stored value — saving with no changes (e.g. an edit that's
+immediately cancelled, which never calls this endpoint at all) never
+creates a duplicate entry. `GET /api/goals/history` returns every
+`CareerGoalHistory` row across all horizons, newest first; the Dashboard
+filters this client-side per horizon rather than the API taking a
+`horizon` query param, since there are only ever three horizons and the
+full list is small.
 
 ## AI Integration page (the only two LLM-optional features)
 
@@ -256,9 +281,49 @@ model name change.
 
 ## Frontend routing
 
-The SPA has one route per top-level concern (Dashboard, Profile, Learning,
-Skills, Evidence log, Export, Settings), listed in
-`frontend/src/router/index.js`. There's no server-side rendering; the
-FastAPI catch-all route in `app/main.py` returns `index.html` for any
+The SPA has one route per top-level concern (Concept, Dashboard, Skills,
+Activity, Profile, Resume, AI Integration, Settings), listed in
+`frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
+used to be a separate Learning Log page — see "Activity ⨯ Learning Log
+merge" below. There's no server-side rendering; the FastAPI catch-all
+route in `app/main.py::spa_fallback` returns `index.html` for any
 non-`/api` path so client-side routing (`vue-router`'s history mode) works
 on a hard refresh.
+
+That same catch-all route also has to serve the handful of files Vite
+copies from `frontend/public/` into `frontend/dist/` verbatim (`favicon.svg`,
+`icons.svg`) — those aren't under `/assets` (the only path explicitly
+mounted via `StaticFiles`), so `spa_fallback` checks whether the requested
+path resolves to a real file under `frontend/dist` first and serves it
+directly; only a path that isn't a real file falls through to
+`index.html`. (This was a real bug: the fallback used to return
+`index.html` unconditionally, so `<link rel="icon" href="/favicon.svg">`
+and any code requesting `/favicon.svg` directly — e.g. the sidebar brand
+mark — silently got back HTML instead of the SVG.) The path is resolved
+and checked against the dist root (`candidate.is_relative_to(DIST_ROOT)`)
+before serving, since `full_path` is attacker-controlled input and a naive
+join would allow `../../` traversal outside the dist directory.
+
+## Activity ⨯ Learning Log merge
+
+Adding a reading/talk/certification entry and browsing the activity feed
+used to be two separate pages (`Learning.vue` and `Timeline.vue`) that
+showed overlapping content — every `LearningActivity` you added was
+already visible on the read-only feed too, just as unstructured text. They
+were merged into one page (`Timeline.vue`, still named after its original
+route internally) with an add-form at the top and the feed below; no
+backend change was needed since `POST /api/learning` and
+`GET /api/learning` already existed independently of the page.
+
+`DELETE /api/learning/{id}` was already evidence-preserving — it only ever
+deleted the `LearningActivity` row, never the backing `EvidenceEntry` — so
+merging the pages didn't change delete semantics, but it does change what
+the user sees: deleting from the feed removes that entry's structured
+type/title/date, but the entry stays visible as plain text (the
+`EvidenceEntry.raw_input` produced by `services.text_block()`), since the
+activity log itself is append-only everywhere in this app (the same is
+true of deleting an Education/Employment/Project row). The frontend knows
+which feed rows are deletable by fetching `GET /api/learning` alongside
+`GET /api/evidence` and mapping `LearningActivity.evidence_id` →
+`LearningActivity.id` client-side — no new endpoint was needed for this
+either.

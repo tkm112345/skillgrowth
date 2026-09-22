@@ -6,13 +6,17 @@ import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 import { isDark } from '../theme'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const skills = ref([])
 const timeline = ref([])
 const goals = ref([])
+const goalHistory = ref([])
 const loading = ref(true)
 const savingGoal = ref('')
+const editingHorizon = ref(null)
+const draftText = ref('')
+const historyOpenHorizon = ref(null)
 const checkinText = ref('')
 const submittingCheckin = ref(false)
 
@@ -30,8 +34,13 @@ async function reloadSkillData() {
 
 onMounted(async () => {
   try {
-    const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals()])
+    const [, goalList, historyList] = await Promise.all([
+      reloadSkillData(),
+      api.getGoals(),
+      api.getGoalHistory(),
+    ])
     goals.value = goalList
+    goalHistory.value = historyList
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -39,10 +48,34 @@ onMounted(async () => {
   }
 })
 
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString(locale.value)
+}
+
+function historyFor(horizon) {
+  return goalHistory.value.filter((h) => h.horizon === horizon)
+}
+
+function startEditGoal(goal) {
+  editingHorizon.value = goal.horizon
+  draftText.value = goal.description
+}
+
+function cancelEditGoal() {
+  editingHorizon.value = null
+}
+
+function toggleHistory(horizon) {
+  historyOpenHorizon.value = historyOpenHorizon.value === horizon ? null : horizon
+}
+
 async function saveGoal(goal) {
   savingGoal.value = goal.horizon
   try {
-    await api.updateGoal(goal.horizon, goal.description)
+    const updated = await api.updateGoal(goal.horizon, draftText.value)
+    goal.description = updated.description
+    editingHorizon.value = null
+    goalHistory.value = await api.getGoalHistory()
     ElMessage.success(t('dashboard.goalSaved'))
   } finally {
     savingGoal.value = ''
@@ -167,14 +200,49 @@ const categoryOption = computed(() => {
     <el-row :gutter="16">
       <el-col :span="8" v-for="goal in goals" :key="goal.horizon">
         <div class="goal-label">{{ t(horizonLabelKeys[goal.horizon]) }}</div>
-        <el-input
-          v-model="goal.description"
-          type="textarea"
-          :rows="3"
-          :placeholder="t('dashboard.goalPlaceholder')"
-          @blur="saveGoal(goal)"
-        />
-        <span v-if="savingGoal === goal.horizon" class="saving">{{ t('dashboard.goalSaving') }}</span>
+
+        <template v-if="editingHorizon === goal.horizon">
+          <el-input
+            v-model="draftText"
+            type="textarea"
+            :rows="3"
+            :placeholder="t('dashboard.goalPlaceholder')"
+          />
+          <div class="goal-actions">
+            <el-button size="small" @click="cancelEditGoal">{{ t('common.cancel') }}</el-button>
+            <el-button
+              size="small"
+              type="primary"
+              :loading="savingGoal === goal.horizon"
+              @click="saveGoal(goal)"
+            >
+              {{ t('common.save') }}
+            </el-button>
+          </div>
+        </template>
+        <template v-else>
+          <p class="goal-text" :class="{ 'goal-text-empty': !goal.description }">
+            {{ goal.description || t('dashboard.goalPlaceholder') }}
+          </p>
+          <div class="goal-actions">
+            <el-button size="small" text @click="startEditGoal(goal)">{{ t('dashboard.goalEdit') }}</el-button>
+            <el-button
+              v-if="historyFor(goal.horizon).length"
+              size="small"
+              text
+              @click="toggleHistory(goal.horizon)"
+            >
+              {{ t('dashboard.goalHistory', { count: historyFor(goal.horizon).length }) }}
+            </el-button>
+          </div>
+        </template>
+
+        <ul v-if="historyOpenHorizon === goal.horizon" class="goal-history">
+          <li v-for="h in historyFor(goal.horizon)" :key="h.id">
+            <span class="goal-history-date">{{ formatDate(h.created_at) }}</span>
+            <span class="goal-history-text">{{ h.description }}</span>
+          </li>
+        </ul>
       </el-col>
     </el-row>
 
@@ -223,9 +291,48 @@ const categoryOption = computed(() => {
   margin-bottom: 0.25rem;
 }
 
-.saving {
-  font-size: 0.75rem;
+.goal-text {
+  min-height: 4.2rem;
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+}
+
+.goal-text-empty {
   color: var(--ink-muted);
+}
+
+.goal-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.goal-history {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0 0;
+  border-top: 1px solid var(--el-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.goal-history li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.goal-history-date {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.goal-history-text {
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
 }
 
 .checkin-btn {

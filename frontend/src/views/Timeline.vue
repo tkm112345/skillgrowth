@@ -1,6 +1,6 @@
 <script setup>
-import { ElMessage } from 'element-plus'
-import { computed, onMounted, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
@@ -13,6 +13,19 @@ const entries = ref([])
 const loading = ref(true)
 const loadingMore = ref(false)
 const hasMore = ref(false)
+const learningByEvidenceId = ref({})
+
+const submitting = ref(false)
+const form = reactive({ activity_type: 'reading', title: '', activity_date: '', notes: '' })
+const certFile = ref(null)
+
+const typeOptions = computed(() => [
+  { value: 'reading', label: t('learning.typeReading') },
+  { value: 'talk_given', label: t('learning.typeTalkGiven') },
+  { value: 'talk_attended', label: t('learning.typeTalkAttended') },
+  { value: 'certification', label: t('learning.typeCertification') },
+  { value: 'other', label: t('learning.typeOther') },
+])
 
 const sourceLabelKeys = {
   certification: 'timeline.sourceCertification',
@@ -28,11 +41,16 @@ function sourceLabel(sourceType) {
   return key ? t(key) : sourceType
 }
 
+async function reload() {
+  const [page, learningList] = await Promise.all([api.getEvidence(PAGE_SIZE, 0), api.getLearning()])
+  entries.value = page
+  hasMore.value = page.length === PAGE_SIZE
+  learningByEvidenceId.value = Object.fromEntries(learningList.map((l) => [l.evidence_id, l.id]))
+}
+
 onMounted(async () => {
   try {
-    const page = await api.getEvidence(PAGE_SIZE, 0)
-    entries.value = page
-    hasMore.value = page.length === PAGE_SIZE
+    await reload()
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -53,12 +71,71 @@ async function loadMore() {
   }
 }
 
+function handleCertFileChange(uploadFile) {
+  certFile.value = uploadFile.raw
+}
+
+async function submit() {
+  submitting.value = true
+  try {
+    if (certFile.value) {
+      await api.addImageEvidence(certFile.value)
+    }
+    await api.addLearning(form)
+    Object.assign(form, { activity_type: 'reading', title: '', activity_date: '', notes: '' })
+    certFile.value = null
+    await reload()
+    ElMessage.success(t('timeline.added'))
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function removeLearning(learningActivityId) {
+  await ElMessageBox.confirm(t('timeline.confirmDeleteLearning'), t('profile.confirm'))
+  await api.deleteLearning(learningActivityId)
+  await reload()
+}
+
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))
 </script>
 
 <template>
   <h1 class="page-title">{{ t('timeline.title') }}</h1>
   <p class="page-subtitle">{{ t('timeline.subtitle') }}</p>
+
+  <el-card shadow="never" class="chart-card accent-aqua">
+    <template #header>{{ t('timeline.addHeader') }}</template>
+    <el-form :model="form" label-width="80px">
+      <el-form-item :label="t('learning.type')">
+        <el-select v-model="form.activity_type">
+          <el-option v-for="o in typeOptions" :key="o.value" :label="o.label" :value="o.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item :label="t('learning.titleLabel')">
+        <el-input v-model="form.title" :placeholder="t('learning.titlePlaceholder')" />
+      </el-form-item>
+      <el-form-item :label="t('learning.date')">
+        <el-date-picker v-model="form.activity_date" value-format="YYYY-MM-DD" />
+      </el-form-item>
+      <el-form-item :label="t('learning.notes')">
+        <el-input v-model="form.notes" type="textarea" :rows="2" />
+      </el-form-item>
+      <el-form-item v-if="form.activity_type === 'certification'" :label="t('learning.certImage')">
+        <el-upload
+          :auto-upload="false"
+          :show-file-list="true"
+          :limit="1"
+          accept="image/*"
+          :on-change="handleCertFileChange"
+        >
+          <el-button size="small">{{ t('common.add') }}</el-button>
+          <template #tip><div class="upload-hint">{{ t('learning.certImageHint') }}</div></template>
+        </el-upload>
+      </el-form-item>
+    </el-form>
+    <el-button type="primary" :loading="submitting" @click="submit">{{ t('common.add') }}</el-button>
+  </el-card>
 
   <el-timeline v-loading="loading">
     <el-timeline-item
@@ -67,7 +144,18 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
       :timestamp="formatDateTime(entry.created_at)"
     >
       <el-card shadow="never">
-        <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
+        <div class="entry-header">
+          <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
+          <el-button
+            v-if="learningByEvidenceId[entry.id]"
+            size="small"
+            text
+            type="danger"
+            @click="removeLearning(learningByEvidenceId[entry.id])"
+          >
+            {{ t('common.delete') }}
+          </el-button>
+        </div>
         <p>{{ entry.raw_input || t('timeline.image') }}</p>
       </el-card>
     </el-timeline-item>
@@ -81,6 +169,22 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
 </template>
 
 <style scoped>
+.upload-hint {
+  color: var(--ink-secondary);
+  font-size: 0.8rem;
+}
+
+.chart-card {
+  margin-bottom: 1.5rem;
+}
+
+.entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
 .load-more-btn {
   display: block;
   margin: 0.5rem auto 0;

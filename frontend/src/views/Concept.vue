@@ -128,7 +128,7 @@ const arcPaths = computed(() => {
 .loop-circle {
   position: relative;
   width: 100%;
-  max-width: 460px;
+  max-width: 540px;
   margin: 0.5rem auto 1.5rem;
   aspect-ratio: 1 / 1;
 }
@@ -153,22 +153,22 @@ const arcPaths = computed(() => {
 }
 
 .loop-label--top {
-  transform: translate(-50%, calc(-100% - 20px));
+  transform: translate(-50%, calc(-100% - 48px));
   text-align: center;
 }
 
 .loop-label--bottom {
-  transform: translate(-50%, 20px);
+  transform: translate(-50%, 48px);
   text-align: center;
 }
 
 .loop-label--right {
-  transform: translate(20px, -50%);
+  transform: translate(48px, -50%);
   text-align: left;
 }
 
 .loop-label--left {
-  transform: translate(calc(-100% - 20px), -50%);
+  transform: translate(calc(-100% - 48px), -50%);
   text-align: right;
 }
 

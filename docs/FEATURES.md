@@ -1,0 +1,91 @@
+# Features
+
+日本語版: [FEATURES.ja.md](FEATURES.ja.md)
+
+## Dashboard
+
+- **Career path goals** — three optional free-text boxes (this year / 5 years /
+  10 years) for where you'd like to be heading. Saved on blur, never
+  required.
+- **Quick check-in** — a short free-text box for "what have you been working
+  on lately"; submitting it runs skill extraction immediately, the same way
+  every other evidence source does.
+- **Skill growth timeline** — a step-line chart of cumulative skill count
+  over time, built from each skill's `first_observed_at`.
+- **Category breakdown** — a bar chart of skill count per category.
+- **Stats row** — total skills, category count, and skills added in the
+  last 7 days. Placed at the bottom of the page by design — the growth
+  timeline and goals are the point, the counters are secondary.
+
+## Profile
+
+- **Import resume** — paste a resume/CV as plain text to bootstrap the
+  evidence log in one shot, rather than adding entries one at a time.
+- **Education** — school, degree, major, start/end date, free-text
+  achievements.
+- **Employment** — company, department, role, start/end date (leave end
+  date blank for a current position).
+- **Projects** — title, role, start/end date, free-text description.
+  Optionally linked to an employer (nested under it in the UI) or
+  standalone (personal projects, freelance work, etc.).
+
+All free-text fields here (achievements, project descriptions) also feed
+skill extraction.
+
+## Learning Log
+
+Tracks catch-up activity outside of formal work history:
+
+- **Reading**, **talk given**, **talk attended**, **certification**, **other**
+  — a fixed set of activity types, each with a title, date, and notes.
+- When the type is **certification**, an optional certificate image can be
+  attached; it's sent through the same vision-based skill extraction used
+  for the Profile certification flow.
+
+## Skills
+
+- The current skill picture, derived from the evidence log: name, category,
+  evidence count, first-seen date, last-seen date.
+- **Add a skill directly** by name/category, for skills you know you have
+  but haven't produced evidence for yet. New skills added this way are
+  deduplicated case-insensitively against existing skills.
+- Skills can also be deleted (the evidence that mentioned them is kept).
+
+## Evidence Log
+
+A chronological, read-only feed of every evidence entry ever added —
+resume imports, check-ins, certifications, and the free-text side of every
+Education/Employment/Project/Learning Log entry — labeled by source type.
+
+## Export
+
+- **Generate resume** — assembles the current skill picture into a
+  Markdown resume via the LLM. Rendered as formatted HTML in the UI (not
+  raw Markdown text) and downloadable as a `.md` file. Every generation is
+  kept as a snapshot, so past exports remain browsable.
+- **Job posting gap check** — paste a job description; the LLM compares it
+  against your current skills and returns what you already meet, what's
+  missing, and a short summary.
+
+## Concept
+
+An in-app page explaining the product's core loop (evidence → extraction →
+skill picture → resume/gap check) and its four design principles
+(self-hosted/single-user, free-text skills, pluggable LLM, evidence over
+self-assessment) — the same content as this repo's README, made visible
+inside the running app itself.
+
+## Settings
+
+LLM connection (base URL, API key, text model, vision model), stored in the
+database and editable from the UI — no `.env` editing or restart required.
+Works against any OpenAI-compatible chat completions endpoint: a cloud API
+or a local Ollama server.
+
+## Cross-cutting
+
+- **Internationalization** — English by default, switchable to Japanese
+  from the top bar (vue-i18n). The choice is remembered per browser.
+- **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
+  to an icon rail; the state is remembered per browser.
+- **Light/dark mode** — follows the OS/browser preference automatically.

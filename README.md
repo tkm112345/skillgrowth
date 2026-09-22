@@ -29,6 +29,8 @@ request flow.
 
 ## Features
 
+Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATURES.ja.md)).
+
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional), a skill growth timeline chart, a category breakdown chart, and a
   quick check-in box.

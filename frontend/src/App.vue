@@ -84,7 +84,7 @@ onMounted(async () => {
         <span v-else>©</span>
       </div>
     </el-aside>
-    <el-container>
+    <el-container class="main-area">
       <el-header class="topbar">
         <el-button text @click="toggleCollapsed" :icon="collapsed ? Expand : Fold" />
         <el-select :model-value="locale" @update:model-value="setLocale" size="small" class="lang-select">
@@ -101,7 +101,15 @@ onMounted(async () => {
 
 <style scoped>
 .shell {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-area {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar {
@@ -147,6 +155,7 @@ onMounted(async () => {
   border-right: none;
   background: transparent;
   flex: 1;
+  overflow-y: auto;
 }
 
 .nav :deep(.el-menu-item) {
@@ -179,6 +188,7 @@ onMounted(async () => {
   justify-content: space-between;
   border-bottom: 1px solid var(--el-border-color);
   height: 52px;
+  flex-shrink: 0;
 }
 
 .lang-select {
@@ -187,5 +197,7 @@ onMounted(async () => {
 
 .content {
   max-width: 920px;
+  flex: 1;
+  overflow-y: auto;
 }
 </style>

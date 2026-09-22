@@ -9,6 +9,7 @@
     "skills": "Skills",
     "timeline": "Evidence Log",
     "export": "Export",
+    "concept": "Concept",
     "settings": "Settings"
   },
   "common": {
@@ -140,6 +141,25 @@
     "gapCheckRun": "Check against my skills",
     "gapCheckMatched": "You already have",
     "gapCheckMissing": "Not found yet"
+  },
+  "concept": {
+    "title": "Concept",
+    "tagline": "A career tracker that grows alongside your career, instead of asking you to fill out a static profile once.",
+    "loopHeader": "The core loop",
+    "loopEvidence": "Evidence (resume, check-in, certificate, project notes...)",
+    "loopExtraction": "LLM extraction & matching",
+    "loopSkillPicture": "Skill picture (persisted, not recomputed each view)",
+    "loopOutput": "Resume export / gap check",
+    "loopNote": "Every screen in this app — Dashboard, Profile, Learning Log, Skills — is a different view onto the same append-only evidence log. Nothing here is edited in place; it accumulates.",
+    "principlesHeader": "Design principles",
+    "selfHostedTitle": "Single user, self-hosted",
+    "selfHostedBody": "No accounts, no multi-tenancy. Run your own instance the way you'd self-host a personal finance tool — your career data stays on your own server.",
+    "freeTextTitle": "Free-text skills, not a fixed taxonomy",
+    "freeTextBody": "Skills are stored as the natural language the LLM extracts from your evidence, or that you type directly — not normalized IDs from a predefined list.",
+    "pluggableLlmTitle": "Pluggable LLM",
+    "pluggableLlmBody": "Talks to any OpenAI-compatible chat completions endpoint — a cloud API or a local Ollama server. Configured from Settings, not hardcoded.",
+    "evidenceNotAssessmentTitle": "Evidence, not self-assessment",
+    "evidenceNotAssessmentBody": "Skills mostly come from things you already have (a resume, a certificate, a project description) rather than from filling out a skill matrix from memory."
   },
   "settings": {
     "title": "Settings",

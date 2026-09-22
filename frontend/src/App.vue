@@ -1,5 +1,6 @@
 <script setup>
 import {
+  Compass,
   DataAnalysis,
   Expand,
   Files,
@@ -59,6 +60,10 @@ const year = new Date().getFullYear()
         <el-menu-item index="/export">
           <el-icon><Files /></el-icon>
           <template #title>{{ t('nav.export') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/concept">
+          <el-icon><Compass /></el-icon>
+          <template #title>{{ t('nav.concept') }}</template>
         </el-menu-item>
         <el-menu-item index="/settings">
           <el-icon><Setting /></el-icon>

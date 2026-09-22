@@ -9,6 +9,7 @@
     "skills": "スキル一覧",
     "timeline": "証拠ログ",
     "export": "エクスポート",
+    "concept": "コンセプト",
     "settings": "設定"
   },
   "common": {
@@ -140,6 +141,25 @@
     "gapCheckRun": "自分のスキルと照合する",
     "gapCheckMatched": "既に満たしている項目",
     "gapCheckMissing": "まだ見つからない項目"
+  },
+  "concept": {
+    "title": "コンセプト",
+    "tagline": "一度きりの静的なプロフィール入力ではなく、あなたのキャリアと一緒に育っていくキャリアトラッカーです。",
+    "loopHeader": "基本のループ",
+    "loopEvidence": "証拠(職務経歴書・チェックイン・資格証・プロジェクトメモなど)",
+    "loopExtraction": "LLMによる抽出・照合",
+    "loopSkillPicture": "スキル像(都度再計算ではなく永続化)",
+    "loopOutput": "職務経歴書エクスポート / ギャップチェック",
+    "loopNote": "ダッシュボード・プロフィール・学習ログ・スキル一覧など、このアプリの各画面はすべて同じ「追記型の証拠ログ」を異なる角度から見ているだけです。何かを上書き編集するのではなく、積み重なっていきます。",
+    "principlesHeader": "設計方針",
+    "selfHostedTitle": "シングルユーザー・セルフホスト",
+    "selfHostedBody": "アカウント登録もマルチテナントもありません。家計簿アプリを自己ホストするのと同じ感覚で、自分のサーバーで動かせます。キャリアデータは自分のサーバーに留まります。",
+    "freeTextTitle": "固定タクソノミーではなく自由記述のスキル",
+    "freeTextBody": "スキルは証拠からLLMが抽出した自然文、または直接入力した自然文として保存されます。あらかじめ決められたリストの正規化IDではありません。",
+    "pluggableLlmTitle": "LLMを差し替え可能",
+    "pluggableLlmBody": "OpenAI互換のChat Completions APIであれば、クラウドAPIでもローカルのOllamaでも利用できます。設定はSettings画面から行い、コードには埋め込みません。",
+    "evidenceNotAssessmentTitle": "自己評価ではなく証拠ベース",
+    "evidenceNotAssessmentBody": "スキルは記憶を頼りにスキルマトリクスを埋めるのではなく、職務経歴書・資格証・プロジェクトの説明など、既に手元にあるものから主に生まれます。"
   },
   "settings": {
     "title": "設定",

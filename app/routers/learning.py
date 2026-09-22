@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from app import services
 from app.db import get_session
-from app.models import LearningActivity, Settings
+from app.models import LearningActivity, Settings, Skill
 
 router = APIRouter(prefix="/api/learning", tags=["learning"])
 
@@ -19,13 +19,18 @@ class LearningActivityIn(BaseModel):
     notes: str = ""
 
 
+class LearningResult(BaseModel):
+    activity: LearningActivity
+    linked_skills: list[Skill]
+
+
 @router.get("")
 def list_learning(session: Session = Depends(get_session)) -> list[LearningActivity]:
     return session.exec(select(LearningActivity).order_by(LearningActivity.activity_date.desc())).all()
 
 
 @router.post("")
-def create_learning(payload: LearningActivityIn, session: Session = Depends(get_session)):
+def create_learning(payload: LearningActivityIn, session: Session = Depends(get_session)) -> LearningResult:
     settings = session.get(Settings, 1)
     text = services.text_block(種別=payload.activity_type, タイトル=payload.title, メモ=payload.notes)
     entry, linked = services.record_evidence_and_extract(session, "learning_activity", text, settings)
@@ -33,7 +38,7 @@ def create_learning(payload: LearningActivityIn, session: Session = Depends(get_
     session.add(activity)
     session.commit()
     session.refresh(activity)
-    return {"activity": activity, "linked_skills": linked}
+    return LearningResult(activity=activity, linked_skills=linked)
 
 
 @router.delete("/{activity_id}")

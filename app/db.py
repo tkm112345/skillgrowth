@@ -21,5 +21,11 @@ def init_db() -> None:
 
 
 def get_session():
-    with Session(engine) as session:
+    # expire_on_commit=False: handlers often return an ORM object after one or
+    # more session.commit() calls (e.g. evidence -> skill extraction -> link).
+    # With the default expire_on_commit=True, commit() clears the object's
+    # __dict__; Pydantic's serializer reads __dict__ directly (it doesn't
+    # trigger SQLAlchemy's lazy-reload descriptors), so the response would
+    # silently serialize as {}.
+    with Session(engine, expire_on_commit=False) as session:
         yield session

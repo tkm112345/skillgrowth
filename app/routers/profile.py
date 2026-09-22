@@ -7,9 +7,24 @@ from sqlmodel import Session, select
 
 from app import services
 from app.db import get_session
-from app.models import Education, Employment, Project, Settings
+from app.models import Education, Employment, Project, Settings, Skill
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
+
+
+class EducationResult(BaseModel):
+    education: Education
+    linked_skills: list[Skill]
+
+
+class EmploymentResult(BaseModel):
+    employment: Employment
+    linked_skills: list[Skill]
+
+
+class ProjectResult(BaseModel):
+    project: Project
+    linked_skills: list[Skill]
 
 
 class EducationIn(BaseModel):
@@ -44,7 +59,7 @@ def list_education(session: Session = Depends(get_session)) -> list[Education]:
 
 
 @router.post("/education")
-def create_education(payload: EducationIn, session: Session = Depends(get_session)):
+def create_education(payload: EducationIn, session: Session = Depends(get_session)) -> EducationResult:
     settings = session.get(Settings, 1)
     text = services.text_block(
         学校=payload.school, 専攻=payload.major, 学位=payload.degree, 実績=payload.achievements
@@ -54,7 +69,7 @@ def create_education(payload: EducationIn, session: Session = Depends(get_sessio
     session.add(edu)
     session.commit()
     session.refresh(edu)
-    return {"education": edu, "linked_skills": linked}
+    return EducationResult(education=edu, linked_skills=linked)
 
 
 @router.delete("/education/{education_id}")
@@ -72,7 +87,7 @@ def list_employment(session: Session = Depends(get_session)) -> list[Employment]
 
 
 @router.post("/employment")
-def create_employment(payload: EmploymentIn, session: Session = Depends(get_session)):
+def create_employment(payload: EmploymentIn, session: Session = Depends(get_session)) -> EmploymentResult:
     settings = session.get(Settings, 1)
     text = services.text_block(会社=payload.company, 部署=payload.department, 役割=payload.role)
     entry, linked = services.record_evidence_and_extract(session, "employment", text, settings)
@@ -80,7 +95,7 @@ def create_employment(payload: EmploymentIn, session: Session = Depends(get_sess
     session.add(emp)
     session.commit()
     session.refresh(emp)
-    return {"employment": emp, "linked_skills": linked}
+    return EmploymentResult(employment=emp, linked_skills=linked)
 
 
 @router.delete("/employment/{employment_id}")
@@ -98,7 +113,7 @@ def list_projects(session: Session = Depends(get_session)) -> list[Project]:
 
 
 @router.post("/projects")
-def create_project(payload: ProjectIn, session: Session = Depends(get_session)):
+def create_project(payload: ProjectIn, session: Session = Depends(get_session)) -> ProjectResult:
     settings = session.get(Settings, 1)
     text = services.text_block(
         プロジェクト=payload.title, 役割=payload.role, 内容=payload.description
@@ -108,7 +123,7 @@ def create_project(payload: ProjectIn, session: Session = Depends(get_session)):
     session.add(project)
     session.commit()
     session.refresh(project)
-    return {"project": project, "linked_skills": linked}
+    return ProjectResult(project=project, linked_skills=linked)
 
 
 @router.delete("/projects/{project_id}")

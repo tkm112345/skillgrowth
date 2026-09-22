@@ -15,6 +15,16 @@ class SkillIn(BaseModel):
     category: str = "未分類"
 
 
+class SkillMention(BaseModel):
+    mention_text: str
+    created_at: datetime
+
+
+class SkillDetail(BaseModel):
+    skill: Skill
+    mentions: list[SkillMention]
+
+
 @router.get("")
 def list_skills(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc())).all()
@@ -75,7 +85,10 @@ def skill_timeline(session: Session = Depends(get_session)):
 
 
 @router.get("/{skill_id}")
-def skill_detail(skill_id: str, session: Session = Depends(get_session)):
+def skill_detail(skill_id: str, session: Session = Depends(get_session)) -> SkillDetail:
     skill = session.get(Skill, skill_id)
     links = session.exec(select(SkillLink).where(SkillLink.skill_id == skill_id)).all()
-    return {"skill": skill, "mentions": [{"mention_text": link.mention_text, "created_at": link.created_at} for link in links]}
+    return SkillDetail(
+        skill=skill,
+        mentions=[SkillMention(mention_text=link.mention_text, created_at=link.created_at) for link in links],
+    )

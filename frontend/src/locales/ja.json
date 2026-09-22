@@ -38,16 +38,18 @@
     "statRecent": "直近7日の新規",
     "horizonThisYear": "今年",
     "horizon5Years": "5年後",
-    "horizon10Years": "10年後"
+    "horizon10Years": "10年後",
+    "conceptLink": "はじめての方へ: このアプリのコンセプトを見る"
   },
   "profile": {
     "title": "プロフィール",
     "subtitle": "学歴・職歴・プロジェクト経験を記録します。内容はスキル抽出にも使われます。",
-    "importResume": "職務経歴書を取り込む",
-    "importResumeTitle": "職務経歴書を取り込む",
-    "importResumeSubtitle": "職務経歴書の文章を貼り付けると、スキルが自動抽出されます。",
-    "importResumePlaceholder": "職務経歴書の文章をここに貼り付けてください",
-    "importResumeSuccess": "{count}件のスキルを抽出しました",
+    "linksHeader": "リンク",
+    "addLink": "リンクを追加",
+    "linkLabel": "ラベル",
+    "linkLabelPlaceholder": "例: GitHub, X, note, Zenn, ブログ",
+    "linkUrl": "URL",
+    "addedLink": "リンクを追加しました",
     "educationHeader": "学歴",
     "employmentHeader": "職歴",
     "otherProjectsHeader": "その他のプロジェクト",
@@ -112,14 +114,16 @@
     "added": "スキルを追加しました",
     "namePlaceholder": "例: Python",
     "categoryPlaceholder": "例: 技術",
-    "confirmDelete": "このスキルを削除しますか？（紐づく証拠は残ります）"
+    "confirmDelete": "このスキルを削除しますか？（紐づく証拠は残ります）",
+    "importCsv": "CSVインポート",
+    "csvImportHint": "列: name, category（categoryは省略可）。既存スキルとは大文字小文字を区別せず照合され、重複登録されません。",
+    "csvImportSuccess": "{count}件のスキルを取り込みました"
   },
   "timeline": {
     "title": "証拠ログ",
     "subtitle": "追加した証拠の時系列フィードです。",
     "noEntries": "まだ証拠がありません",
     "image": "(画像)",
-    "sourceResume": "職務経歴書",
     "sourceCertification": "資格・修了証",
     "sourceCheckin": "定期チェックイン",
     "sourceEducation": "学歴",

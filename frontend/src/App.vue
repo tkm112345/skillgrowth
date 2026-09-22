@@ -33,8 +33,8 @@ const year = new Date().getFullYear()
   <el-container class="shell">
     <el-aside :width="collapsed ? '60px' : '212px'" class="sidebar">
       <div class="brand">
-        <span v-if="!collapsed">{{ t('app.brand') }}</span>
-        <span v-else>sg</span>
+        <div class="brand-mark">S</div>
+        <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" router class="nav">
         <el-menu-item index="/">
@@ -107,10 +107,30 @@ const year = new Date().getFullYear()
 }
 
 .brand {
-  font-weight: 600;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   padding: 1.1rem 1rem 0.75rem;
   white-space: nowrap;
+}
+
+.brand-mark {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.brand-text {
+  font-weight: 600;
+  font-size: 0.95rem;
   letter-spacing: -0.01em;
 }
 

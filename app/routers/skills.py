@@ -1,6 +1,8 @@
+import csv
+import io
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from pydantic import BaseModel
 from sqlmodel import Session, func, select
 
@@ -23,6 +25,31 @@ class SkillMention(BaseModel):
 class SkillDetail(BaseModel):
     skill: Skill
     mentions: list[SkillMention]
+
+
+class CsvImportResult(BaseModel):
+    imported: list[Skill]
+    skipped_rows: int
+
+
+def _upsert_skill(session: Session, name: str, category: str) -> Skill | None:
+    name = name.strip()
+    if not name:
+        return None
+
+    existing = session.exec(select(Skill).where(func.lower(Skill.name) == name.lower())).first()
+    if existing:
+        existing.last_observed_at = datetime.now(timezone.utc)
+        session.add(existing)
+        session.commit()
+        session.refresh(existing)
+        return existing
+
+    skill = Skill(name=name, category=category.strip() or "未分類")
+    session.add(skill)
+    session.commit()
+    session.refresh(skill)
+    return skill
 
 
 @router.get("")
@@ -48,20 +75,28 @@ def list_skills(session: Session = Depends(get_session)):
 
 @router.post("")
 def add_skill(payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
-    name = payload.name.strip()
-    existing = session.exec(select(Skill).where(func.lower(Skill.name) == name.lower())).first()
-    if existing:
-        existing.last_observed_at = datetime.now(timezone.utc)
-        session.add(existing)
-        session.commit()
-        session.refresh(existing)
-        return existing
+    return _upsert_skill(session, payload.name, payload.category)
 
-    skill = Skill(name=name, category=payload.category.strip() or "未分類")
-    session.add(skill)
-    session.commit()
-    session.refresh(skill)
-    return skill
+
+@router.post("/import-csv")
+def import_skills_csv(
+    file: UploadFile = File(...), session: Session = Depends(get_session)
+) -> CsvImportResult:
+    raw = file.file.read().decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(raw))
+
+    imported: list[Skill] = []
+    skipped_rows = 0
+    for row in reader:
+        name = (row.get("name") or "").strip()
+        category = (row.get("category") or "").strip()
+        skill = _upsert_skill(session, name, category)
+        if skill:
+            imported.append(skill)
+        else:
+            skipped_rows += 1
+
+    return CsvImportResult(imported=imported, skipped_rows=skipped_rows)
 
 
 @router.delete("/{skill_id}")

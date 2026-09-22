@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from app import services
 from app.db import get_session
-from app.models import Education, Employment, Project, Settings, Skill
+from app.models import Education, Employment, ExternalLink, Project, Settings, Skill
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
 
@@ -51,6 +51,11 @@ class ProjectIn(BaseModel):
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     description: str = ""
+
+
+class ExternalLinkIn(BaseModel):
+    label: str
+    url: str
 
 
 @router.get("/education")
@@ -131,5 +136,28 @@ def delete_project(project_id: str, session: Session = Depends(get_session)):
     project = session.get(Project, project_id)
     if project:
         session.delete(project)
+        session.commit()
+    return {"ok": True}
+
+
+@router.get("/links")
+def list_links(session: Session = Depends(get_session)) -> list[ExternalLink]:
+    return session.exec(select(ExternalLink).order_by(ExternalLink.created_at.asc())).all()
+
+
+@router.post("/links")
+def create_link(payload: ExternalLinkIn, session: Session = Depends(get_session)) -> ExternalLink:
+    link = ExternalLink(label=payload.label.strip(), url=payload.url.strip())
+    session.add(link)
+    session.commit()
+    session.refresh(link)
+    return link
+
+
+@router.delete("/links/{link_id}")
+def delete_link(link_id: str, session: Session = Depends(get_session)):
+    link = session.get(ExternalLink, link_id)
+    if link:
+        session.delete(link)
         session.commit()
     return {"ok": True}

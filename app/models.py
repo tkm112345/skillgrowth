@@ -7,7 +7,7 @@ from sqlmodel import Field, SQLModel
 
 class EvidenceEntry(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    # "resume" | "certification" | "checkin" | "education" | "employment" | "project" | "learning_activity"
+    # "certification" | "checkin" | "education" | "employment" | "project" | "learning_activity"
     source_type: str
     raw_input: str
     file_path: Optional[str] = None
@@ -80,6 +80,13 @@ class Project(SQLModel, table=True):
     end_date: Optional[date] = None
     description: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+
+
+class ExternalLink(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    label: str  # e.g. "GitHub", "X", "note", "Zenn", "Blog" — free text, not a fixed enum
+    url: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class LearningActivity(SQLModel, table=True):

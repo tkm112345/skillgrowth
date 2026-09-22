@@ -14,6 +14,14 @@ export const api = {
   addSkill: (name, category) =>
     request('/skills', { method: 'POST', body: JSON.stringify({ name, category }) }),
   deleteSkill: (id) => request(`/skills/${id}`, { method: 'DELETE' }),
+  importSkillsCsv: (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return fetch('/api/skills/import-csv', { method: 'POST', body: form }).then((res) => {
+      if (!res.ok) throw new Error(`API error ${res.status}`)
+      return res.json()
+    })
+  },
   getSkillTimeline: () => request('/skills/timeline'),
   getSkill: (id) => request(`/skills/${id}`),
 
@@ -66,6 +74,11 @@ export const api = {
   addProject: (payload) =>
     request('/profile/projects', { method: 'POST', body: JSON.stringify(payload) }),
   deleteProject: (id) => request(`/profile/projects/${id}`, { method: 'DELETE' }),
+
+  getLinks: () => request('/profile/links'),
+  addLink: (label, url) =>
+    request('/profile/links', { method: 'POST', body: JSON.stringify({ label, url }) }),
+  deleteLink: (id) => request(`/profile/links/${id}`, { method: 'DELETE' }),
 
   getLearning: () => request('/learning'),
   addLearning: (payload) => request('/learning', { method: 'POST', body: JSON.stringify(payload) }),

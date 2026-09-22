@@ -19,8 +19,9 @@
 
 ## Profile
 
-- **Import resume** — paste a resume/CV as plain text to bootstrap the
-  evidence log in one shot, rather than adding entries one at a time.
+- **Links** — a small list of label+URL pairs for showing your public work
+  and presence: GitHub, X, note, Zenn, a personal blog or homepage, or
+  anything else. No fixed platform list — the label is free text.
 - **Education** — school, degree, major, start/end date, free-text
   achievements.
 - **Employment** — company, department, role, start/end date (leave end
@@ -30,7 +31,11 @@
   standalone (personal projects, freelance work, etc.).
 
 All free-text fields here (achievements, project descriptions) also feed
-skill extraction.
+skill extraction. Links do not — they're just facts, not evidence to mine.
+
+There's deliberately no "import resume" feature: a personal resume's layout
+varies too much for reliable LLM extraction. Bulk-loading skills instead
+goes through the CSV import on the Skills page.
 
 ## Learning Log
 
@@ -47,15 +52,19 @@ Tracks catch-up activity outside of formal work history:
 - The current skill picture, derived from the evidence log: name, category,
   evidence count, first-seen date, last-seen date.
 - **Add a skill directly** by name/category, for skills you know you have
-  but haven't produced evidence for yet. New skills added this way are
-  deduplicated case-insensitively against existing skills.
-- Skills can also be deleted (the evidence that mentioned them is kept).
+  but haven't produced evidence for yet.
+- **Import CSV** — bulk-add skills from a `name,category` CSV file
+  (`category` column optional).
+- Both paths are deduplicated case-insensitively against existing skills,
+  and skills can also be deleted (the evidence that mentioned them is kept).
 
 ## Evidence Log
 
 A chronological, read-only feed of every evidence entry ever added —
-resume imports, check-ins, certifications, and the free-text side of every
+check-ins, certifications, and the free-text side of every
 Education/Employment/Project/Learning Log entry — labeled by source type.
+(Manually added and CSV-imported skills don't appear here — they bypass the
+evidence log entirely, since there's no free text behind them.)
 
 ## Export
 

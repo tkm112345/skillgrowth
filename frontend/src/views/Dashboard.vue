@@ -137,6 +137,8 @@ const categoryOption = computed(() => {
   <h1 class="page-title">{{ t('dashboard.title') }}</h1>
   <p class="page-subtitle">{{ t('dashboard.subtitle') }}</p>
 
+  <router-link to="/concept" class="concept-link">{{ t('dashboard.conceptLink') }} →</router-link>
+
   <el-card shadow="never" class="chart-card">
     <template #header>{{ t('dashboard.checkinHeader') }}</template>
     <el-input
@@ -196,6 +198,18 @@ const categoryOption = computed(() => {
 </template>
 
 <style scoped>
+.concept-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.concept-link:hover {
+  text-decoration: underline;
+}
+
 .goal-label {
   font-size: 0.85rem;
   color: var(--ink-secondary);

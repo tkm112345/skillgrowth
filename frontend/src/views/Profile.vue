@@ -10,17 +10,20 @@ const { t } = useI18n()
 const education = ref([])
 const employment = ref([])
 const projects = ref([])
+const links = ref([])
 const loading = ref(true)
 
 async function reload() {
-  const [edu, emp, proj] = await Promise.all([
+  const [edu, emp, proj, lnk] = await Promise.all([
     api.getEducation(),
     api.getEmployment(),
     api.getProjects(),
+    api.getLinks(),
   ])
   education.value = edu
   employment.value = emp
   projects.value = proj
+  links.value = lnk
 }
 
 onMounted(async () => {
@@ -37,23 +40,6 @@ function formatPeriod(start, end) {
   const s = start || '?'
   const e = end || '—'
   return `${s} – ${e}`
-}
-
-// -- resume import --
-const resumeDialog = ref(false)
-const resumeText = ref('')
-const importingResume = ref(false)
-async function submitResumeImport() {
-  if (!resumeText.value.trim()) return
-  importingResume.value = true
-  try {
-    const result = await api.addTextEvidence('resume', resumeText.value)
-    ElMessage.success(t('profile.importResumeSuccess', { count: result.linked_skills.length }))
-    resumeText.value = ''
-    resumeDialog.value = false
-  } finally {
-    importingResume.value = false
-  }
 }
 
 // -- education form --
@@ -106,16 +92,40 @@ async function removeProject(id) {
   await api.deleteProject(id)
   await reload()
 }
+
+// -- external links --
+const linkDialog = ref(false)
+const linkForm = reactive({ label: '', url: '' })
+async function submitLink() {
+  if (!linkForm.label.trim() || !linkForm.url.trim()) return
+  await api.addLink(linkForm.label, linkForm.url)
+  Object.assign(linkForm, { label: '', url: '' })
+  linkDialog.value = false
+  await reload()
+  ElMessage.success(t('profile.addedLink'))
+}
+async function removeLink(id) {
+  await api.deleteLink(id)
+  await reload()
+}
 </script>
 
 <template>
-  <div class="header-row">
-    <div>
-      <h1 class="page-title">{{ t('profile.title') }}</h1>
-      <p class="page-subtitle">{{ t('profile.subtitle') }}</p>
+  <h1 class="page-title">{{ t('profile.title') }}</h1>
+  <p class="page-subtitle">{{ t('profile.subtitle') }}</p>
+
+  <section class="section" v-loading="loading">
+    <div class="section-header">
+      <h2>{{ t('profile.linksHeader') }}</h2>
+      <el-button size="small" @click="linkDialog = true">{{ t('common.add') }}</el-button>
     </div>
-    <el-button @click="resumeDialog = true">{{ t('profile.importResume') }}</el-button>
-  </div>
+    <div class="links-row" v-if="links.length">
+      <el-tag v-for="l in links" :key="l.id" closable @close="removeLink(l.id)" class="link-tag">
+        <a :href="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+      </el-tag>
+    </div>
+    <el-empty v-if="!loading && links.length === 0" :description="t('profile.noEntries')" />
+  </section>
 
   <section class="section" v-loading="loading">
     <div class="section-header">
@@ -167,19 +177,6 @@ async function removeProject(id) {
     </el-card>
   </section>
 
-  <el-dialog v-model="resumeDialog" :title="t('profile.importResumeTitle')" width="560px">
-    <p class="dialog-hint">{{ t('profile.importResumeSubtitle') }}</p>
-    <el-input
-      v-model="resumeText"
-      type="textarea"
-      :rows="10"
-      :placeholder="t('profile.importResumePlaceholder')"
-    />
-    <template #footer>
-      <el-button type="primary" :loading="importingResume" @click="submitResumeImport">{{ t('common.add') }}</el-button>
-    </template>
-  </el-dialog>
-
   <el-dialog v-model="eduDialog" :title="t('profile.addEducation')" width="480px">
     <el-form :model="eduForm" label-width="80px">
       <el-form-item :label="t('profile.school')"><el-input v-model="eduForm.school" /></el-form-item>
@@ -218,22 +215,21 @@ async function removeProject(id) {
     </el-form>
     <template #footer><el-button type="primary" @click="submitProject">{{ t('common.add') }}</el-button></template>
   </el-dialog>
+
+  <el-dialog v-model="linkDialog" :title="t('profile.addLink')" width="420px">
+    <el-form :model="linkForm" label-width="80px">
+      <el-form-item :label="t('profile.linkLabel')">
+        <el-input v-model="linkForm.label" :placeholder="t('profile.linkLabelPlaceholder')" />
+      </el-form-item>
+      <el-form-item :label="t('profile.linkUrl')">
+        <el-input v-model="linkForm.url" placeholder="https://..." />
+      </el-form-item>
+    </el-form>
+    <template #footer><el-button type="primary" @click="submitLink">{{ t('common.add') }}</el-button></template>
+  </el-dialog>
 </template>
 
 <style scoped>
-.header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.dialog-hint {
-  color: var(--ink-secondary);
-  font-size: 0.85rem;
-  margin-top: 0;
-}
-
 .section {
   margin-bottom: 2rem;
 }
@@ -272,5 +268,16 @@ async function removeProject(id) {
 
 .project-card {
   margin-bottom: 0.5rem;
+}
+
+.links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.link-tag a {
+  color: inherit;
+  text-decoration: none;
 }
 </style>

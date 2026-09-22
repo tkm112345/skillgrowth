@@ -38,16 +38,18 @@
     "statRecent": "Added in last 7 days",
     "horizonThisYear": "This year",
     "horizon5Years": "5 years",
-    "horizon10Years": "10 years"
+    "horizon10Years": "10 years",
+    "conceptLink": "New here? See the concept behind this app"
   },
   "profile": {
     "title": "Profile",
     "subtitle": "Education, work history, and projects. Descriptions also feed skill extraction.",
-    "importResume": "Import resume",
-    "importResumeTitle": "Import resume",
-    "importResumeSubtitle": "Paste your resume text — skills will be extracted automatically.",
-    "importResumePlaceholder": "Paste your resume or CV text here",
-    "importResumeSuccess": "Extracted {count} skill(s)",
+    "linksHeader": "Links",
+    "addLink": "Add link",
+    "linkLabel": "Label",
+    "linkLabelPlaceholder": "e.g. GitHub, X, note, Zenn, Blog",
+    "linkUrl": "URL",
+    "addedLink": "Added link",
     "educationHeader": "Education",
     "employmentHeader": "Work history",
     "otherProjectsHeader": "Other projects",
@@ -112,14 +114,16 @@
     "added": "Skill added",
     "namePlaceholder": "e.g. Python",
     "categoryPlaceholder": "e.g. Technical",
-    "confirmDelete": "Delete this skill? (linked evidence is kept)"
+    "confirmDelete": "Delete this skill? (linked evidence is kept)",
+    "importCsv": "Import CSV",
+    "csvImportHint": "Columns: name, category (category is optional). Existing skills are matched case-insensitively and not duplicated.",
+    "csvImportSuccess": "Imported {count} skill(s)"
   },
   "timeline": {
     "title": "Evidence Log",
     "subtitle": "A chronological feed of everything you've added.",
     "noEntries": "No evidence yet",
     "image": "(image)",
-    "sourceResume": "Resume",
     "sourceCertification": "Certification",
     "sourceCheckin": "Check-in",
     "sourceEducation": "Education",

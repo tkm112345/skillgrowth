@@ -3,22 +3,23 @@
 Self-hosted career tracker that grows alongside your career, instead of
 asking you to fill out a static profile once.
 
-Every piece of evidence you feed it — a pasted resume, a certification
-photo, a check-in note, an education/employment/project record, a learning
-log entry — is kept as an append-only evidence log. An LLM extracts skills
-from that evidence and matches them against skills you already have, so your
-skill picture and a ready-to-use resume can be derived from the log at any
-time.
+Every piece of evidence you feed it — a check-in note, a certification
+photo, an education/employment/project record, a learning log entry — is
+kept as an append-only evidence log. An LLM extracts skills from that
+evidence and matches them against skills you already have, so your skill
+picture and a ready-to-use resume can be derived from the log at any time.
+Skills can also be added directly (one at a time, or in bulk via CSV) when
+you don't have free-text evidence to extract from.
 
 ```mermaid
 flowchart LR
-  U1[Resume import] --> E[(Evidence log)]
-  U2[Quick check-in] --> E
-  U3[Certification image] --> E
-  U4[Education / Employment / Project] --> E
-  U5[Learning log entry] --> E
+  U1[Quick check-in] --> E[(Evidence log)]
+  U2[Certification image] --> E
+  U3[Education / Employment / Project] --> E
+  U4[Learning log entry] --> E
+  U5[Manual add / CSV import] --> S[(Skill)]
   E --> L[LLM extraction + matching]
-  L --> S[(Skill)]
+  L --> S
   S --> V[Current skill view]
   S --> X[Resume export]
   S --> G[Job posting gap check]
@@ -35,12 +36,13 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   optional), a skill growth timeline chart, a category breakdown chart, and a
   quick check-in box.
 - **Profile** — education, employment, and projects (standalone or linked to
-  an employer). Free-text descriptions also feed skill extraction. A resume
-  can be bulk-imported here to bootstrap the evidence log.
+  an employer). Free-text descriptions also feed skill extraction.
 - **Learning log** — reading, talks given/attended, certifications (with
   optional certificate image upload for OCR extraction).
 - **Skills** — the current skill picture derived from the evidence log; also
-  supports adding a skill directly by name.
+  supports adding a skill directly by name, or importing a batch from a
+  `name,category` CSV file — deliberately not resume parsing, since a
+  personal resume's layout is too format-dependent for reliable extraction.
 - **Evidence log** — a chronological feed of everything that has been added.
 - **Export** — generates a resume (Markdown, rendered and downloadable) from
   the current skill picture, and a job-posting gap check (paste a job
@@ -60,8 +62,9 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   endpoint — a cloud API or a local Ollama server
   (`http://localhost:11434/v1`). Configured from the Settings page.
 - **Evidence, not self-assessment.** Skills mostly come from things you
-  already have (resume, certificates, project notes) rather than from
-  filling out a skill matrix — though you can also add a skill by hand.
+  already have (certificates, project notes, a CSV export from wherever you
+  already track this) rather than from filling out a skill matrix — though
+  you can also add a skill by hand.
 
 ## Quick start
 
@@ -79,7 +82,7 @@ frontend separately with hot reload.
 ## Known limitations
 
 - Certification ingestion accepts images only (no PDF parsing yet).
-- Resume ingestion is paste-as-text (no PDF/Word upload yet).
+- No resume/CV parsing by design — see "Design choices" above.
 - The "current skills" view is read from the database directly, but the
   match/merge step that keeps it deduplicated runs at evidence-ingestion
   time via an LLM call — quality depends on the configured model.

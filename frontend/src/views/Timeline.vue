@@ -9,7 +9,6 @@ const entries = ref([])
 const loading = ref(true)
 
 const sourceLabelKeys = {
-  resume: 'timeline.sourceResume',
   certification: 'timeline.sourceCertification',
   checkin: 'timeline.sourceCheckin',
   education: 'timeline.sourceEducation',

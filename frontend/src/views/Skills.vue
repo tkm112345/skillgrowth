@@ -10,6 +10,9 @@ const skills = ref([])
 const loading = ref(true)
 const dialog = ref(false)
 const form = reactive({ name: '', category: '' })
+const csvDialog = ref(false)
+const csvFile = ref(null)
+const importingCsv = ref(false)
 
 async function reload() {
   skills.value = await api.getSkills()
@@ -38,6 +41,24 @@ async function remove(id) {
   await api.deleteSkill(id)
   await reload()
 }
+
+function handleCsvFileChange(uploadFile) {
+  csvFile.value = uploadFile.raw
+}
+
+async function submitCsvImport() {
+  if (!csvFile.value) return
+  importingCsv.value = true
+  try {
+    const result = await api.importSkillsCsv(csvFile.value)
+    ElMessage.success(t('skills.csvImportSuccess', { count: result.imported.length }))
+    csvFile.value = null
+    csvDialog.value = false
+    await reload()
+  } finally {
+    importingCsv.value = false
+  }
+}
 </script>
 
 <template>
@@ -46,7 +67,10 @@ async function remove(id) {
       <h1 class="page-title">{{ t('skills.title') }}</h1>
       <p class="page-subtitle">{{ t('skills.subtitle') }}</p>
     </div>
-    <el-button type="primary" @click="dialog = true">{{ t('skills.add') }}</el-button>
+    <div class="header-actions">
+      <el-button @click="csvDialog = true">{{ t('skills.importCsv') }}</el-button>
+      <el-button type="primary" @click="dialog = true">{{ t('skills.add') }}</el-button>
+    </div>
   </div>
 
   <el-table :data="skills" v-loading="loading" style="width: 100%">
@@ -83,6 +107,22 @@ async function remove(id) {
     </el-form>
     <template #footer><el-button type="primary" @click="submit">{{ t('common.add') }}</el-button></template>
   </el-dialog>
+
+  <el-dialog v-model="csvDialog" :title="t('skills.importCsv')" width="480px">
+    <p class="dialog-hint">{{ t('skills.csvImportHint') }}</p>
+    <el-upload
+      :auto-upload="false"
+      :show-file-list="true"
+      :limit="1"
+      accept=".csv"
+      :on-change="handleCsvFileChange"
+    >
+      <el-button size="small">{{ t('common.add') }}</el-button>
+    </el-upload>
+    <template #footer>
+      <el-button type="primary" :loading="importingCsv" @click="submitCsvImport">{{ t('common.add') }}</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -91,5 +131,16 @@ async function remove(id) {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dialog-hint {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin-top: 0;
 }
 </style>

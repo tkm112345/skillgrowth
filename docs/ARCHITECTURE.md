@@ -31,7 +31,7 @@ erDiagram
 
   EvidenceEntry {
     string id
-    string source_type "resume/certification/checkin/education/employment/project/learning_activity"
+    string source_type "certification/checkin/education/employment/project/learning_activity"
     text raw_input
     string file_path "nullable, image evidence only"
     datetime created_at
@@ -95,13 +95,19 @@ erDiagram
     string llm_model
     string llm_vision_model
   }
+  ExternalLink {
+    string id
+    string label "free text, e.g. GitHub/X/note/Zenn/Blog"
+    string url
+    datetime created_at
+  }
 ```
 
 ## Evidence → skill extraction flow
 
-Every entry point that accepts free text (check-in, resume import, or the
-description field on Education/Employment/Project/LearningActivity) goes
-through the same path: `app/services.py::record_evidence_and_extract`.
+Every entry point that accepts free text (check-in, or the description field
+on Education/Employment/Project/LearningActivity) goes through the same
+path: `app/services.py::record_evidence_and_extract`.
 
 ```mermaid
 sequenceDiagram
@@ -133,9 +139,17 @@ Certification images go through the analogous
 `extract_and_match_image` path, which sends the image as a base64 data URL
 to a vision-capable model instead of plain text.
 
-Manually adding a skill from the Skills page (`POST /api/skills`) bypasses
-this pipeline entirely — it writes a `Skill` row directly (with
-case-insensitive name dedup), since there's no free text to extract from.
+Manually adding a skill from the Skills page (`POST /api/skills`), or
+importing a `name,category` CSV (`POST /api/skills/import-csv`), bypasses
+this pipeline entirely — both write `Skill` rows directly (through the same
+`_upsert_skill` dedup helper in `app/routers/skills.py`), since there's no
+free text to extract from. Resume parsing was deliberately not built: a
+personal resume's layout varies too much for reliable LLM extraction, so
+structured skill import goes through CSV instead.
+
+`ExternalLink` (GitHub, X, note, Zenn, a personal blog, ...) is a plain
+label+URL list with no evidence/LLM involvement — it's just a fact, not
+something to extract skills from.
 
 ## LLM configuration
 

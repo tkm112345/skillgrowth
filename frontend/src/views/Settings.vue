@@ -132,7 +132,7 @@ async function resetSample() {
   <h1 class="page-title">{{ t('settings.title') }}</h1>
   <p class="page-subtitle">{{ t('settings.subtitle') }}</p>
 
-  <el-form :model="form" label-width="160px" v-loading="loading" class="form">
+  <el-form :model="form" label-width="160px" v-loading="loading">
     <el-form-item :label="t('settings.baseUrl')">
       <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
     </el-form-item>
@@ -188,9 +188,6 @@ async function resetSample() {
 </template>
 
 <style scoped>
-.form {
-  max-width: 480px;
-}
 
 .form-actions {
   display: flex;
@@ -202,7 +199,6 @@ async function resetSample() {
 }
 
 .backup-card {
-  max-width: 480px;
   margin-top: 1.5rem;
 }
 

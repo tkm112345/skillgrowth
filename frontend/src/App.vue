@@ -201,8 +201,8 @@ onMounted(async () => {
 }
 
 .content {
-  max-width: 920px;
   flex: 1;
   overflow-y: auto;
+  padding: 1.25rem 1.75rem;
 }
 </style>

@@ -110,6 +110,7 @@ async function submitLink() {
   ElMessage.success(t('profile.addedLink'))
 }
 async function removeLink(id) {
+  await ElMessageBox.confirm(t('profile.confirmDeleteLink'), t('profile.confirm'))
   await api.deleteLink(id)
   await reload()
 }
@@ -141,8 +142,10 @@ async function removeLink(id) {
     <el-card v-for="e in employment" :key="e.id" shadow="never" class="item-card">
       <div class="item-title">{{ e.company }}<span v-if="e.department"> / {{ e.department }}</span></div>
       <div class="item-meta">{{ e.role }} · {{ formatPeriod(e.start_date, e.end_date) }}</div>
-      <el-button size="small" text @click="openProjectDialog(e.id)">{{ t('profile.addProject') }}</el-button>
-      <el-button size="small" text type="danger" @click="removeEmployment(e.id)">{{ t('common.delete') }}</el-button>
+      <div class="card-actions">
+        <el-button size="small" text @click="openProjectDialog(e.id)">{{ t('profile.addProject') }}</el-button>
+        <el-button size="small" text type="danger" @click="removeEmployment(e.id)">{{ t('common.delete') }}</el-button>
+      </div>
 
       <div class="nested-projects" v-if="projectsFor(e.id).length">
         <el-card v-for="p in projectsFor(e.id)" :key="p.id" shadow="never" class="project-card">
@@ -263,6 +266,11 @@ async function removeLink(id) {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin: 0.25rem 0 0.5rem;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
 }
 
 .nested-projects {

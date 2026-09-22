@@ -108,6 +108,17 @@ const arcPaths = computed(() => {
       </div>
     </div>
 
+    <!-- Narrow screens: the circular layout has no room for outward-facing
+         labels, so fall back to a simple vertical list instead of risking
+         overlap. Toggled by CSS media queries, not JS, to avoid a layout
+         flash. -->
+    <ol class="loop-list">
+      <li v-for="node in nodes" :key="`${node.key}-list`">
+        <span class="loop-list-badge">{{ node.num }}</span>
+        {{ t(`concept.${node.key}`) }}
+      </li>
+    </ol>
+
     <p class="loop-note">{{ t('concept.loopNote') }}</p>
   </el-card>
 
@@ -170,6 +181,51 @@ const arcPaths = computed(() => {
 .loop-label--left {
   transform: translate(calc(-100% - 48px), -50%);
   text-align: right;
+}
+
+.loop-list {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.loop-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  border-bottom: 1px solid var(--el-border-color);
+}
+
+.loop-list li:last-child {
+  border-bottom: none;
+}
+
+.loop-list-badge {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  color: var(--ink-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .loop-circle {
+    display: none;
+  }
+
+  .loop-list {
+    display: block;
+  }
 }
 
 .loop-note {

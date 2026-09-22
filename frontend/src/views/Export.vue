@@ -7,20 +7,39 @@ import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
 
+const PAGE_SIZE = 20
+
 const { t, locale } = useI18n()
 const exports = ref([])
 const loading = ref(true)
+const loadingMore = ref(false)
+const hasMore = ref(false)
 const generating = ref(false)
 
 onMounted(async () => {
   try {
-    exports.value = await api.getExports()
+    const page = await api.getExports(PAGE_SIZE, 0)
+    exports.value = page
+    hasMore.value = page.length === PAGE_SIZE
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
   }
 })
+
+async function loadMore() {
+  loadingMore.value = true
+  try {
+    const page = await api.getExports(PAGE_SIZE, exports.value.length)
+    exports.value.push(...page)
+    hasMore.value = page.length === PAGE_SIZE
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingMore.value = false
+  }
+}
 
 async function generate() {
   generating.value = true
@@ -87,6 +106,10 @@ async function runGapCheck() {
     </el-card>
   </div>
 
+  <el-button v-if="hasMore" :loading="loadingMore" @click="loadMore" class="load-more-btn">
+    {{ t('export.loadMore') }}
+  </el-button>
+
   <el-empty v-if="!loading && exports.length === 0" :description="t('export.noEntries')" />
 
   <el-card shadow="never" class="export-card gap-check-card">
@@ -127,6 +150,11 @@ async function runGapCheck() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.load-more-btn {
+  display: block;
+  margin: 0.75rem auto 0;
 }
 
 .rendered-resume {

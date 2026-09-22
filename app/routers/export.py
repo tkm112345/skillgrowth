@@ -14,8 +14,12 @@ class GapCheckIn(BaseModel):
 
 
 @router.get("")
-def list_exports(session: Session = Depends(get_session)) -> list[ExportSnapshot]:
-    return session.exec(select(ExportSnapshot).order_by(ExportSnapshot.generated_at.desc())).all()
+def list_exports(
+    limit: int = 20, offset: int = 0, session: Session = Depends(get_session)
+) -> list[ExportSnapshot]:
+    return session.exec(
+        select(ExportSnapshot).order_by(ExportSnapshot.generated_at.desc()).offset(offset).limit(limit)
+    ).all()
 
 
 @router.post("")

@@ -25,7 +25,7 @@ export const api = {
   getSkillTimeline: () => request('/skills/timeline'),
   getSkill: (id) => request(`/skills/${id}`),
 
-  getEvidence: () => request('/evidence'),
+  getEvidence: (limit = 50, offset = 0) => request(`/evidence?limit=${limit}&offset=${offset}`),
   addTextEvidence: (sourceType, text) =>
     request('/evidence/text', {
       method: 'POST',
@@ -41,7 +41,7 @@ export const api = {
     })
   },
 
-  getExports: () => request('/export'),
+  getExports: (limit = 20, offset = 0) => request(`/export?limit=${limit}&offset=${offset}`),
   generateExport: () => request('/export', { method: 'POST' }),
   gapCheck: (jobDescription) =>
     request('/export/gap-check', {
@@ -52,6 +52,8 @@ export const api = {
   getSettings: () => request('/settings'),
   updateSettings: (payload) =>
     request('/settings', { method: 'PUT', body: JSON.stringify(payload) }),
+  testSettings: (payload) =>
+    request('/settings/test', { method: 'POST', body: JSON.stringify(payload) }),
   getBackup: () => request('/backup/export'),
 
   getGoals: () => request('/goals'),

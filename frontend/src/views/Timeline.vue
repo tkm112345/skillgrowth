@@ -5,9 +5,13 @@ import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
 
+const PAGE_SIZE = 50
+
 const { t, locale } = useI18n()
 const entries = ref([])
 const loading = ref(true)
+const loadingMore = ref(false)
+const hasMore = ref(false)
 
 const sourceLabelKeys = {
   certification: 'timeline.sourceCertification',
@@ -25,13 +29,28 @@ function sourceLabel(sourceType) {
 
 onMounted(async () => {
   try {
-    entries.value = await api.getEvidence()
+    const page = await api.getEvidence(PAGE_SIZE, 0)
+    entries.value = page
+    hasMore.value = page.length === PAGE_SIZE
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
   }
 })
+
+async function loadMore() {
+  loadingMore.value = true
+  try {
+    const page = await api.getEvidence(PAGE_SIZE, entries.value.length)
+    entries.value.push(...page)
+    hasMore.value = page.length === PAGE_SIZE
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingMore.value = false
+  }
+}
 
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))
 </script>
@@ -53,5 +72,16 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
     </el-timeline-item>
   </el-timeline>
 
+  <el-button v-if="hasMore" :loading="loadingMore" @click="loadMore" class="load-more-btn">
+    {{ t('timeline.loadMore') }}
+  </el-button>
+
   <el-empty v-if="!loading && entries.length === 0" :description="t('timeline.noEntries')" />
 </template>
+
+<style scoped>
+.load-more-btn {
+  display: block;
+  margin: 0.5rem auto 0;
+}
+</style>

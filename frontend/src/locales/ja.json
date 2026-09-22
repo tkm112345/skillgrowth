@@ -54,6 +54,7 @@
     "linkLabelPlaceholder": "例: GitHub, X, note, Zenn, ブログ",
     "linkUrl": "URL",
     "addedLink": "リンクを追加しました",
+    "confirmDeleteLink": "このリンクを削除しますか？",
     "educationHeader": "学歴",
     "employmentHeader": "職歴",
     "otherProjectsHeader": "その他のプロジェクト",
@@ -127,6 +128,7 @@
     "title": "証拠ログ",
     "subtitle": "追加した証拠の時系列フィードです。",
     "noEntries": "まだ証拠がありません",
+    "loadMore": "もっと見る",
     "image": "(画像)",
     "sourceCertification": "資格・修了証",
     "sourceCheckin": "近況メモ",
@@ -142,6 +144,7 @@
     "generateSuccess": "職務経歴書を生成しました",
     "generateError": "生成に失敗しました: {error}",
     "noEntries": "まだエクスポートがありません",
+    "loadMore": "もっと見る",
     "download": "ダウンロード",
     "gapCheckHeader": "求人票とのギャップチェック",
     "gapCheckHint": "求人票を貼り付けると、現在のスキルとの適合度を確認できます。",
@@ -182,6 +185,9 @@
     "backupHeader": "データのバックアップ",
     "backupHint": "証拠ログ・スキル・プロフィール・目標・学習ログ・リンク・職務経歴書の生成履歴など、キャリアデータ全体を1つのJSONファイルとしてダウンロードします。LLM接続設定は含まれません。",
     "backupDownload": "バックアップをダウンロード",
-    "backupError": "バックアップのダウンロードに失敗しました: {error}"
+    "backupError": "バックアップのダウンロードに失敗しました: {error}",
+    "testConnection": "接続テスト",
+    "testSuccess": "接続に成功しました。",
+    "testFailure": "接続に失敗しました: {error}"
   }
 }

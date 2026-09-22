@@ -16,6 +16,8 @@ const form = reactive({
 const loading = ref(true)
 const saving = ref(false)
 const downloadingBackup = ref(false)
+const testing = ref(false)
+const testResult = ref(null)
 
 onMounted(async () => {
   try {
@@ -27,6 +29,18 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function testConnection() {
+  testing.value = true
+  testResult.value = null
+  try {
+    testResult.value = await api.testSettings(form)
+  } catch (e) {
+    testResult.value = { ok: false, message: e.message }
+  } finally {
+    testing.value = false
+  }
+}
 
 async function save() {
   saving.value = true
@@ -76,7 +90,19 @@ async function downloadBackup() {
     <el-form-item :label="t('settings.visionModel')">
       <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
     </el-form-item>
-    <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
+    <div class="form-actions">
+      <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
+      <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
+    </div>
+
+    <el-alert
+      v-if="testResult"
+      class="test-result"
+      :type="testResult.ok ? 'success' : 'error'"
+      :title="testResult.ok ? t('settings.testSuccess') : t('settings.testFailure', { error: testResult.message })"
+      :closable="false"
+      show-icon
+    />
   </el-form>
 
   <el-card shadow="never" class="backup-card">
@@ -89,6 +115,15 @@ async function downloadBackup() {
 <style scoped>
 .form {
   max-width: 480px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.test-result {
+  margin-top: 0.75rem;
 }
 
 .backup-card {

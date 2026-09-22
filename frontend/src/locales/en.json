@@ -54,6 +54,7 @@
     "linkLabelPlaceholder": "e.g. GitHub, X, note, Zenn, Blog",
     "linkUrl": "URL",
     "addedLink": "Added link",
+    "confirmDeleteLink": "Delete this link?",
     "educationHeader": "Education",
     "employmentHeader": "Work history",
     "otherProjectsHeader": "Other projects",
@@ -127,6 +128,7 @@
     "title": "Evidence Log",
     "subtitle": "A chronological feed of everything you've added.",
     "noEntries": "No evidence yet",
+    "loadMore": "Load more",
     "image": "(image)",
     "sourceCertification": "Certification",
     "sourceCheckin": "Update",
@@ -142,6 +144,7 @@
     "generateSuccess": "Resume generated",
     "generateError": "Failed to generate: {error}",
     "noEntries": "No exports yet",
+    "loadMore": "Load more",
     "download": "Download",
     "gapCheckHeader": "Job posting gap check",
     "gapCheckHint": "Paste a job posting to see how it lines up against your current skills.",
@@ -182,6 +185,9 @@
     "backupHeader": "Data backup",
     "backupHint": "Download all of your career data (evidence, skills, profile, goals, learning log, links, resume history) as a single JSON file. Your LLM connection settings are not included.",
     "backupDownload": "Download backup",
-    "backupError": "Failed to download backup: {error}"
+    "backupError": "Failed to download backup: {error}",
+    "testConnection": "Test connection",
+    "testSuccess": "Connected successfully.",
+    "testFailure": "Connection failed: {error}"
   }
 }

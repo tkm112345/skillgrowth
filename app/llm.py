@@ -27,6 +27,19 @@ def _client(settings: Settings) -> OpenAI:
     return OpenAI(base_url=settings.openai_base_url, api_key=settings.openai_api_key or "not-needed")
 
 
+def test_connection(settings: Settings) -> dict:
+    try:
+        resp = _client(settings).chat.completions.create(
+            model=settings.llm_model,
+            messages=[{"role": "user", "content": "Reply with the single word: ok"}],
+            max_tokens=5,
+        )
+        reply = (resp.choices[0].message.content or "").strip()
+        return {"ok": True, "message": reply}
+    except Exception as e:  # noqa: BLE001 - surface any failure reason to the UI
+        return {"ok": False, "message": str(e)}
+
+
 def _existing_skills_block(existing_skills: list[dict]) -> str:
     if not existing_skills:
         return "(まだ登録されているスキルはありません)"

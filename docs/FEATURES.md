@@ -67,7 +67,9 @@ A chronological, read-only feed of every evidence entry ever added —
 quick updates, certifications, and the free-text side of every
 Education/Employment/Project/Learning Log entry — labeled by source type.
 (Manually added and CSV-imported skills don't appear here — they bypass the
-evidence log entirely, since there's no free text behind them.)
+evidence log entirely, since there's no free text behind them.) Loads 50 at
+a time with a "Load more" button, since this log only ever grows over the
+life of the app.
 
 ## Resume
 
@@ -77,7 +79,8 @@ under one heading rather than a generic "Export":
 - **Generate resume** — assembles the current skill picture into a
   Markdown resume via the LLM. Rendered as formatted HTML in the UI (not
   raw Markdown text) and downloadable as a `.md` file. Every generation is
-  kept as a snapshot, so past exports remain browsable.
+  kept as a snapshot, so past exports remain browsable (20 at a time, with
+  a "Load more" button).
 - **Job posting gap check** — paste a job description; the LLM compares it
   against your current skills and returns what you already meet, what's
   missing, and a short summary.
@@ -98,6 +101,10 @@ picture rather than starting over.
   in the database and editable from the UI — no `.env` editing or restart
   required. Works against any OpenAI-compatible chat completions endpoint:
   a cloud API or a local Ollama server.
+- **Test connection** — sends a minimal request with the values currently
+  in the form (not necessarily saved yet) and reports success or the exact
+  error, so a typo in the API key or base URL is caught immediately instead
+  of surfacing later as a failure somewhere else in the app.
 - **Data backup** — download every career record (evidence, skills,
   profile, goals, learning log, links, resume export history) as a single
   JSON file. Deliberately excludes the LLM connection settings (so an API

@@ -48,6 +48,19 @@ commit as the change, moved into a dated section when a release is cut).
   above the sidebar's copyright line, visible from every page.
 
 ### Fixed
+- Two accuracy issues found in a self-review of the Concept page rework
+  above: growth guidance was missing from step 5's description even
+  though it's one of only two AI Integration features (job-posting gap
+  check was the only one mentioned); and the loop's note about the
+  append-only activity log incorrectly listed Vision as one of the
+  screens backed by it — Vision is deliberately outside that log
+  entirely, same as career path goals, Self PR, and resume generation.
+  Also clarified that step 5's "LLM-backed features haven't been
+  thoroughly vetted yet" is a reliability caveat about the gap check and
+  growth guidance specifically (not enough real-world use yet to vouch
+  for suggestion quality) — not a claim that they don't exist. Both are
+  already built and working, same as resume generation (which was never
+  LLM-backed to begin with).
 - Resume generation would crash (`no such column`) on any instance that
   had already generated a resume before this change, because
   `ExportSnapshot.edited_at` was added to an existing table with no way

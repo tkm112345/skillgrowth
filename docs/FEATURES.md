@@ -168,13 +168,20 @@ separate branch for the fifth:
 
 Step 4 flows straight back into step 1 — that's the main loop, and it's
 the path drawn as a closed circle. Step 5 (**Prepare** — resume
-generation, a job-posting gap check, and eventually deeper LLM-assisted
-career-prep support that isn't built yet) is deliberately *not* part of
-that circle: it's an occasional detour off of step 4, drawn as a separate
-branch, not a step every pass through the loop takes. Every screen in
-this app — Dashboard, Vision, Profile, Activity, Skills — is a different
-view onto the same append-only activity log, added to a little at a time
-rather than reset each time around.
+generation, a job-posting gap check, growth guidance toward your goals)
+is deliberately *not* part of that circle: it's an occasional detour off
+of step 4, drawn as a separate branch, not a step every pass through the
+loop takes. Its note that the LLM-backed features here "haven't been
+thoroughly vetted yet" isn't about them being unbuilt — all three exist
+and work — it's a reliability caveat: this app hasn't accumulated enough
+real-world use yet to vouch for how good the LLM's suggestions actually
+are.
+
+Many of this app's screens — Dashboard, Profile, Activity, Skills — are
+different views onto that same append-only activity log, added to a
+little at a time rather than reset each time around. Vision, career path
+goals, Self PR, and resume generation itself all sit outside that log,
+though, and never go through LLM extraction at any point.
 
 ## Settings
 

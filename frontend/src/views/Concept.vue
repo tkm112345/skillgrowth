@@ -7,10 +7,10 @@ const { t } = useI18n()
 const principleKeys = ['selfHosted', 'freeText', 'pluggableLlm', 'evidenceNotAssessment']
 
 const loopSteps = ['loopEvidence', 'loopExtraction', 'loopSkillPicture', 'loopReflect']
+const SIDES = ['top', 'right', 'bottom', 'left']
 
 const CENTER = 120
 const NODE_R = 78
-const LABEL_R = 108
 
 function polarToCartesian(angleDeg, r) {
   const rad = ((angleDeg - 90) * Math.PI) / 180
@@ -21,14 +21,14 @@ const nodes = computed(() =>
   loopSteps.map((key, i) => {
     const angle = (360 / loopSteps.length) * i
     const point = polarToCartesian(angle, NODE_R)
-    const labelPoint = polarToCartesian(angle, LABEL_R)
     return {
       key,
       num: i + 1,
       x: point.x,
       y: point.y,
-      labelLeftPct: (labelPoint.x / (CENTER * 2)) * 100,
-      labelTopPct: (labelPoint.y / (CENTER * 2)) * 100,
+      leftPct: (point.x / (CENTER * 2)) * 100,
+      topPct: (point.y / (CENTER * 2)) * 100,
+      side: SIDES[i],
     }
   }),
 )
@@ -101,7 +101,8 @@ const arcPaths = computed(() => {
         v-for="node in nodes"
         :key="`${node.key}-label`"
         class="loop-label"
-        :style="{ left: `${node.labelLeftPct}%`, top: `${node.labelTopPct}%` }"
+        :class="`loop-label--${node.side}`"
+        :style="{ left: `${node.leftPct}%`, top: `${node.topPct}%` }"
       >
         {{ t(`concept.${node.key}`) }}
       </div>
@@ -127,7 +128,7 @@ const arcPaths = computed(() => {
 .loop-circle {
   position: relative;
   width: 100%;
-  max-width: 340px;
+  max-width: 460px;
   margin: 0.5rem auto 1.5rem;
   aspect-ratio: 1 / 1;
 }
@@ -145,12 +146,30 @@ const arcPaths = computed(() => {
 
 .loop-label {
   position: absolute;
-  transform: translate(-50%, -50%);
-  width: 108px;
-  text-align: center;
+  width: 118px;
   font-size: 0.78rem;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--ink-secondary);
+}
+
+.loop-label--top {
+  transform: translate(-50%, calc(-100% - 20px));
+  text-align: center;
+}
+
+.loop-label--bottom {
+  transform: translate(-50%, 20px);
+  text-align: center;
+}
+
+.loop-label--right {
+  transform: translate(20px, -50%);
+  text-align: left;
+}
+
+.loop-label--left {
+  transform: translate(calc(-100% - 20px), -50%);
+  text-align: right;
 }
 
 .loop-note {

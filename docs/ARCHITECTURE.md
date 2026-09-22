@@ -105,9 +105,11 @@ erDiagram
 
 ## Evidence → skill extraction flow
 
-Every entry point that accepts free text (check-in, or the description field
-on Education/Employment/Project/LearningActivity) goes through the same
-path: `app/services.py::record_evidence_and_extract`.
+Every entry point that accepts free text (the Dashboard's quick update box,
+or the description field on Education/Employment/Project/LearningActivity)
+goes through the same path: `app/services.py::record_evidence_and_extract`.
+(Its `source_type` value in the database is still `"checkin"` — an internal
+identifier, not shown to users.)
 
 ```mermaid
 sequenceDiagram
@@ -117,7 +119,7 @@ sequenceDiagram
   participant DB
   participant LLM
 
-  UI->>API: POST (text, e.g. check-in)
+  UI->>API: POST (text, e.g. a quick update)
   API->>Svc: record_evidence_and_extract(text)
   Svc->>DB: insert EvidenceEntry
   Svc->>DB: read existing Skill list

@@ -3,7 +3,7 @@
 Self-hosted career tracker that grows alongside your career, instead of
 asking you to fill out a static profile once.
 
-Every piece of evidence you feed it — a check-in note, a certification
+Every piece of evidence you feed it — a quick update, a certification
 photo, an education/employment/project record, a learning log entry — is
 kept as an append-only evidence log. An LLM extracts skills from that
 evidence and matches them against skills you already have, so your skill
@@ -13,7 +13,7 @@ you don't have free-text evidence to extract from.
 
 ```mermaid
 flowchart LR
-  U1[Quick check-in] --> E[(Evidence log)]
+  U1[Quick update] --> E[(Evidence log)]
   U2[Certification image] --> E
   U3[Education / Employment / Project] --> E
   U4[Learning log entry] --> E
@@ -34,7 +34,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional), a skill growth timeline chart, a category breakdown chart, and a
-  quick check-in box.
+  quick update box, and growth guidance toward each goal.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
 - **Learning log** — reading, talks given/attended, certifications (with

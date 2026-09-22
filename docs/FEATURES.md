@@ -7,7 +7,7 @@
 - **Career path goals** — three optional free-text boxes (this year / 5 years /
   10 years) for where you'd like to be heading. Saved on blur, never
   required.
-- **Quick check-in** — a short free-text box for "what have you been working
+- **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other evidence source does.
 - **Skill growth timeline** — a step-line chart of cumulative skill count
@@ -64,7 +64,7 @@ Tracks catch-up activity outside of formal work history:
 ## Evidence Log
 
 A chronological, read-only feed of every evidence entry ever added —
-check-ins, certifications, and the free-text side of every
+quick updates, certifications, and the free-text side of every
 Education/Employment/Project/Learning Log entry — labeled by source type.
 (Manually added and CSV-imported skills don't appear here — they bypass the
 evidence log entirely, since there's no free text behind them.)

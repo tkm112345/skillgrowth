@@ -55,6 +55,8 @@ export const api = {
   testSettings: (payload) =>
     request('/settings/test', { method: 'POST', body: JSON.stringify(payload) }),
   getBackup: () => request('/backup/export'),
+  importBackup: (data) => request('/backup/import', { method: 'POST', body: JSON.stringify(data) }),
+  loadSampleData: () => request('/backup/load-sample', { method: 'POST' }),
 
   getGoals: () => request('/goals'),
   updateGoal: (horizon, description) =>

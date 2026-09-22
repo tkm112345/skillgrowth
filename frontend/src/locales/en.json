@@ -188,6 +188,16 @@
     "backupError": "Failed to download backup: {error}",
     "testConnection": "Test connection",
     "testSuccess": "Connected successfully.",
-    "testFailure": "Connection failed: {error}"
+    "testFailure": "Connection failed: {error}",
+    "importHeader": "Restore from backup",
+    "importHint": "Upload a backup JSON file (from this app's own backup download) to restore its records. This adds records — it does not delete or replace anything already here.",
+    "importSubmit": "Import file",
+    "confirmImport": "Import this file's records into your data? This cannot be undone from the UI.",
+    "importSuccess": "Imported {count} record(s).",
+    "importError": "Import failed: {error}",
+    "sampleHeader": "Try it with sample data",
+    "sampleHint": "Load a small fictional career history (skills, employment, projects, learning log) so you can see what a populated app looks like. Adds records — safe to run on an empty install, but will mix in with any real data you've already added.",
+    "sampleLoad": "Load sample data",
+    "confirmLoadSample": "Load the bundled sample data into your app now?"
   }
 }

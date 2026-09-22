@@ -44,11 +44,11 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   `name,category` CSV file — deliberately not resume parsing, since a
   personal resume's layout is too format-dependent for reliable extraction.
 - **Evidence log** — a chronological feed of everything that has been added.
-- **Export** — generates a resume (Markdown, rendered and downloadable) from
+- **Resume** — generates a resume (Markdown, rendered and downloadable) from
   the current skill picture, and a job-posting gap check (paste a job
   description to see which of its requirements you already meet).
-- **Settings** — LLM connection (base URL / API key / model), stored in the
-  database and editable from the UI.
+- **Settings** — LLM connection (base URL / API key / model, with a test
+  button), a full data backup download, and restoring from a backup file.
 - English by default, switchable to Japanese from the top bar.
 
 ## Design choices
@@ -73,6 +73,8 @@ docker compose up --build
 ```
 
 Open http://localhost:8000, then set your LLM connection under Settings.
+Want to see what a populated app looks like first? Settings → "Try it with
+sample data" loads a small fictional career history with one click.
 
 ## Local development
 

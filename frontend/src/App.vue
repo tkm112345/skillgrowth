@@ -11,7 +11,7 @@ import {
   Setting,
   TrendCharts,
 } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -27,6 +27,15 @@ function toggleCollapsed() {
 }
 
 const year = new Date().getFullYear()
+const version = ref('')
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/version')
+    version.value = (await res.json()).version
+  } catch (e) {
+    // version display is cosmetic; ignore failures silently
+  }
+})
 </script>
 
 <template>
@@ -71,7 +80,7 @@ const year = new Date().getFullYear()
         </el-menu-item>
       </el-menu>
       <div class="sidebar-footer">
-        <span v-if="!collapsed">© {{ year }} {{ t('app.brand') }}</span>
+        <span v-if="!collapsed">© {{ year }} {{ t('app.brand') }}<span v-if="version"> · v{{ version }}</span></span>
         <span v-else>©</span>
       </div>
     </el-aside>

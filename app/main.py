@@ -10,7 +10,16 @@ load_dotenv()
 from app.db import init_db  # noqa: E402
 from app.routers import backup, evidence, export, goals, learning, profile, settings, skills  # noqa: E402
 
-app = FastAPI(title="skillgrowth")
+VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
+
+app = FastAPI(title="skillgrowth", version=VERSION)
+
+
+@app.get("/api/version")
+def get_version() -> dict:
+    return {"version": VERSION}
+
+
 app.include_router(evidence.router)
 app.include_router(skills.router)
 app.include_router(export.router)

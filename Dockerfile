@@ -12,6 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY VERSION .
 COPY --from=frontend-build /frontend/dist ./frontend/dist
 
 VOLUME ["/app/data"]

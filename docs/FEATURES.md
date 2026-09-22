@@ -108,8 +108,16 @@ picture rather than starting over.
 - **Data backup** — download every career record (evidence, skills,
   profile, goals, learning log, links, resume export history) as a single
   JSON file. Deliberately excludes the LLM connection settings (so an API
-  key never ends up in a backup file). Import is not implemented yet — this
-  is export-only for now.
+  key never ends up in a backup file).
+- **Restore from backup** — upload a previously downloaded backup file to
+  re-import its records. Always additive: it never deletes or overwrites
+  existing rows, and only fills in a career goal if that horizon is still
+  empty.
+- **Sample data** — one click loads a small fictional career history
+  (skills, employment with nested projects, education, learning log,
+  links, a resume snapshot) using the same import path as backup restore,
+  so a fresh install can be explored without wiring up an LLM or typing
+  anything in first.
 
 ## Cross-cutting
 
@@ -118,3 +126,6 @@ picture rather than starting over.
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
   to an icon rail; the state is remembered per browser.
 - **Light/dark mode** — follows the OS/browser preference automatically.
+- **Version** — shown in the sidebar footer, read from the backend's
+  `/api/version` (itself read from the repo's `VERSION` file), so it can
+  never drift from what's actually deployed.

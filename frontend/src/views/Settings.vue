@@ -1,5 +1,5 @@
 <script setup>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -16,6 +16,9 @@ const form = reactive({
 const loading = ref(true)
 const saving = ref(false)
 const downloadingBackup = ref(false)
+const importing = ref(false)
+const importFile = ref(null)
+const loadingSample = ref(false)
 const testing = ref(false)
 const testResult = ref(null)
 
@@ -71,6 +74,44 @@ async function downloadBackup() {
     downloadingBackup.value = false
   }
 }
+
+function importedCount(counts) {
+  return Object.values(counts).reduce((sum, n) => sum + n, 0)
+}
+
+function handleImportFileChange(uploadFile) {
+  importFile.value = uploadFile.raw
+}
+
+async function submitImport() {
+  if (!importFile.value) return
+  await ElMessageBox.confirm(t('settings.confirmImport'), t('profile.confirm'))
+  importing.value = true
+  try {
+    const text = await importFile.value.text()
+    const data = JSON.parse(text)
+    const counts = await api.importBackup(data)
+    ElMessage.success(t('settings.importSuccess', { count: importedCount(counts) }))
+    importFile.value = null
+  } catch (e) {
+    ElMessage.error(t('settings.importError', { error: e.message }))
+  } finally {
+    importing.value = false
+  }
+}
+
+async function loadSample() {
+  await ElMessageBox.confirm(t('settings.confirmLoadSample'), t('profile.confirm'))
+  loadingSample.value = true
+  try {
+    const counts = await api.loadSampleData()
+    ElMessage.success(t('settings.importSuccess', { count: importedCount(counts) }))
+  } catch (e) {
+    ElMessage.error(t('settings.importError', { error: e.message }))
+  } finally {
+    loadingSample.value = false
+  }
+}
 </script>
 
 <template>
@@ -110,6 +151,21 @@ async function downloadBackup() {
     <p class="backup-hint">{{ t('settings.backupHint') }}</p>
     <el-button :loading="downloadingBackup" @click="downloadBackup">{{ t('settings.backupDownload') }}</el-button>
   </el-card>
+
+  <el-card shadow="never" class="backup-card">
+    <template #header>{{ t('settings.importHeader') }}</template>
+    <p class="backup-hint">{{ t('settings.importHint') }}</p>
+    <el-upload :auto-upload="false" :show-file-list="true" :limit="1" accept=".json" :on-change="handleImportFileChange">
+      <el-button size="small">{{ t('common.add') }}</el-button>
+    </el-upload>
+    <el-button :loading="importing" @click="submitImport" class="import-btn">{{ t('settings.importSubmit') }}</el-button>
+  </el-card>
+
+  <el-card shadow="never" class="backup-card">
+    <template #header>{{ t('settings.sampleHeader') }}</template>
+    <p class="backup-hint">{{ t('settings.sampleHint') }}</p>
+    <el-button :loading="loadingSample" @click="loadSample">{{ t('settings.sampleLoad') }}</el-button>
+  </el-card>
 </template>
 
 <style scoped>
@@ -135,5 +191,9 @@ async function downloadBackup() {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin-top: 0;
+}
+
+.import-btn {
+  margin-top: 0.75rem;
 }
 </style>

@@ -153,6 +153,27 @@ structured skill import goes through CSV instead.
 label+URL list with no evidence/LLM involvement — it's just a fact, not
 something to extract skills from.
 
+## Backup, restore, and sample data
+
+`app/backup_import.py::import_backup` is shared by two endpoints:
+`POST /api/backup/import` (a user-uploaded backup file) and
+`POST /api/backup/load-sample` (the bundled `app/sample_data.json`, used to
+populate a fresh install for exploration). Both take the same
+backup-shaped dict that `GET /api/backup/export` produces.
+
+Every imported row gets a **freshly generated id** — old ids from the
+payload are only used as lookup keys, in per-request maps
+(`evidence_id_map`, `skill_id_map`, `employment_id_map`), to remap foreign
+keys (`SkillLink.evidence_id`/`skill_id`, `Education`/`Employment`/
+`Project`/`LearningActivity.evidence_id`, `Project.employment_id`) onto the
+new rows. This makes import purely additive and safe to run repeatedly:
+nothing is ever deleted or updated by id. The one exception is
+`CareerGoal`, which is keyed by `horizon` rather than `id` — import only
+fills in a horizon whose `description` is still empty, so it can never
+silently overwrite a goal the user has already written. `Settings` is
+never part of the payload in either direction, so an LLM API key can't
+leak through a backup file.
+
 ## Goal-based growth guidance
 
 `POST /api/goals/growth-guidance` reads all three `CareerGoal` rows, drops

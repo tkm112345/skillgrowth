@@ -16,10 +16,8 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { setLocale } from './i18n'
-
 const route = useRoute()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const collapsed = ref(localStorage.getItem('skillgrowth-sidebar-collapsed') === '1')
 function toggleCollapsed() {
@@ -43,7 +41,7 @@ onMounted(async () => {
   <el-container class="shell">
     <el-aside :width="collapsed ? '60px' : '212px'" class="sidebar">
       <div class="brand">
-        <div class="brand-mark">S</div>
+        <img src="/favicon.svg" alt="" class="brand-mark" />
         <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" router class="nav">
@@ -92,10 +90,6 @@ onMounted(async () => {
     <el-container class="main-area">
       <el-header class="topbar">
         <el-button text @click="toggleCollapsed" :icon="collapsed ? Expand : Fold" />
-        <el-select :model-value="locale" @update:model-value="setLocale" size="small" class="lang-select">
-          <el-option value="en" label="English" />
-          <el-option value="ja" label="日本語" />
-        </el-select>
       </el-header>
       <el-main class="content">
         <router-view />
@@ -140,14 +134,6 @@ onMounted(async () => {
   flex-shrink: 0;
   width: 22px;
   height: 22px;
-  border-radius: 6px;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.75rem;
 }
 
 .brand-text {
@@ -194,10 +180,6 @@ onMounted(async () => {
   border-bottom: 1px solid var(--el-border-color);
   height: 52px;
   flex-shrink: 0;
-}
-
-.lang-select {
-  width: 105px;
 }
 
 .content {

@@ -55,7 +55,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   meet).
 - **Settings** — LLM connection (base URL / API key / model, with a test
   button), a full data backup download, and restoring from a backup file.
-- English by default, switchable to Japanese from the top bar.
+- English by default, switchable to Japanese from Settings.
 
 ## Design choices
 

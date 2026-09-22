@@ -62,7 +62,7 @@ Tracks catch-up activity outside of formal work history:
 - Both paths are deduplicated case-insensitively against existing skills,
   and skills can also be deleted (the evidence that mentioned them is kept).
 
-## Evidence Log
+## Activity
 
 A chronological, read-only feed of every evidence entry ever added —
 quick updates, certifications, and the free-text side of every
@@ -118,6 +118,8 @@ than starting over.
 
 ## Settings
 
+- **Language** — switch between English and Japanese (persisted per browser,
+  same as the top-bar toggle used to be).
 - **LLM connection** — base URL, API key, text model, vision model, stored
   in the database and editable from the UI — no `.env` editing or restart
   required. Works against any OpenAI-compatible chat completions endpoint:
@@ -151,7 +153,7 @@ than starting over.
 ## Cross-cutting
 
 - **Internationalization** — English by default, switchable to Japanese
-  from the top bar (vue-i18n). The choice is remembered per browser.
+  from Settings (vue-i18n). The choice is remembered per browser.
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
   to an icon rail; the state is remembered per browser.
 - **Light/dark mode** — follows the OS/browser preference automatically.

@@ -7,7 +7,7 @@
     "profile": "プロフィール",
     "learning": "学習ログ",
     "skills": "スキル一覧",
-    "timeline": "証拠ログ",
+    "timeline": "アクティビティ",
     "export": "職務経歴書",
     "ai": "AI連携",
     "concept": "コンセプト",
@@ -124,7 +124,7 @@
     "csvImportSuccess": "{count}件のスキルを取り込みました"
   },
   "timeline": {
-    "title": "証拠ログ",
+    "title": "アクティビティ",
     "subtitle": "追加した証拠の時系列フィードです。",
     "noEntries": "まだ証拠がありません",
     "loadMore": "もっと見る",
@@ -190,6 +190,7 @@
   "settings": {
     "title": "設定",
     "subtitle": "LLM接続先を設定します。OpenAI互換のChat Completions APIであれば、クラウドAPIでもローカルのOllamaでも利用できます。",
+    "languageHeader": "言語",
     "baseUrl": "Base URL",
     "apiKey": "API Key",
     "textModel": "モデル（テキスト）",

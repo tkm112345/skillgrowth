@@ -4,8 +4,9 @@ import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
+import { setLocale } from '../i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const form = reactive({
   openai_base_url: '',
@@ -132,6 +133,14 @@ async function resetSample() {
   <h1 class="page-title">{{ t('settings.title') }}</h1>
   <p class="page-subtitle">{{ t('settings.subtitle') }}</p>
 
+  <el-card shadow="never" class="backup-card accent-blue">
+    <template #header>{{ t('settings.languageHeader') }}</template>
+    <el-select :model-value="locale" @update:model-value="setLocale" size="small" class="lang-select">
+      <el-option value="en" label="English" />
+      <el-option value="ja" label="日本語" />
+    </el-select>
+  </el-card>
+
   <el-form :model="form" label-width="160px" v-loading="loading">
     <el-form-item :label="t('settings.baseUrl')">
       <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
@@ -200,6 +209,10 @@ async function resetSample() {
 
 .backup-card {
   margin-top: 1.5rem;
+}
+
+.lang-select {
+  width: 140px;
 }
 
 .backup-hint {

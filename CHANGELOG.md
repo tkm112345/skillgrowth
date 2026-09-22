@@ -34,6 +34,15 @@ commit as the change, moved into a dated section when a release is cut).
   diagram now notes it's skipped entirely for a direct skill add or CSV
   import, with career path goals / Vision / Self PR / resume generation
   sitting outside the loop altogether.
+- The Concept page's core loop content itself was reworked into five
+  steps (Vision → Track skills/activity → Record education/work/projects
+  → Reflect against your Vision → Prepare for your next career move), and
+  its shape changed from a single closed circle to a 4-step main loop
+  (step 4 flows back to step 1) with step 5 drawn as a separate,
+  occasional branch off of step 4 rather than a step every pass takes.
+- The tagline was reframed from "grows alongside your career" to "grows
+  together with you," to make the tool's relationship to the person using
+  it, not just their career data, explicit.
 - The sidebar's GitHub issue/PR encouragement moved out of Settings'
   "About this app" dialog into a dedicated, prominent "Contribute" button
   above the sidebar's copyright line, visible from every page.

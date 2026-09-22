@@ -152,16 +152,29 @@ LLM-optional (everything else) versus LLM-required (just these two).
 
 An in-app page explaining the product's core loop and its five design
 principles (self-hosted/single-user, free-text skills, LLM-optional not
-LLM-required, pluggable LLM, activity over self-assessment). The loop is
-drawn as a circle, not a straight line: activity → extraction → skill
-picture → reflect (a template-based resume, or optionally the AI
-Integration page's job gap check / goal-based growth guidance) → back
-into what you check in about next. Each pass around adds to the same
-accumulating skill picture rather than starting over. The loop itself is
-scoped to turning free text into skills — it's skipped entirely for a
-direct skill add or CSV import, and career path goals, Vision, Self PR,
-and resume generation all sit outside it, with no LLM involved at any
-point.
+LLM-required, pluggable LLM, activity over self-assessment).
+
+The loop is five steps, drawn as a circle for the first four with a
+separate branch for the fifth:
+
+1. **Vision** — sketch out, even roughly, the kind of career you want to
+   build (on Vision or the Dashboard).
+2. **Track** — keep recording and updating the skills and activity you
+   actually have.
+3. **Record** — education, work history, projects at work or in the open
+   (OSS).
+4. **Reflect** — revisit what you wrote in step 1, and think about what's
+   still missing.
+
+Step 4 flows straight back into step 1 — that's the main loop, and it's
+the path drawn as a closed circle. Step 5 (**Prepare** — resume
+generation, a job-posting gap check, and eventually deeper LLM-assisted
+career-prep support that isn't built yet) is deliberately *not* part of
+that circle: it's an occasional detour off of step 4, drawn as a separate
+branch, not a step every pass through the loop takes. Every screen in
+this app — Dashboard, Vision, Profile, Activity, Skills — is a different
+view onto the same append-only activity log, added to a little at a time
+rather than reset each time around.
 
 ## Settings
 

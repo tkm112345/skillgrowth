@@ -1,7 +1,7 @@
 # skillgrowth
 
-Self-hosted career tracker that grows alongside your career, instead of
-asking you to fill out a static profile once.
+A self-hosted tool for your career and skill growth that grows together
+with you, instead of asking you to fill out a static profile once.
 
 Every piece of activity you feed it — a quick update, a certification
 photo, an education/employment/project record, a reading/talk/certification

@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 const principleKeys = ['selfHosted', 'freeText', 'llmOptional', 'pluggableLlm', 'evidenceNotAssessment']
 
-const loopSteps = ['loopEvidence', 'loopExtraction', 'loopSkillPicture', 'loopReflect']
+const loopSteps = ['loopVision', 'loopSkillTrack', 'loopRecord', 'loopReflect']
 const SIDES = ['top', 'right', 'bottom', 'left']
 
 const CENTER = 120
@@ -117,7 +117,29 @@ const arcPaths = computed(() => {
         <span class="loop-list-badge">{{ node.num }}</span>
         {{ t(`concept.${node.key}`) }}
       </li>
+      <li class="loop-list-branch">
+        <span class="loop-list-badge loop-list-badge--branch">5</span>
+        {{ t('concept.loopPrepare') }}
+      </li>
     </ol>
+
+    <!-- Step 5 is a deliberate exception to the circular 1-2-3-4-1 layout
+         above: the main flow is 4 back to 1, and 5 is only an occasional
+         detour off of step 4 — not a step every pass through the loop
+         takes. Drawn as a separate branch rather than folded into the
+         circle so that asymmetry stays visible instead of implying 5 is
+         just as central as 1-4. -->
+    <div class="loop-branch">
+      <p class="loop-branch-note">{{ t('concept.loopBranchLabel') }}</p>
+      <div class="loop-branch-flow">
+        <span class="loop-branch-chip">4</span>
+        <span class="loop-branch-arrow">╌╌▶</span>
+        <span class="loop-branch-chip loop-branch-chip--five">5</span>
+        <span class="loop-branch-arrow">╌╌▶</span>
+        <span class="loop-branch-chip">1</span>
+      </div>
+      <p class="loop-branch-text">{{ t('concept.loopPrepare') }}</p>
+    </div>
 
     <p class="loop-note">{{ t('concept.loopNote') }}</p>
   </el-card>
@@ -218,6 +240,16 @@ const arcPaths = computed(() => {
   font-weight: 700;
 }
 
+.loop-list-badge--branch {
+  border-style: dashed;
+  border-color: var(--ink-muted);
+  color: var(--ink-muted);
+}
+
+.loop-list-branch {
+  color: var(--ink-muted);
+}
+
 @media (max-width: 560px) {
   .loop-circle {
     display: none;
@@ -226,6 +258,58 @@ const arcPaths = computed(() => {
   .loop-list {
     display: block;
   }
+}
+
+.loop-branch {
+  max-width: 540px;
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--el-border-color);
+  border-radius: 8px;
+}
+
+.loop-branch-note {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.loop-branch-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.loop-branch-chip {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-muted);
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.loop-branch-chip--five {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.loop-branch-arrow {
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  letter-spacing: -1px;
+}
+
+.loop-branch-text {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-secondary);
 }
 
 .loop-note {

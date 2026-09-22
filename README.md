@@ -34,8 +34,9 @@ request flow.
 Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATURES.ja.md)).
 
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
-  optional, editable with a full history of past edits), a skill growth
-  timeline chart, a category breakdown chart, and a quick update box.
+  optional, editable with a full — paginated — history of past edits), a
+  skill growth timeline chart, a category breakdown chart, and a quick
+  update box.
 - **Vision** — one free-form text box for a rough sketch of the kind of
   career you're aiming for, with no time horizon or structure — a looser
   complement to the Dashboard's three specific goals.
@@ -48,10 +49,10 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Activity** — add a reading/talk/certification entry (with optional
   certificate image upload for OCR extraction) and browse a chronological
   feed of everything that's been added, in one page.
-- **Resume** — a Self PR field (kept as history, most recent used) plus a
-  resume generator that fills a fixed Markdown template from your current
-  data — **no LLM involved**, rendered and downloadable, with past
-  generations kept as browsable snapshots.
+- **Resume** — a Self PR field (kept as paginated history, most recent
+  used) plus a resume generator that fills a fixed Markdown template from
+  your current data — **no LLM involved**, rendered and downloadable, with
+  past generations kept as browsable snapshots.
 - **AI Integration** — the only two features that call an LLM on demand:
   growth guidance toward each Dashboard goal, and a job-posting gap check
   (paste a job description to see which of its requirements you already
@@ -85,6 +86,46 @@ docker compose up --build
 Open http://localhost:8000, then set your LLM connection under Settings.
 Want to see what a populated app looks like first? Settings → "Try it with
 sample data" loads a small fictional career history with one click.
+
+## Usage
+
+A typical first session looks like this:
+
+1. **Settings → LLM connection.** Point it at OpenAI, another
+   OpenAI-compatible provider, or a local Ollama server, then "Test
+   connection." Skip this if you only want the LLM-free parts of the app
+   (Resume, backup/restore, browsing) for now — you can come back to it
+   later.
+2. **Settings → Try it with sample data**, if you want to see a populated
+   app before typing anything yourself. A matching "Reset sample data"
+   button removes exactly what this added, whenever you're ready to start
+   for real.
+3. **Dashboard → Quick update.** Write a sentence or two about something
+   you've been working on. This is the fastest way to see the evidence →
+   extraction → skill loop in action: submit it, and any skills the LLM
+   recognized show up immediately.
+4. **Activity**, **Profile**, and **Skills** are the other ways to feed the
+   same loop: log a certification or a book you read on Activity, fill in
+   education/employment/projects on Profile (their free-text fields feed
+   extraction too), or add a skill directly on Skills if you already know
+   you have it and don't need evidence for it.
+5. **Dashboard → Career path goals** and **Vision**, whenever you want to
+   write down where you're headed — goals are time-boxed (this year / 5
+   years / 10 years) and keep a full edit history; Vision is one looser,
+   unstructured paragraph with no history, for whatever doesn't fit into
+   "by when."
+6. **Resume**, once you have some Profile/Activity data: write a Self PR
+   pitch, then "Generate resume from current data." No LLM call — it's
+   your data poured into a fixed template — so this works even before
+   step 1. Every generation is kept, so you can always go back to an
+   earlier version.
+7. **AI Integration**, only if you configured an LLM in step 1: paste a
+   job posting for a gap check against your current skills, or ask for
+   growth guidance toward the goals you wrote in step 5.
+8. **Settings → Data backup**, occasionally: downloads everything (except
+   the LLM connection settings) as one JSON file. Restoring it later — on
+   this instance or a fresh one — is purely additive, so it's safe to
+   import into an install that already has data.
 
 ## Local development
 

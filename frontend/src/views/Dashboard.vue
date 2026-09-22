@@ -1,22 +1,26 @@
 <script setup>
 import { ElMessage } from 'element-plus'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
 import { isDark } from '../theme'
+
+const HISTORY_PAGE_SIZE = 5
 
 const { t, locale } = useI18n()
 
 const skills = ref([])
 const timeline = ref([])
 const goals = ref([])
-const goalHistory = ref([])
 const loading = ref(true)
 const savingGoal = ref('')
 const editingHorizon = ref(null)
 const draftText = ref('')
 const historyOpenHorizon = ref(null)
+const historyByHorizon = reactive({})
+const historyHasMoreByHorizon = reactive({})
+const historyLoadingByHorizon = reactive({})
 const checkinText = ref('')
 const submittingCheckin = ref(false)
 
@@ -34,13 +38,8 @@ async function reloadSkillData() {
 
 onMounted(async () => {
   try {
-    const [, goalList, historyList] = await Promise.all([
-      reloadSkillData(),
-      api.getGoals(),
-      api.getGoalHistory(),
-    ])
+    const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals()])
     goals.value = goalList
-    goalHistory.value = historyList
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -52,10 +51,6 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
 }
 
-function historyFor(horizon) {
-  return goalHistory.value.filter((h) => h.horizon === horizon)
-}
-
 function startEditGoal(goal) {
   editingHorizon.value = goal.horizon
   draftText.value = goal.description
@@ -65,8 +60,27 @@ function cancelEditGoal() {
   editingHorizon.value = null
 }
 
-function toggleHistory(horizon) {
-  historyOpenHorizon.value = historyOpenHorizon.value === horizon ? null : horizon
+async function loadHistoryPage(horizon) {
+  historyLoadingByHorizon[horizon] = true
+  try {
+    const offset = historyByHorizon[horizon]?.length || 0
+    const page = await api.getGoalHistory(horizon, HISTORY_PAGE_SIZE, offset)
+    historyByHorizon[horizon] = [...(historyByHorizon[horizon] || []), ...page]
+    historyHasMoreByHorizon[horizon] = page.length === HISTORY_PAGE_SIZE
+  } finally {
+    historyLoadingByHorizon[horizon] = false
+  }
+}
+
+async function toggleHistory(horizon) {
+  if (historyOpenHorizon.value === horizon) {
+    historyOpenHorizon.value = null
+    return
+  }
+  historyOpenHorizon.value = horizon
+  if (!historyByHorizon[horizon]) {
+    await loadHistoryPage(horizon)
+  }
 }
 
 async function saveGoal(goal) {
@@ -75,7 +89,10 @@ async function saveGoal(goal) {
     const updated = await api.updateGoal(goal.horizon, draftText.value)
     goal.description = updated.description
     editingHorizon.value = null
-    goalHistory.value = await api.getGoalHistory()
+    if (historyOpenHorizon.value === goal.horizon) {
+      historyByHorizon[goal.horizon] = []
+      await loadHistoryPage(goal.horizon)
+    }
     ElMessage.success(t('dashboard.goalSaved'))
   } finally {
     savingGoal.value = ''
@@ -226,23 +243,33 @@ const categoryOption = computed(() => {
           </p>
           <div class="goal-actions">
             <el-button size="small" text @click="startEditGoal(goal)">{{ t('dashboard.goalEdit') }}</el-button>
-            <el-button
-              v-if="historyFor(goal.horizon).length"
-              size="small"
-              text
-              @click="toggleHistory(goal.horizon)"
-            >
-              {{ t('dashboard.goalHistory', { count: historyFor(goal.horizon).length }) }}
+            <el-button size="small" text @click="toggleHistory(goal.horizon)">
+              {{ historyOpenHorizon === goal.horizon ? t('dashboard.goalHistoryHide') : t('dashboard.goalHistory') }}
             </el-button>
           </div>
         </template>
 
-        <ul v-if="historyOpenHorizon === goal.horizon" class="goal-history">
-          <li v-for="h in historyFor(goal.horizon)" :key="h.id">
-            <span class="goal-history-date">{{ formatDate(h.created_at) }}</span>
-            <span class="goal-history-text">{{ h.description }}</span>
-          </li>
-        </ul>
+        <div v-if="historyOpenHorizon === goal.horizon" class="goal-history-panel">
+          <ul v-if="historyByHorizon[goal.horizon]?.length" class="goal-history">
+            <li v-for="h in historyByHorizon[goal.horizon]" :key="h.id">
+              <span class="goal-history-date">{{ formatDate(h.created_at) }}</span>
+              <span class="goal-history-text">{{ h.description }}</span>
+            </li>
+          </ul>
+          <p v-else-if="!historyLoadingByHorizon[goal.horizon]" class="goal-history-empty">
+            {{ t('dashboard.goalHistoryEmpty') }}
+          </p>
+          <el-button
+            v-if="historyHasMoreByHorizon[goal.horizon]"
+            size="small"
+            text
+            :loading="historyLoadingByHorizon[goal.horizon]"
+            @click="loadHistoryPage(goal.horizon)"
+            class="goal-history-load-more"
+          >
+            {{ t('dashboard.goalHistoryLoadMore') }}
+          </el-button>
+        </div>
       </el-col>
     </el-row>
 
@@ -308,14 +335,30 @@ const categoryOption = computed(() => {
   margin-top: 0.5rem;
 }
 
+.goal-history-panel {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--el-border-color);
+}
+
 .goal-history {
   list-style: none;
-  margin: 0.5rem 0 0;
-  padding: 0.5rem 0 0;
-  border-top: 1px solid var(--el-border-color);
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+}
+
+.goal-history-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.goal-history-load-more {
+  display: block;
+  margin: 0.4rem auto 0;
 }
 
 .goal-history li {

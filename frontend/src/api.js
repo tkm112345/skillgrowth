@@ -56,7 +56,7 @@ export const api = {
   getExports: (limit = 20, offset = 0) => request(`/export?limit=${limit}&offset=${offset}`),
   generateExport: () => request('/export', { method: 'POST' }),
 
-  getSelfPRs: () => request('/self-pr'),
+  getSelfPRs: (limit = 20, offset = 0) => request(`/self-pr?limit=${limit}&offset=${offset}`),
   addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),
   deleteSelfPR: (id) => request(`/self-pr/${id}`, { method: 'DELETE' }),
 
@@ -83,7 +83,8 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ horizon, description }),
     }),
-  getGoalHistory: () => request('/goals/history'),
+  getGoalHistory: (horizon, limit = 5, offset = 0) =>
+    request(`/goals/history?horizon=${horizon}&limit=${limit}&offset=${offset}`),
 
   getVision: () => request('/vision'),
   updateVision: (content) =>

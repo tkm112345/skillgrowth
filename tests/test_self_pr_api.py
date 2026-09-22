@@ -16,6 +16,17 @@ def test_delete_self_pr(client):
     assert client.get("/api/self-pr").json() == []
 
 
+def test_list_self_pr_supports_pagination(client):
+    for i in range(7):
+        client.post("/api/self-pr", json={"content": f"draft {i}"})
+
+    page1 = client.get("/api/self-pr", params={"limit": 5}).json()
+    assert [e["content"] for e in page1] == [f"draft {i}" for i in [6, 5, 4, 3, 2]]
+
+    page2 = client.get("/api/self-pr", params={"limit": 5, "offset": 5}).json()
+    assert [e["content"] for e in page2] == ["draft 1", "draft 0"]
+
+
 def test_resume_uses_latest_self_pr(client):
     client.post("/api/self-pr", json={"content": "old pitch"})
     client.post("/api/self-pr", json={"content": "current pitch"})

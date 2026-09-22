@@ -24,3 +24,19 @@ def test_update_goal_records_history_only_on_actual_change(client):
     history = client.get("/api/goals/history").json()
     this_year_history = [h for h in history if h["horizon"] == "this_year"]
     assert [h["description"] for h in this_year_history] == ["AWS認定+登壇", "AWS認定を取る"]
+
+
+def test_goal_history_supports_horizon_filter_and_pagination(client):
+    for i in range(7):
+        client.put("/api/goals/this_year", json={"horizon": "this_year", "description": f"v{i}"})
+    client.put("/api/goals/5_years", json={"horizon": "5_years", "description": "別の目標"})
+
+    resp = client.get("/api/goals/history", params={"horizon": "this_year", "limit": 5})
+    assert resp.status_code == 200
+    page1 = resp.json()
+    assert len(page1) == 5
+    assert [h["horizon"] for h in page1] == ["this_year"] * 5
+    assert page1[0]["description"] == "v6"  # newest first
+
+    page2 = client.get("/api/goals/history", params={"horizon": "this_year", "limit": 5, "offset": 5}).json()
+    assert [h["description"] for h in page2] == ["v1", "v0"]

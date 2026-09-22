@@ -8,8 +8,9 @@
   10 years) for where you'd like to be heading. Each shows as read-only text
   with an Edit button; editing opens a draft you can Cancel (discarding the
   edit, reverting to what was last saved) or Save. Every saved change is
-  kept as history — a "History (N)" link on each goal shows past versions
-  with their dates, never overwritten.
+  kept as history, never overwritten — a "History" link on each goal
+  lazy-loads past versions with their dates, 5 at a time with a "Load more"
+  link, so the page stays light even after years of edits.
 - **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other activity source does.
@@ -96,7 +97,8 @@ Log page, and a read-only feed that already showed the same entries):
 - **Self PR** — a free-text pitch about yourself, included at the top of
   the generated resume. Adding one never overwrites the last: every entry
   is kept, so past drafts stay in history, and the resume always uses the
-  most recent one.
+  most recent one. History entries collapse by default and page in 10 at a
+  time with a "Load more" button, same as resume snapshots below.
 - **Generate resume** — assembles the current skill picture, work/education
   history, and latest Self PR into Markdown, following a fixed set of
   sections (Self PR → Work History → Other Projects → Education → Skills →

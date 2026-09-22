@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 
 const PAGE_SIZE = 20
+const SELF_PR_PAGE_SIZE = 10
 
 const { t, locale } = useI18n()
 const exports = ref([])
@@ -18,15 +19,21 @@ const generating = ref(false)
 
 const selfPRs = ref([])
 const loadingSelfPR = ref(true)
+const loadingMoreSelfPR = ref(false)
+const hasMoreSelfPR = ref(false)
 const newSelfPR = ref('')
 const submittingSelfPR = ref(false)
 
 onMounted(async () => {
   try {
-    const [page, prs] = await Promise.all([api.getExports(PAGE_SIZE, 0), api.getSelfPRs()])
+    const [page, prs] = await Promise.all([
+      api.getExports(PAGE_SIZE, 0),
+      api.getSelfPRs(SELF_PR_PAGE_SIZE, 0),
+    ])
     exports.value = page
     hasMore.value = page.length === PAGE_SIZE
     selfPRs.value = prs
+    hasMoreSelfPR.value = prs.length === SELF_PR_PAGE_SIZE
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -34,6 +41,19 @@ onMounted(async () => {
     loadingSelfPR.value = false
   }
 })
+
+async function loadMoreSelfPR() {
+  loadingMoreSelfPR.value = true
+  try {
+    const page = await api.getSelfPRs(SELF_PR_PAGE_SIZE, selfPRs.value.length)
+    selfPRs.value.push(...page)
+    hasMoreSelfPR.value = page.length === SELF_PR_PAGE_SIZE
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingMoreSelfPR.value = false
+  }
+}
 
 async function loadMore() {
   loadingMore.value = true
@@ -122,6 +142,16 @@ async function removeSelfPR(id) {
         <el-button size="small" text type="danger" @click="removeSelfPR(pr.id)">{{ t('common.delete') }}</el-button>
       </el-collapse-item>
     </el-collapse>
+    <el-button
+      v-if="hasMoreSelfPR"
+      :loading="loadingMoreSelfPR"
+      size="small"
+      text
+      @click="loadMoreSelfPR"
+      class="self-pr-load-more"
+    >
+      {{ t('export.loadMore') }}
+    </el-button>
   </el-card>
 
   <el-button type="primary" :loading="generating" @click="generate">{{ t('export.generate') }}</el-button>
@@ -186,6 +216,11 @@ async function removeSelfPR(id) {
 
 .self-pr-history {
   margin-top: 1rem;
+}
+
+.self-pr-load-more {
+  display: block;
+  margin: 0.5rem auto 0;
 }
 
 .self-pr-content {

@@ -13,8 +13,12 @@ class SelfPRIn(BaseModel):
 
 
 @router.get("")
-def list_self_pr(session: Session = Depends(get_session)) -> list[SelfPR]:
-    return session.exec(select(SelfPR).order_by(SelfPR.created_at.desc())).all()
+def list_self_pr(
+    limit: int = 20, offset: int = 0, session: Session = Depends(get_session)
+) -> list[SelfPR]:
+    return session.exec(
+        select(SelfPR).order_by(SelfPR.created_at.desc()).offset(offset).limit(limit)
+    ).all()
 
 
 @router.post("")

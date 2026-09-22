@@ -232,11 +232,19 @@ reads stay a 3-row lookup. `PUT /api/goals/{horizon}` additionally writes
 a `CareerGoalHistory` row, but only when `description` actually differs
 from the stored value — saving with no changes (e.g. an edit that's
 immediately cancelled, which never calls this endpoint at all) never
-creates a duplicate entry. `GET /api/goals/history` returns every
-`CareerGoalHistory` row across all horizons, newest first; the Dashboard
-filters this client-side per horizon rather than the API taking a
-`horizon` query param, since there are only ever three horizons and the
-full list is small.
+creates a duplicate entry.
+
+`GET /api/goals/history` takes an optional `horizon` filter plus
+`limit`/`offset` (default `limit=5`), the same shape as every other
+paginated list in this app (`evidence`, `export`, `self-pr`). The
+Dashboard never fetches history eagerly: each goal's "History" link is
+closed by default, and clicking it fires the first page for that one
+horizon only, with a "Load more" button for further pages. This matters
+more here than elsewhere, since — unlike the activity log or resume
+snapshots, which grow from occasional, deliberate actions — a career goal
+can accumulate a history row on every save, including small wording
+tweaks, so an eagerly-fetched unbounded list was the more likely one to
+actually get long in practice.
 
 ## Career vision (no history, deliberately)
 
@@ -285,10 +293,13 @@ section with no data is omitted. This replaced an earlier LLM-based
 worth it for a document meant to be copy-pasted as-is.
 
 `SelfPR` is append-only, like evidence: `POST /api/self-pr` always inserts
-a new row rather than editing one in place, `GET /api/self-pr` lists them
-newest-first for display, and `build_resume_markdown` uses only the most
-recent row's `content` for the "Self PR" section — so past drafts stay in
-history without cluttering the generated resume.
+a new row rather than editing one in place, `GET /api/self-pr` (paginated,
+`limit`/`offset`, same as `evidence` and `export`) lists them newest-first
+for display, and `build_resume_markdown` re-queries the single most recent
+row directly rather than reusing a paginated page — so the "Self PR"
+section is always current regardless of what the frontend happens to have
+loaded, and past drafts stay in history without cluttering the generated
+resume.
 
 ## LLM configuration
 

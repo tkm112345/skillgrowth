@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -40,5 +41,14 @@ def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_se
 
 
 @router.get("/history")
-def list_goal_history(session: Session = Depends(get_session)) -> list[CareerGoalHistory]:
-    return session.exec(select(CareerGoalHistory).order_by(CareerGoalHistory.created_at.desc())).all()
+def list_goal_history(
+    horizon: Optional[str] = None,
+    limit: int = 5,
+    offset: int = 0,
+    session: Session = Depends(get_session),
+) -> list[CareerGoalHistory]:
+    query = select(CareerGoalHistory)
+    if horizon:
+        query = query.where(CareerGoalHistory.horizon == horizon)
+    query = query.order_by(CareerGoalHistory.created_at.desc()).offset(offset).limit(limit)
+    return session.exec(query).all()

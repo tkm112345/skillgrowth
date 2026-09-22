@@ -1,0 +1,99 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+The current version lives in the `VERSION` file. See `CLAUDE.md` for the
+process this file follows (English only, updated as part of the same
+commit as the change, moved into a dated section when a release is cut).
+
+## [Unreleased]
+
+### Added
+- Resume snapshots can be edited directly as Markdown after generation, in
+  place, with an `edited_at` timestamp shown alongside the original
+  generation date.
+- Self PR entries can be edited in place, and any past entry can be
+  explicitly selected as the one used in the generated resume — not just
+  whichever is newest.
+- Skills can be edited (name/category) directly from the Skills page, and
+  each skill has an "include in resume" switch controlling whether it
+  appears in a generated resume, independent of everywhere else it's
+  still tracked.
+- A lightweight schema-migration helper (`app/db.py::_ensure_column`) so
+  a column added to an existing model doesn't crash already-deployed
+  instances the next time it's written to.
+- GitHub repository topics (`self-hosted`, `career`, `career-development`,
+  `skill-tracking`, `resume-builder`, `fastapi`, `vuejs`, `sqlite`).
+- Project-level `CLAUDE.md` and this changelog.
+
+### Changed
+- The Concept page's core loop and design principles were rewritten to
+  reflect that the app is LLM-optional, not LLM-premised: a new fifth
+  principle ("LLM-optional, not LLM-required") was added, and the loop
+  diagram now notes it's skipped entirely for a direct skill add or CSV
+  import, with career path goals / Vision / Self PR / resume generation
+  sitting outside the loop altogether.
+- The sidebar's GitHub issue/PR encouragement moved out of Settings'
+  "About this app" dialog into a dedicated, prominent "Contribute" button
+  above the sidebar's copyright line, visible from every page.
+
+### Fixed
+- Resume generation would crash (`no such column`) on any instance that
+  had already generated a resume before this change, because
+  `ExportSnapshot.edited_at` was added to an existing table with no way
+  to backfill it on upgrade. Fixed by the migration helper above.
+
+## [0.2.0] - 2026-09-22
+
+### Added
+- Vision page: one free-form, unstructured box for a rough sketch of the
+  career you're aiming for, separate from the Dashboard's three
+  time-boxed career path goals.
+- Career path goals gained an explicit edit mode (Cancel reverts a draft,
+  Save commits it) and full, paginated edit history.
+- Self PR field on the Resume page, with paginated history.
+- AI Integration page: growth guidance and job-posting gap check, split
+  out from Dashboard/Resume so it's the only page that calls an LLM on
+  demand.
+- Settings: Appearance (language, light/dark/system theme, an accent
+  color from the app's 8-hue palette), a dedicated LLM connection card,
+  and an About panel (version, license).
+
+### Changed
+- Resume generation is fully LLM-free: your data is filled into a fixed
+  Markdown template, so it works even without an LLM configured.
+- The Activity page absorbs what used to be a separate Learning Log page
+  — add a reading/talk/certification entry and browse the full activity
+  feed in one place.
+- Renamed "Evidence Log / 証拠ログ" to "Activity / アクティビティ"
+  throughout the UI and docs.
+
+### Fixed
+- The sidebar app icon silently failed to load — a static-file-serving
+  bug in the SPA fallback route was returning `index.html` for
+  `/favicon.svg` instead of the actual file.
+- Theme color changes had no visible effect in dark mode — a CSS
+  specificity conflict against Element Plus's own dark stylesheet.
+
+## [0.1.0] - 2026-09-22
+
+Initial tagged release: a self-hosted career tracker that grows alongside
+your career.
+
+### Added
+- Append-only evidence log with LLM-based skill extraction and matching.
+- Dashboard: career path goals, skill growth timeline, category
+  breakdown, quick updates, goal-based growth guidance.
+- Profile: education, employment (with nested projects), standalone
+  projects, external links.
+- Learning log with certificate image OCR.
+- Skills: manual add, CSV import.
+- Resume generation and job-posting gap check.
+- Settings: pluggable LLM connection with a test button, JSON data
+  backup and restore, one-click sample data.
+- English/Japanese UI.
+
+[Unreleased]: https://github.com/tkm112345/skillgrowth/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/tkm112345/skillgrowth/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/tkm112345/skillgrowth/releases/tag/v0.1.0

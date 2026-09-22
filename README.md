@@ -152,6 +152,10 @@ frontend separately with hot reload.
 - Generated resumes follow a fixed set of sections and aren't customizable
   per-export; edit the downloaded Markdown by hand for anything beyond that.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

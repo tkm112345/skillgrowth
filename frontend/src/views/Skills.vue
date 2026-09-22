@@ -65,6 +65,17 @@ async function remove(id) {
   await reload()
 }
 
+async function toggleResumeInclusion(row) {
+  const next = !row.include_in_resume
+  row.include_in_resume = next
+  try {
+    await api.setSkillResumeInclusion(row.id, next)
+  } catch (e) {
+    row.include_in_resume = !next
+    ElMessage.error(t('skills.resumeToggleError'))
+  }
+}
+
 function handleCsvFileChange(uploadFile) {
   csvFile.value = uploadFile.raw
 }
@@ -109,6 +120,11 @@ async function submitCsvImport() {
     </el-table-column>
     <el-table-column :label="t('skills.columnLastSeen')" width="120">
       <template #default="{ row }">{{ formatDate(row.last_observed_at) }}</template>
+    </el-table-column>
+    <el-table-column :label="t('skills.columnIncludeInResume')" width="110" align="center">
+      <template #default="{ row }">
+        <el-switch :model-value="row.include_in_resume" @change="toggleResumeInclusion(row)" />
+      </template>
     </el-table-column>
     <el-table-column width="140">
       <template #default="{ row }">

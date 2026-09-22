@@ -17,6 +17,10 @@ class SkillIn(BaseModel):
     category: str = "未分類"
 
 
+class SkillResumeInclusionIn(BaseModel):
+    include_in_resume: bool
+
+
 class SkillMention(BaseModel):
     mention_text: str
     created_at: datetime
@@ -68,6 +72,7 @@ def list_skills(session: Session = Depends(get_session)):
             "first_observed_at": s.first_observed_at,
             "last_observed_at": s.last_observed_at,
             "evidence_count": counts.get(s.id, 0),
+            "include_in_resume": s.include_in_resume,
         }
         for s in skills
     ]
@@ -94,6 +99,20 @@ def update_skill(skill_id: str, payload: SkillIn, session: Session = Depends(get
 
     skill.name = name
     skill.category = payload.category.strip() or "未分類"
+    session.add(skill)
+    session.commit()
+    session.refresh(skill)
+    return skill
+
+
+@router.put("/{skill_id}/resume-inclusion")
+def set_skill_resume_inclusion(
+    skill_id: str, payload: SkillResumeInclusionIn, session: Session = Depends(get_session)
+) -> Skill:
+    skill = session.get(Skill, skill_id)
+    if skill is None:
+        raise HTTPException(status_code=404, detail="Skill not found")
+    skill.include_in_resume = payload.include_in_resume
     session.add(skill)
     session.commit()
     session.refresh(skill)

@@ -120,6 +120,8 @@
     "columnEvidence": "Activity",
     "columnFirstSeen": "First seen",
     "columnLastSeen": "Last seen",
+    "columnIncludeInResume": "In resume",
+    "resumeToggleError": "Failed to update — please try again.",
     "noEntries": "No skills recorded yet",
     "add": "Add skill",
     "added": "Skill added",
@@ -164,6 +166,10 @@
     "selfPrPlaceholder": "What do you want a hiring manager to know about you?",
     "selfPrSubmit": "Add",
     "selfPrAdded": "Self PR saved",
+    "selfPrEditSaved": "Self PR updated",
+    "selfPrInUse": "In use",
+    "selfPrUseThis": "Use this version",
+    "selfPrSelected": "This version will be used in the resume",
     "confirmDeleteSelfPr": "Delete this Self PR entry?"
   },
   "concept": {

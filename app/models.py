@@ -20,6 +20,7 @@ class Skill(SQLModel, table=True):
     category: str = "未分類"
     first_observed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_observed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    include_in_resume: bool = True
 
 
 class SkillLink(SQLModel, table=True):
@@ -117,6 +118,7 @@ class SelfPR(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     content: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_selected: bool = False
 
 
 class SampleDataRecord(SQLModel, table=True):

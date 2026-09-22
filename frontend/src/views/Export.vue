@@ -28,6 +28,11 @@ const editingExportId = ref(null)
 const draftContent = ref('')
 const savingExport = ref(false)
 
+const editingSelfPRId = ref(null)
+const draftSelfPR = ref('')
+const savingSelfPR = ref(false)
+const selectingSelfPRId = ref(null)
+
 onMounted(async () => {
   try {
     const [page, prs] = await Promise.all([
@@ -130,6 +135,7 @@ async function submitSelfPR() {
   submittingSelfPR.value = true
   try {
     const entry = await api.addSelfPR(newSelfPR.value)
+    for (const p of selfPRs.value) p.is_selected = false
     selfPRs.value.unshift(entry)
     newSelfPR.value = ''
     ElMessage.success(t('export.selfPrAdded'))
@@ -142,6 +148,43 @@ async function removeSelfPR(id) {
   await ElMessageBox.confirm(t('export.confirmDeleteSelfPr'), t('profile.confirm'))
   await api.deleteSelfPR(id)
   selfPRs.value = selfPRs.value.filter((e) => e.id !== id)
+}
+
+function isEffectivelySelected(pr) {
+  if (pr.is_selected) return true
+  return !selfPRs.value.some((p) => p.is_selected) && selfPRs.value[0]?.id === pr.id
+}
+
+function startEditSelfPR(pr) {
+  editingSelfPRId.value = pr.id
+  draftSelfPR.value = pr.content
+}
+
+function cancelEditSelfPR() {
+  editingSelfPRId.value = null
+}
+
+async function saveSelfPREdit(pr) {
+  savingSelfPR.value = true
+  try {
+    const updated = await api.updateSelfPR(pr.id, draftSelfPR.value)
+    pr.content = updated.content
+    editingSelfPRId.value = null
+    ElMessage.success(t('export.selfPrEditSaved'))
+  } finally {
+    savingSelfPR.value = false
+  }
+}
+
+async function selectSelfPR(pr) {
+  selectingSelfPRId.value = pr.id
+  try {
+    await api.selectSelfPR(pr.id)
+    for (const p of selfPRs.value) p.is_selected = p.id === pr.id
+    ElMessage.success(t('export.selfPrSelected'))
+  } finally {
+    selectingSelfPRId.value = null
+  }
 }
 </script>
 
@@ -163,9 +206,39 @@ async function removeSelfPR(id) {
     </el-button>
 
     <el-collapse v-if="selfPRs.length" class="self-pr-history">
-      <el-collapse-item v-for="pr in selfPRs" :key="pr.id" :title="formatDateTime(pr.created_at)">
-        <p class="self-pr-content">{{ pr.content }}</p>
-        <el-button size="small" text type="danger" @click="removeSelfPR(pr.id)">{{ t('common.delete') }}</el-button>
+      <el-collapse-item v-for="pr in selfPRs" :key="pr.id">
+        <template #title>
+          <span>{{ formatDateTime(pr.created_at) }}</span>
+          <el-tag v-if="isEffectivelySelected(pr)" size="small" type="success" class="self-pr-selected-tag">
+            {{ t('export.selfPrInUse') }}
+          </el-tag>
+        </template>
+
+        <template v-if="editingSelfPRId === pr.id">
+          <el-input v-model="draftSelfPR" type="textarea" :rows="4" />
+          <div class="self-pr-actions">
+            <el-button size="small" @click="cancelEditSelfPR">{{ t('common.cancel') }}</el-button>
+            <el-button size="small" type="primary" :loading="savingSelfPR" @click="saveSelfPREdit(pr)">
+              {{ t('common.save') }}
+            </el-button>
+          </div>
+        </template>
+        <template v-else>
+          <p class="self-pr-content">{{ pr.content }}</p>
+          <div class="self-pr-actions">
+            <el-button size="small" text @click="startEditSelfPR(pr)">{{ t('common.edit') }}</el-button>
+            <el-button
+              v-if="!isEffectivelySelected(pr)"
+              size="small"
+              text
+              :loading="selectingSelfPRId === pr.id"
+              @click="selectSelfPR(pr)"
+            >
+              {{ t('export.selfPrUseThis') }}
+            </el-button>
+            <el-button size="small" text type="danger" @click="removeSelfPR(pr.id)">{{ t('common.delete') }}</el-button>
+          </div>
+        </template>
       </el-collapse-item>
     </el-collapse>
     <el-button
@@ -292,5 +365,15 @@ async function removeSelfPR(id) {
 .self-pr-content {
   white-space: pre-wrap;
   font-size: 0.85rem;
+}
+
+.self-pr-selected-tag {
+  margin-left: 0.5rem;
+}
+
+.self-pr-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 </style>

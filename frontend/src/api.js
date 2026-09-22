@@ -33,6 +33,11 @@ export const api = {
     request('/skills', { method: 'POST', body: JSON.stringify({ name, category }) }),
   updateSkill: (id, name, category) =>
     request(`/skills/${id}`, { method: 'PUT', body: JSON.stringify({ name, category }) }),
+  setSkillResumeInclusion: (id, includeInResume) =>
+    request(`/skills/${id}/resume-inclusion`, {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
+    }),
   deleteSkill: (id) => request(`/skills/${id}`, { method: 'DELETE' }),
   importSkillsCsv: (file) => {
     const form = new FormData()
@@ -62,6 +67,9 @@ export const api = {
 
   getSelfPRs: (limit = 20, offset = 0) => request(`/self-pr?limit=${limit}&offset=${offset}`),
   addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),
+  updateSelfPR: (id, content) =>
+    request(`/self-pr/${id}`, { method: 'PUT', body: JSON.stringify({ content }) }),
+  selectSelfPR: (id) => request(`/self-pr/${id}/select`, { method: 'PUT' }),
   deleteSelfPR: (id) => request(`/self-pr/${id}`, { method: 'DELETE' }),
 
   gapCheck: (jobDescription) =>

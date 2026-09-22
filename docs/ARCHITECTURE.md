@@ -139,7 +139,13 @@ fresh install and a real fix on an upgraded one. `init_db()` calls it once
 per column that's been added after its table already shipped. **Any new
 nullable column on an existing table needs a matching `_ensure_column`
 call here** — a new table doesn't (`create_all()` handles that case
-correctly on its own).
+correctly on its own). `SelfPR.is_selected` and `Skill.include_in_resume`
+were added the same way, each with its own `_ensure_column` call and each
+given a SQL `DEFAULT` (`0`/`1` respectively) — with `DEFAULT 1` in
+particular, SQLite backfills that value onto every existing row when the
+column is added, which is exactly the "every skill you already have keeps
+showing on the resume" behavior an upgraded install needs, without a
+separate backfill step.
 
 ## Evidence → skill extraction flow
 
@@ -195,6 +201,15 @@ the same case-insensitive collision check as `_upsert_skill`, but rejects
 (400) rather than merges if the new name matches a *different* existing
 skill, since silently merging two skills' evidence together is a bigger
 decision than a simple rename and isn't something this endpoint does.
+
+`Skill.include_in_resume` (default `True`) is a separate, narrower toggle:
+`PUT /api/skills/{id}/resume-inclusion` flips it without touching
+name/category, and `build_resume_markdown`'s Skills-section query is the
+only place that filters on it. Turning it off doesn't remove the skill
+from anywhere else — the current-skill view, the growth timeline, gap
+checks against it — it only means the resume template skips it, since
+"I want to track this" and "I want a stranger reading my resume to see
+this" are different decisions.
 
 `ExternalLink` (GitHub, X, note, Zenn, a personal blog, ...) is a plain
 label+URL list with no evidence/LLM involvement — it's just a fact, not
@@ -324,14 +339,35 @@ section with no data is omitted. This replaced an earlier LLM-based
 `generate_resume()` — layout variance and hallucination risk weren't
 worth it for a document meant to be copy-pasted as-is.
 
-`SelfPR` is append-only, like evidence: `POST /api/self-pr` always inserts
-a new row rather than editing one in place, `GET /api/self-pr` (paginated,
+`SelfPR` rows are still never deleted-and-replaced by adding a new one —
+`POST /api/self-pr` always inserts, and `GET /api/self-pr` (paginated,
 `limit`/`offset`, same as `evidence` and `export`) lists them newest-first
-for display, and `build_resume_markdown` re-queries the single most recent
-row directly rather than reusing a paginated page — so the "Self PR"
-section is always current regardless of what the frontend happens to have
-loaded, and past drafts stay in history without cluttering the generated
-resume.
+for display — but two things needed to be layered on top of pure
+append-only once the resume needed to use something other than "always
+whatever's newest":
+
+- `PUT /api/self-pr/{id}` edits `content` in place (404 if missing), the
+  same "you own this document" exception `ExportSnapshot` gets below —
+  fixing a typo in an old pitch shouldn't require writing a whole new one.
+- `is_selected: bool` marks exactly one row as the one `build_resume_markdown`
+  uses. `_select_only()` in `app/routers/self_pr.py` enforces the
+  invariant: it clears `is_selected` on every other row before setting it
+  on the target, inside the same transaction. `POST /api/self-pr` calls it
+  on the row it just created (a fresh pitch becomes the one used, matching
+  the old "always latest" behavior by default); `PUT
+  /api/self-pr/{id}/select` calls it on an arbitrary existing row, so an
+  older draft can be brought back without deleting anything newer.
+  `build_resume_markdown` queries `WHERE is_selected == True`, falling
+  back to newest-first if none is set (rows created before this feature
+  existed, or a backup-imported set — see below).
+
+Restoring a backup never imports `is_selected` — every imported `SelfPR`
+row is inserted with it unset, regardless of what the backup file says.
+Doing otherwise would let an import silently change which pitch the
+resume uses, or leave two rows both marked selected (the invariant
+`_select_only` exists to prevent) if the imported "selected" row doesn't
+match whichever row is already selected on the instance being imported
+into.
 
 `ExportSnapshot`, unlike `EvidenceEntry`/`SelfPR`/`CareerGoalHistory`, is
 *not* append-only — `PUT /api/export/{id}` edits `content` in place and

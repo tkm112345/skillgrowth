@@ -72,6 +72,13 @@ goes through the CSV import on the Skills page.
   with a different existing skill (case-insensitively) is rejected rather
   than silently merging the two.
 - Skills can also be **deleted** (the activity that mentioned them is kept).
+- **Include in resume** — a switch on each row controls whether that skill
+  appears in the "Skills" section of a generated resume. On by default;
+  useful for keeping something in your tracked skill picture without
+  putting it in front of an employer (an old technology you're not looking
+  for work in, a soft skill that doesn't read well as a bare list item,
+  etc.). Turning it off doesn't delete or hide the skill anywhere else in
+  the app — only the resume template respects it.
 
 ## Activity
 
@@ -101,11 +108,15 @@ Log page, and a read-only feed that already showed the same entries):
 
 - **Self PR** — a free-text pitch about yourself, included at the top of
   the generated resume. Adding one never overwrites the last: every entry
-  is kept, so past drafts stay in history, and the resume always uses the
-  most recent one. History entries collapse by default and page in 10 at a
-  time with a "Load more" button, same as resume snapshots below.
+  is kept as history, paging in 10 at a time with a "Load more" button
+  (same as resume snapshots below). A newly-added entry automatically
+  becomes the one used in the resume, but any past entry can be picked
+  instead via "Use this version" — so writing a new draft doesn't force
+  you to use it yet. Each entry can also be **edited** in place (fixing a
+  typo doesn't need a whole new entry), and the entry currently feeding
+  the resume is marked "In use."
 - **Generate resume** — assembles the current skill picture, work/education
-  history, and latest Self PR into Markdown, following a fixed set of
+  history, and the selected Self PR into Markdown, following a fixed set of
   sections (Self PR → Work History → Other Projects → Education → Skills →
   Certifications) — **no LLM involved**, just your existing data filled
   into that template, so it works even without an LLM configured. Rendered

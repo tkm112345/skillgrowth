@@ -68,3 +68,32 @@ def test_import_csv_creates_skills_and_dedupes_existing(client):
     resp = client.get("/api/skills")
     names = sorted(s["name"] for s in resp.json())
     assert names == ["AWS", "Python"]
+
+
+def test_new_skill_defaults_to_included_in_resume(client):
+    resp = client.post("/api/skills", json={"name": "Python", "category": "技術"})
+    assert resp.json()["include_in_resume"] is True
+
+    listed = client.get("/api/skills").json()
+    assert listed[0]["include_in_resume"] is True
+
+
+def test_toggle_skill_resume_inclusion(client):
+    skill = client.post("/api/skills", json={"name": "Python", "category": "技術"}).json()
+
+    resp = client.put(f"/api/skills/{skill['id']}/resume-inclusion", json={"include_in_resume": False})
+    assert resp.status_code == 200
+    assert resp.json()["include_in_resume"] is False
+
+    listed = client.get("/api/skills").json()
+    assert listed[0]["include_in_resume"] is False
+
+
+def test_excluded_skill_is_omitted_from_resume(client):
+    included = client.post("/api/skills", json={"name": "Python", "category": "技術"}).json()
+    excluded = client.post("/api/skills", json={"name": "COBOL", "category": "技術"}).json()
+    client.put(f"/api/skills/{excluded['id']}/resume-inclusion", json={"include_in_resume": False})
+
+    content = client.post("/api/export").json()["content"]
+    assert included["name"] in content
+    assert excluded["name"] not in content

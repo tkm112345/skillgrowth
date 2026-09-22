@@ -71,6 +71,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
             category=row["category"],
             first_observed_at=_dt(row["first_observed_at"]),
             last_observed_at=_dt(row["last_observed_at"]),
+            include_in_resume=row.get("include_in_resume", True),
         )
         session.add(skill)
         session.flush()
@@ -216,6 +217,10 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     counts["self_prs"] = 0
     for row in data.get("self_prs", []):
+        # is_selected is deliberately never imported — importing adds
+        # historical records, it must never silently change which entry
+        # the resume currently uses, or violate the "at most one selected
+        # row" invariant that app/routers/self_pr.py::_select_only keeps.
         entry = SelfPR(content=row["content"], created_at=_dt(row.get("created_at")))
         session.add(entry)
         session.flush()

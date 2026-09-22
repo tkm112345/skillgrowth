@@ -24,9 +24,13 @@ def build_resume_markdown(session: Session) -> str:
     the output is deterministic and reproducible from the same data."""
     lines: list[str] = ["# Resume", ""]
 
-    latest_pr = session.exec(select(SelfPR).order_by(SelfPR.created_at.desc())).first()
-    if latest_pr:
-        lines += [SECTION_HEADERS["self_pr"], "", latest_pr.content, ""]
+    selected_pr = session.exec(select(SelfPR).where(SelfPR.is_selected == True)).first()  # noqa: E712
+    if selected_pr is None:
+        # No entry explicitly selected (e.g. none ever chosen, or all
+        # created before this feature existed) — fall back to the latest.
+        selected_pr = session.exec(select(SelfPR).order_by(SelfPR.created_at.desc())).first()
+    if selected_pr:
+        lines += [SECTION_HEADERS["self_pr"], "", selected_pr.content, ""]
 
     employment = session.exec(select(Employment).order_by(Employment.start_date.desc())).all()
     projects = session.exec(select(Project)).all()
@@ -73,7 +77,9 @@ def build_resume_markdown(session: Session) -> str:
                 lines.append(edu.achievements)
             lines.append("")
 
-    skills = session.exec(select(Skill).order_by(Skill.name)).all()
+    skills = session.exec(
+        select(Skill).where(Skill.include_in_resume == True).order_by(Skill.name)  # noqa: E712
+    ).all()
     if skills:
         lines.append(SECTION_HEADERS["skills"])
         lines.append("")

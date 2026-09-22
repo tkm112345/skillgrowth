@@ -120,6 +120,8 @@
     "columnEvidence": "アクティビティ数",
     "columnFirstSeen": "初出",
     "columnLastSeen": "最終確認",
+    "columnIncludeInResume": "職務経歴書に含む",
+    "resumeToggleError": "更新に失敗しました。もう一度お試しください。",
     "noEntries": "まだスキルが登録されていません",
     "add": "スキルを追加",
     "added": "スキルを追加しました",
@@ -164,6 +166,10 @@
     "selfPrPlaceholder": "採用担当者に知ってほしいこと",
     "selfPrSubmit": "追加",
     "selfPrAdded": "自己PRを保存しました",
+    "selfPrEditSaved": "自己PRを更新しました",
+    "selfPrInUse": "使用中",
+    "selfPrUseThis": "このバージョンを使用",
+    "selfPrSelected": "このバージョンが職務経歴書に使われます",
     "confirmDeleteSelfPr": "この自己PRを削除しますか？"
   },
   "concept": {

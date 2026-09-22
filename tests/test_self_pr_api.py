@@ -36,3 +36,40 @@ def test_resume_uses_latest_self_pr(client):
     content = resp.json()["content"]
     assert "current pitch" in content
     assert "old pitch" not in content
+
+
+def test_update_self_pr_edits_content_in_place(client):
+    entry = client.post("/api/self-pr", json={"content": "draft"}).json()
+
+    resp = client.put(f"/api/self-pr/{entry['id']}", json={"content": "fixed a typo"})
+    assert resp.status_code == 200
+    assert resp.json()["content"] == "fixed a typo"
+    assert resp.json()["id"] == entry["id"]
+
+    listed = client.get("/api/self-pr").json()
+    assert listed[0]["content"] == "fixed a typo"
+
+
+def test_new_self_pr_is_auto_selected_and_only_one_is_selected_at_a_time(client):
+    first = client.post("/api/self-pr", json={"content": "old pitch"}).json()
+    second = client.post("/api/self-pr", json={"content": "current pitch"}).json()
+
+    entries = {e["id"]: e for e in client.get("/api/self-pr").json()}
+    assert entries[first["id"]]["is_selected"] is False
+    assert entries[second["id"]]["is_selected"] is True
+
+
+def test_selecting_an_older_self_pr_changes_what_the_resume_uses(client):
+    old = client.post("/api/self-pr", json={"content": "old pitch"}).json()
+    client.post("/api/self-pr", json={"content": "current pitch"})
+
+    resp = client.put(f"/api/self-pr/{old['id']}/select")
+    assert resp.status_code == 200
+    assert resp.json()["is_selected"] is True
+
+    entries = {e["id"]: e for e in client.get("/api/self-pr").json()}
+    assert entries[old["id"]]["is_selected"] is True
+
+    content = client.post("/api/export").json()["content"]
+    assert "old pitch" in content
+    assert "current pitch" not in content

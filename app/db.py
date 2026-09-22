@@ -28,6 +28,8 @@ def init_db() -> None:
 
     SQLModel.metadata.create_all(engine)
     _ensure_column(engine, "exportsnapshot", "edited_at", "TIMESTAMP")
+    _ensure_column(engine, "selfpr", "is_selected", "BOOLEAN DEFAULT 0")
+    _ensure_column(engine, "skill", "include_in_resume", "BOOLEAN DEFAULT 1")
     with Session(engine) as session:
         if session.get(Settings, 1) is None:
             session.add(Settings(id=1))

@@ -33,6 +33,16 @@ short — put anything long in `docs/` and link to it from here.
    `## [Unreleased]` section as part of the same commit — don't let the
    changelog fall behind and try to reconstruct it later.
 
+## Commit attribution
+
+Every commit in this repo, including ones Claude Code makes on the
+user's behalf, is pushed under the repo owner's own GitHub account
+(`tkm112345`, already the configured git identity — don't change it).
+Do **not** append a `Co-Authored-By: Claude Sonnet 5 <...>` (or any
+other AI-attribution) trailer to commit messages in this repo, even
+though that's Claude Code's usual default — commits here should read as
+authored solely by the repo owner.
+
 ## Never delete `data/skillgrowth.db` while the container is running
 
 The app runs against a bind-mounted SQLite file. Deleting or truncating

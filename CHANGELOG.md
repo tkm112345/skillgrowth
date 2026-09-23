@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-09-23
+
 ### Added
 - Screenshots in README.md (Dashboard, Skills, Activity, Resume), captured
   against the built-in sample data.

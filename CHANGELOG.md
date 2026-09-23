@@ -18,6 +18,13 @@ commit as the change, moved into a dated section when a release is cut).
   anything. Included in data backup/restore. Fills the "Reflect" step of
   the Concept page's core loop, which previously had no feature behind
   it.
+- Reflect entries can now carry an optional comment, and a "History"
+  link browses past reflections (date + comment), 5 at a time.
+- A global "skill extraction" toggle in Settings, **off by default**:
+  when off, Quick update, Activity, and Profile's free-text fields save
+  instantly with no LLM call; turn it on for automatic skill extraction
+  from that text, at the cost of waiting on the LLM for every save.
+  Certification image extraction is unaffected either way.
 
 ## [0.2.2] - 2026-09-23
 

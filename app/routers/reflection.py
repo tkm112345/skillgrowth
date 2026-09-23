@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
@@ -9,6 +10,10 @@ from app.models import CareerGoal, CareerVision, EvidenceEntry, ReflectionLog, S
 router = APIRouter(prefix="/api/reflection", tags=["reflection"])
 
 EPOCH = datetime.min.replace(tzinfo=timezone.utc)
+
+
+class ReflectionIn(BaseModel):
+    note: str = ""
 
 
 @router.get("/summary")
@@ -31,9 +36,19 @@ def get_summary(session: Session = Depends(get_session)) -> dict:
 
 
 @router.post("")
-def mark_reflected(session: Session = Depends(get_session)) -> ReflectionLog:
-    entry = ReflectionLog()
+def mark_reflected(payload: ReflectionIn = ReflectionIn(), session: Session = Depends(get_session)) -> ReflectionLog:
+    entry = ReflectionLog(note=payload.note)
     session.add(entry)
     session.commit()
     session.refresh(entry)
     return entry
+
+
+@router.get("/history")
+def list_reflection_history(
+    limit: int = 5,
+    offset: int = 0,
+    session: Session = Depends(get_session),
+) -> list[ReflectionLog]:
+    query = select(ReflectionLog).order_by(ReflectionLog.created_at.desc()).offset(offset).limit(limit)
+    return session.exec(query).all()

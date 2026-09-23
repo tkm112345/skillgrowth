@@ -1,7 +1,22 @@
 from app import llm
 
 
+def _enable_skill_extraction(client):
+    client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "test-key",
+            "llm_model": "gpt-4o-mini",
+            "llm_vision_model": "gpt-4o-mini",
+            "skill_extraction_enabled": True,
+        },
+    )
+
+
 def test_add_text_evidence_links_extracted_skills(client, monkeypatch):
+    _enable_skill_extraction(client)
+
     def fake_extract(text, existing_skills, settings):
         return [{"mention_text": text, "skill_id": None, "name": "Python", "category": "技術"}]
 
@@ -22,6 +37,7 @@ def test_add_text_evidence_links_extracted_skills(client, monkeypatch):
 
 
 def test_second_checkin_reuses_matched_skill(client, monkeypatch):
+    _enable_skill_extraction(client)
     calls = {"n": 0}
 
     def fake_extract(text, existing_skills, settings):
@@ -41,6 +57,8 @@ def test_second_checkin_reuses_matched_skill(client, monkeypatch):
 
 
 def test_llm_failure_surfaces_as_502_with_clear_detail(client, monkeypatch):
+    _enable_skill_extraction(client)
+
     def fake_extract(text, existing_skills, settings):
         raise llm.LLMRequestError("Incorrect API key provided")
 

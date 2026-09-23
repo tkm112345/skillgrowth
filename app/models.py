@@ -44,6 +44,7 @@ class Settings(SQLModel, table=True):
     openai_api_key: str = ""
     llm_model: str = "gpt-4o-mini"
     llm_vision_model: str = "gpt-4o-mini"
+    skill_extraction_enabled: bool = False
 
 
 class CareerGoal(SQLModel, table=True):
@@ -68,6 +69,7 @@ class CareerGoalHistory(SQLModel, table=True):
 class ReflectionLog(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    note: str = ""
 
 
 class Education(SQLModel, table=True):

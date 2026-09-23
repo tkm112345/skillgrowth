@@ -194,7 +194,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     counts["reflection_log"] = 0
     for row in data.get("reflection_log", []):
-        entry = ReflectionLog(created_at=_dt(row.get("created_at")))
+        entry = ReflectionLog(created_at=_dt(row.get("created_at")), note=row.get("note", ""))
         session.add(entry)
         session.flush()
         note("reflection_log", entry.id)

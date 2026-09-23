@@ -24,7 +24,9 @@
   An "I reflected" button logs a new timestamp and resets the count to
   zero — a deliberately manual, explicit action rather than inferring
   "reflected" from an edit, so you can reflect (and decide nothing needs
-  to change) without having to edit anything.
+  to change) without having to edit anything. An optional comment can go
+  along with each reflection, and a "History" link browses every past
+  reflection (date + comment), 5 at a time with a "Load more" button.
 - **Skill growth timeline** — a step-line chart of cumulative skill count
   over time, built from each skill's `first_observed_at`.
 - **Category breakdown** — a bar chart of skill count per category.
@@ -227,6 +229,13 @@ though, and never go through LLM extraction at any point.
   in the database and editable from the UI — no `.env` editing or restart
   required. Works against any OpenAI-compatible chat completions endpoint:
   a cloud API or a local Ollama server.
+- **Skill extraction toggle** — a global on/off switch, **off by default**,
+  covering the LLM call that extracts skills from Quick update, Activity,
+  and Profile's free-text fields (education/employment/project). Off
+  means those saves are instant with no LLM call; turn it on to get
+  automatic skill extraction from free text, at the cost of waiting on
+  the LLM for every save. Certification image extraction is a separate
+  code path and always runs regardless of this switch.
 - **Test connection** — sends a minimal request with the values currently
   in the form (not necessarily saved yet) and reports success or the exact
   error, so a typo in the API key or base URL is caught immediately instead

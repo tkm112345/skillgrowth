@@ -25,6 +25,11 @@ const checkinText = ref('')
 const submittingCheckin = ref(false)
 const reflection = ref(null)
 const markingReflected = ref(false)
+const reflectionNote = ref('')
+const reflectionHistoryOpen = ref(false)
+const reflectionHistory = ref([])
+const reflectionHistoryHasMore = ref(false)
+const reflectionHistoryLoading = ref(false)
 
 const horizonLabelKeys = {
   this_year: 'dashboard.horizonThisYear',
@@ -56,11 +61,34 @@ onMounted(async () => {
 async function markReflected() {
   markingReflected.value = true
   try {
-    await api.markReflected()
+    await api.markReflected(reflectionNote.value)
+    reflectionNote.value = ''
     await reloadReflection()
+    if (reflectionHistoryOpen.value) {
+      reflectionHistory.value = []
+      await loadReflectionHistoryPage()
+    }
     ElMessage.success(t('dashboard.reflectionMarked'))
   } finally {
     markingReflected.value = false
+  }
+}
+
+async function loadReflectionHistoryPage() {
+  reflectionHistoryLoading.value = true
+  try {
+    const page = await api.getReflectionHistory(HISTORY_PAGE_SIZE, reflectionHistory.value.length)
+    reflectionHistory.value = [...reflectionHistory.value, ...page]
+    reflectionHistoryHasMore.value = page.length === HISTORY_PAGE_SIZE
+  } finally {
+    reflectionHistoryLoading.value = false
+  }
+}
+
+async function toggleReflectionHistory() {
+  reflectionHistoryOpen.value = !reflectionHistoryOpen.value
+  if (reflectionHistoryOpen.value && reflectionHistory.value.length === 0) {
+    await loadReflectionHistoryPage()
   }
 }
 
@@ -132,6 +160,17 @@ async function submitCheckin() {
 const updatedGoalLabels = computed(
   () => reflection.value?.updated_goal_horizons.map((h) => t(horizonLabelKeys[h])).join(', ') ?? '',
 )
+
+const caughtUpOnReflection = computed(() => {
+  const r = reflection.value
+  return (
+    !!r?.last_reflected_at &&
+    r.new_skills_count === 0 &&
+    r.new_activity_count === 0 &&
+    !r.vision_updated &&
+    r.updated_goal_horizons.length === 0
+  )
+})
 
 const categoryCount = computed(() => new Set(skills.value.map((s) => s.category)).size)
 
@@ -301,25 +340,67 @@ const categoryOption = computed(() => {
     <template #header>{{ t('dashboard.reflectionHeader') }}</template>
     <p class="reflection-subtitle">{{ t('dashboard.reflectionSubtitle') }}</p>
 
-    <p v-if="!reflection.last_reflected_at" class="reflection-since">
-      {{ t('dashboard.reflectionNeverYet') }}
-    </p>
-    <p v-else class="reflection-since">
-      {{ t('dashboard.reflectionSince', { date: formatDate(reflection.last_reflected_at) }) }}
-    </p>
+    <template v-if="caughtUpOnReflection">
+      <p class="reflection-since">
+        {{ t('dashboard.reflectionCaughtUp', { date: formatDate(reflection.last_reflected_at) }) }}
+      </p>
+      <router-link to="/ai" class="ai-link">{{ t('dashboard.aiLink') }} →</router-link>
+    </template>
+    <template v-else>
+      <p v-if="!reflection.last_reflected_at" class="reflection-since">
+        {{ t('dashboard.reflectionNeverYet') }}
+      </p>
+      <p v-else class="reflection-since">
+        {{ t('dashboard.reflectionSince', { date: formatDate(reflection.last_reflected_at) }) }}
+      </p>
 
-    <ul class="reflection-list">
-      <li>{{ t('dashboard.reflectionNewSkills', { count: reflection.new_skills_count }) }}</li>
-      <li>{{ t('dashboard.reflectionNewActivity', { count: reflection.new_activity_count }) }}</li>
-      <li v-if="reflection.vision_updated">{{ t('dashboard.reflectionVisionUpdated') }}</li>
-      <li v-if="reflection.updated_goal_horizons.length">
-        {{ t('dashboard.reflectionGoalsUpdated', { horizons: updatedGoalLabels }) }}
-      </li>
-    </ul>
+      <ul class="reflection-list">
+        <li>{{ t('dashboard.reflectionNewSkills', { count: reflection.new_skills_count }) }}</li>
+        <li>{{ t('dashboard.reflectionNewActivity', { count: reflection.new_activity_count }) }}</li>
+        <li v-if="reflection.vision_updated">{{ t('dashboard.reflectionVisionUpdated') }}</li>
+        <li v-if="reflection.updated_goal_horizons.length">
+          {{ t('dashboard.reflectionGoalsUpdated', { horizons: updatedGoalLabels }) }}
+        </li>
+      </ul>
+    </template>
 
-    <el-button type="primary" :loading="markingReflected" @click="markReflected">
+    <el-input
+      v-model="reflectionNote"
+      type="textarea"
+      :rows="2"
+      :placeholder="t('dashboard.reflectionNotePlaceholder')"
+      class="reflection-note"
+    />
+
+    <el-button type="primary" :loading="markingReflected" @click="markReflected" class="reflection-mark-btn">
       {{ t('dashboard.reflectionMarkButton') }}
     </el-button>
+
+    <el-button size="small" text @click="toggleReflectionHistory" class="reflection-history-toggle">
+      {{ reflectionHistoryOpen ? t('dashboard.reflectionHistoryHide') : t('dashboard.reflectionHistory') }}
+    </el-button>
+
+    <div v-if="reflectionHistoryOpen" class="goal-history-panel">
+      <ul v-if="reflectionHistory.length" class="goal-history">
+        <li v-for="h in reflectionHistory" :key="h.id">
+          <span class="goal-history-date">{{ formatDate(h.created_at) }}</span>
+          <span class="goal-history-text">{{ h.note || t('dashboard.reflectionNoNote') }}</span>
+        </li>
+      </ul>
+      <p v-else-if="!reflectionHistoryLoading" class="goal-history-empty">
+        {{ t('dashboard.reflectionHistoryEmpty') }}
+      </p>
+      <el-button
+        v-if="reflectionHistoryHasMore"
+        size="small"
+        text
+        :loading="reflectionHistoryLoading"
+        @click="loadReflectionHistoryPage"
+        class="goal-history-load-more"
+      >
+        {{ t('dashboard.reflectionHistoryLoadMore') }}
+      </el-button>
+    </div>
   </el-card>
 
   <el-card shadow="never" class="chart-card accent-aqua">
@@ -444,6 +525,20 @@ const categoryOption = computed(() => {
 
 .checkin-btn {
   margin-top: 0.75rem;
+}
+
+.reflection-note {
+  margin-top: 0.5rem;
+}
+
+.reflection-mark-btn {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+.reflection-history-toggle {
+  display: block;
+  margin-top: 0.5rem;
 }
 
 .ai-link {

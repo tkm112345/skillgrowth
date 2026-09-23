@@ -14,6 +14,7 @@ const form = reactive({
   openai_api_key: '',
   llm_model: '',
   llm_vision_model: '',
+  skill_extraction_enabled: false,
 })
 const loading = ref(true)
 const saving = ref(false)
@@ -194,6 +195,10 @@ async function resetSample() {
       <el-form-item :label="t('settings.visionModel')">
         <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
       </el-form-item>
+      <el-form-item :label="t('settings.skillExtraction')">
+        <el-switch v-model="form.skill_extraction_enabled" />
+        <p class="field-hint">{{ t('settings.skillExtractionHint') }}</p>
+      </el-form-item>
       <div class="form-actions">
         <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
         <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
@@ -262,6 +267,12 @@ async function resetSample() {
 
 .test-result {
   margin-top: 0.75rem;
+}
+
+.field-hint {
+  margin: 0 0 0 1rem;
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
 }
 
 .backup-card {

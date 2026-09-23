@@ -14,6 +14,7 @@ class SettingsIn(BaseModel):
     openai_api_key: str
     llm_model: str
     llm_vision_model: str
+    skill_extraction_enabled: bool = False
 
 
 @router.get("")
@@ -28,6 +29,7 @@ def update_settings(payload: SettingsIn, session: Session = Depends(get_session)
     settings.openai_api_key = payload.openai_api_key
     settings.llm_model = payload.llm_model
     settings.llm_vision_model = payload.llm_vision_model
+    settings.skill_extraction_enabled = payload.skill_extraction_enabled
     session.add(settings)
     session.commit()
     session.refresh(settings)

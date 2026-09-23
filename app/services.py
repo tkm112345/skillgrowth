@@ -49,6 +49,9 @@ def record_evidence_and_extract(
     session.commit()
     session.refresh(entry)
 
+    if not settings.skill_extraction_enabled:
+        return entry, []
+
     matches = llm.extract_and_match_text(text, existing_skills_payload(session), settings)
     linked = apply_matches(session, entry.id, matches)
     return entry, linked

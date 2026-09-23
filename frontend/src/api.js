@@ -118,7 +118,8 @@ export const api = {
     }),
 
   getReflectionSummary: () => request('/reflection/summary'),
-  markReflected: () => request('/reflection', { method: 'POST' }),
+  markReflected: (note = '') => request('/reflection', { method: 'POST', body: JSON.stringify({ note }) }),
+  getReflectionHistory: (limit = 5, offset = 0) => request(`/reflection/history?limit=${limit}&offset=${offset}`),
 
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>

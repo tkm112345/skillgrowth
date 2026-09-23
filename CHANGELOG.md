@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-09-24
+
 ### Added
 - A new Portfolio page for tracking deliverables and work samples: each
   item has a title, a free-text description (deliberately not run through
@@ -191,7 +193,9 @@ your career.
   backup and restore, one-click sample data.
 - English/Japanese UI.
 
-[Unreleased]: https://github.com/tkm112345/skillgrowth/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/tkm112345/skillgrowth/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/tkm112345/skillgrowth/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/tkm112345/skillgrowth/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/tkm112345/skillgrowth/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/tkm112345/skillgrowth/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tkm112345/skillgrowth/releases/tag/v0.1.0

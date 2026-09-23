@@ -18,6 +18,13 @@
 - **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other activity source does.
+- **Reflect** — a card showing what's changed (new skills, new activity,
+  whether Vision or any career goal was edited) since you last marked
+  yourself as having reflected, or everything so far if you never have.
+  An "I reflected" button logs a new timestamp and resets the count to
+  zero — a deliberately manual, explicit action rather than inferring
+  "reflected" from an edit, so you can reflect (and decide nothing needs
+  to change) without having to edit anything.
 - **Skill growth timeline** — a step-line chart of cumulative skill count
   over time, built from each skill's `first_observed_at`.
 - **Category breakdown** — a bar chart of skill count per category.
@@ -244,7 +251,7 @@ though, and never go through LLM extraction at any point.
   needs one. A matching **reset** button removes exactly what
   sample-loading added (tracked by id across every load, however many
   times you've run it) — anything you've entered yourself is left alone.
-  Only the AI Integration page's two features still need a working LLM
+  Only the AI Integration page's three features still need a working LLM
   connection.
 - **About this app** — opens a dialog with the app name, version (read
   from `/api/version`), and the license. Filing issues/PRs moved to the

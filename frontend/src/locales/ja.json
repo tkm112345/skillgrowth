@@ -48,7 +48,17 @@
     "horizon5Years": "5年後",
     "horizon10Years": "10年後",
     "conceptLink": "はじめての方へ: このアプリのコンセプトを見る",
-    "aiLink": "目標に向けた伸ばし方を見る（AI連携）"
+    "aiLink": "目標に向けた伸ばし方を見る（AI連携）",
+    "reflectionHeader": "振り返り",
+    "reflectionSubtitle": "上のビジョンとキャリアパスの目標を見直したら、振り返ったことを記録しましょう。",
+    "reflectionNeverYet": "まだ振り返りを記録していません — これまでの内容は以下の通りです。",
+    "reflectionSince": "前回振り返った{date}から:",
+    "reflectionNewSkills": "新しいスキル {count}件",
+    "reflectionNewActivity": "新しいアクティビティ {count}件",
+    "reflectionVisionUpdated": "ビジョンが更新されました",
+    "reflectionGoalsUpdated": "更新されたキャリア目標: {horizons}",
+    "reflectionMarkButton": "振り返った",
+    "reflectionMarked": "振り返りを記録しました"
   },
   "vision": {
     "title": "ビジョン",
@@ -191,7 +201,7 @@
     "freeTextTitle": "固定タクソノミーではなく自由記述のスキル",
     "freeTextBody": "スキルはアクティビティからLLMが抽出した自然文、または直接入力した自然文として保存されます。あらかじめ決められたリストの正規化IDではありません。",
     "llmOptionalTitle": "LLMは任意、必須ではない",
-    "llmOptionalBody": "LLMを呼び出すのは、自由記述からのスキル抽出と、AI連携ページの2機能（成長ガイダンス・求人ギャップチェック）だけです。スキルの手動追加・編集、キャリアパスの目標、ビジョン、自己PR、職務経歴書の生成、バックアップ/復元など、それ以外はすべてLLMを一切設定しなくても完結します。",
+    "llmOptionalBody": "LLMを呼び出すのは、自由記述からのスキル抽出と、AI連携ページの3機能（キャリア相談・成長ガイダンス・求人ギャップチェック）だけです。スキルの手動追加・編集、キャリアパスの目標、ビジョン、自己PR、職務経歴書の生成、バックアップ/復元など、それ以外はすべてLLMを一切設定しなくても完結します。",
     "pluggableLlmTitle": "LLMを差し替え可能",
     "pluggableLlmBody": "LLMを呼び出す機能であれば、OpenAI互換のChat Completions APIとして、クラウドAPIでもローカルのOllamaでも利用できます。設定はSettings画面から行い、コードには埋め込みません。",
     "evidenceNotAssessmentTitle": "自己評価ではなくアクティビティベース",

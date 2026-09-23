@@ -15,6 +15,7 @@ from app.routers import (
     goals,
     learning,
     profile,
+    reflection,
     self_pr,
     settings,
     skills,
@@ -48,6 +49,7 @@ app.include_router(ai.router)
 app.include_router(self_pr.router)
 app.include_router(vision.router)
 app.include_router(consult.router)
+app.include_router(reflection.router)
 
 
 @app.on_event("startup")

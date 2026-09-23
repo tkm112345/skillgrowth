@@ -9,6 +9,16 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- A "Reflect" card on the Dashboard: shows what's changed (new skills,
+  new activity, whether Vision or any career goal was edited) since you
+  last marked yourself as having reflected, or everything so far if you
+  never have. An "I reflected" button logs a new timestamp and resets
+  the count — a deliberately explicit action, not inferred from editing
+  anything. Included in data backup/restore. Fills the "Reflect" step of
+  the Concept page's core loop, which previously had no feature behind
+  it.
+
 ## [0.2.2] - 2026-09-23
 
 ### Added

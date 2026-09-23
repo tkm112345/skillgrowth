@@ -15,6 +15,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     Project,
+    ReflectionLog,
     SelfPR,
     Skill,
     SkillLink,
@@ -190,6 +191,14 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("career_goal_history", entry.id)
         counts["career_goal_history"] += 1
+
+    counts["reflection_log"] = 0
+    for row in data.get("reflection_log", []):
+        entry = ReflectionLog(created_at=_dt(row.get("created_at")))
+        session.add(entry)
+        session.flush()
+        note("reflection_log", entry.id)
+        counts["reflection_log"] += 1
 
     counts["career_vision"] = 0
     for row in data.get("career_vision", []):

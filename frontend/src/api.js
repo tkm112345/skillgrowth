@@ -117,6 +117,9 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
 
+  getReflectionSummary: () => request('/reflection/summary'),
+  markReflected: () => request('/reflection', { method: 'POST' }),
+
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>
     request('/profile/education', { method: 'POST', body: JSON.stringify(payload) }),

@@ -23,6 +23,8 @@ const historyHasMoreByHorizon = reactive({})
 const historyLoadingByHorizon = reactive({})
 const checkinText = ref('')
 const submittingCheckin = ref(false)
+const reflection = ref(null)
+const markingReflected = ref(false)
 
 const horizonLabelKeys = {
   this_year: 'dashboard.horizonThisYear',
@@ -36,9 +38,13 @@ async function reloadSkillData() {
   timeline.value = timelineList
 }
 
+async function reloadReflection() {
+  reflection.value = await api.getReflectionSummary()
+}
+
 onMounted(async () => {
   try {
-    const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals()])
+    const [, goalList] = await Promise.all([reloadSkillData(), api.getGoals(), reloadReflection()])
     goals.value = goalList
   } catch (e) {
     ElMessage.error(t('common.loadError'))
@@ -46,6 +52,17 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+async function markReflected() {
+  markingReflected.value = true
+  try {
+    await api.markReflected()
+    await reloadReflection()
+    ElMessage.success(t('dashboard.reflectionMarked'))
+  } finally {
+    markingReflected.value = false
+  }
+}
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
@@ -111,6 +128,10 @@ async function submitCheckin() {
     submittingCheckin.value = false
   }
 }
+
+const updatedGoalLabels = computed(
+  () => reflection.value?.updated_goal_horizons.map((h) => t(horizonLabelKeys[h])).join(', ') ?? '',
+)
 
 const categoryCount = computed(() => new Set(skills.value.map((s) => s.category)).size)
 
@@ -276,6 +297,31 @@ const categoryOption = computed(() => {
     <router-link to="/ai" class="ai-link">{{ t('dashboard.aiLink') }} →</router-link>
   </el-card>
 
+  <el-card v-if="reflection" shadow="never" class="chart-card accent-green">
+    <template #header>{{ t('dashboard.reflectionHeader') }}</template>
+    <p class="reflection-subtitle">{{ t('dashboard.reflectionSubtitle') }}</p>
+
+    <p v-if="!reflection.last_reflected_at" class="reflection-since">
+      {{ t('dashboard.reflectionNeverYet') }}
+    </p>
+    <p v-else class="reflection-since">
+      {{ t('dashboard.reflectionSince', { date: formatDate(reflection.last_reflected_at) }) }}
+    </p>
+
+    <ul class="reflection-list">
+      <li>{{ t('dashboard.reflectionNewSkills', { count: reflection.new_skills_count }) }}</li>
+      <li>{{ t('dashboard.reflectionNewActivity', { count: reflection.new_activity_count }) }}</li>
+      <li v-if="reflection.vision_updated">{{ t('dashboard.reflectionVisionUpdated') }}</li>
+      <li v-if="reflection.updated_goal_horizons.length">
+        {{ t('dashboard.reflectionGoalsUpdated', { horizons: updatedGoalLabels }) }}
+      </li>
+    </ul>
+
+    <el-button type="primary" :loading="markingReflected" @click="markReflected">
+      {{ t('dashboard.reflectionMarkButton') }}
+    </el-button>
+  </el-card>
+
   <el-card shadow="never" class="chart-card accent-aqua">
     <template #header>{{ t('dashboard.growthHeader') }}</template>
     <v-chart v-if="!loading" :option="growthOption" autoresize style="height: 260px" />
@@ -310,6 +356,24 @@ const categoryOption = computed(() => {
 
 .concept-link:hover {
   text-decoration: underline;
+}
+
+.reflection-subtitle {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.reflection-since {
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.reflection-list {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
 }
 
 .goal-label {

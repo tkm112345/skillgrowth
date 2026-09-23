@@ -48,7 +48,17 @@
     "horizon5Years": "5 years",
     "horizon10Years": "10 years",
     "conceptLink": "New here? See the concept behind this app",
-    "aiLink": "See how to grow toward these goals (AI Integration)"
+    "aiLink": "See how to grow toward these goals (AI Integration)",
+    "reflectionHeader": "Reflect",
+    "reflectionSubtitle": "Revisit your Vision and career path goals above, then mark that you reflected.",
+    "reflectionNeverYet": "You haven't marked a reflection yet — here's everything so far.",
+    "reflectionSince": "Since you last reflected, on {date}:",
+    "reflectionNewSkills": "{count} new skill(s)",
+    "reflectionNewActivity": "{count} new activity entry/entries",
+    "reflectionVisionUpdated": "Vision was updated",
+    "reflectionGoalsUpdated": "Career goals updated: {horizons}",
+    "reflectionMarkButton": "I reflected",
+    "reflectionMarked": "Reflection recorded"
   },
   "vision": {
     "title": "Vision",
@@ -191,7 +201,7 @@
     "freeTextTitle": "Free-text skills, not a fixed taxonomy",
     "freeTextBody": "Skills are stored as the natural language the LLM extracts from your activity, or that you type directly — not normalized IDs from a predefined list.",
     "llmOptionalTitle": "LLM-optional, not LLM-required",
-    "llmOptionalBody": "Extracting skills from free text, and the two AI Integration features (growth guidance, job-posting gap check), are the only things that call an LLM. Everything else — adding or editing a skill by hand, career path goals, Vision, Self PR, generating a resume, backup and restore — works fully with no LLM configured at all.",
+    "llmOptionalBody": "Extracting skills from free text, and the three AI Integration features (Career Consult, growth guidance, job-posting gap check), are the only things that call an LLM. Everything else — adding or editing a skill by hand, career path goals, Vision, Self PR, generating a resume, backup and restore — works fully with no LLM configured at all.",
     "pluggableLlmTitle": "Pluggable LLM",
     "pluggableLlmBody": "When a feature does call one, it talks to any OpenAI-compatible chat completions endpoint — a cloud API or a local Ollama server. Configured from Settings, not hardcoded.",
     "evidenceNotAssessmentTitle": "Activity, not self-assessment",

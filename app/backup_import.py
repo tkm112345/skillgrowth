@@ -1,10 +1,11 @@
 import base64
 import uuid
 from datetime import date, datetime
+from pathlib import Path
 
 from sqlmodel import Session
 
-from app.db import RESUME_TEMPLATE_DIR
+from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR
 from app.models import (
     CareerGoal,
     CareerGoalHistory,
@@ -17,6 +18,9 @@ from app.models import (
     ExportSnapshot,
     ExternalLink,
     LearningActivity,
+    PortfolioFile,
+    PortfolioItem,
+    PortfolioLink,
     Project,
     ReflectionLog,
     ResumeTemplate,
@@ -135,7 +139,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         note("education", edu.id)
         counts["education"] += 1
 
-    counts["projects"] = 0
+    project_id_map: dict[str, str] = {}
     for row in data.get("projects", []):
         project = Project(
             employment_id=employment_id_map.get(row.get("employment_id")),
@@ -148,8 +152,9 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         )
         session.add(project)
         session.flush()
+        project_id_map[row["id"]] = project.id
         note("project", project.id)
-        counts["projects"] += 1
+    counts["projects"] = len(project_id_map)
 
     counts["learning_activities"] = 0
     for row in data.get("learning_activities", []):
@@ -250,6 +255,58 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("resume_template", template.id)
         counts["resume_templates"] += 1
+
+    portfolio_item_id_map: dict[str, str] = {}
+    for row in data.get("portfolio_items", []):
+        item = PortfolioItem(
+            title=row["title"],
+            description=row.get("description", ""),
+            project_id=project_id_map.get(row.get("project_id")) if row.get("project_id") else None,
+            created_at=_dt(row.get("created_at")),
+        )
+        session.add(item)
+        session.flush()
+        portfolio_item_id_map[row["id"]] = item.id
+        note("portfolio_item", item.id)
+    counts["portfolio_items"] = len(portfolio_item_id_map)
+
+    counts["portfolio_links"] = 0
+    for row in data.get("portfolio_links", []):
+        item_id = portfolio_item_id_map.get(row["portfolio_item_id"])
+        if not item_id:
+            continue
+        link = PortfolioLink(
+            portfolio_item_id=item_id,
+            label=row["label"],
+            url=row["url"],
+            created_at=_dt(row.get("created_at")),
+        )
+        session.add(link)
+        session.flush()
+        note("portfolio_link", link.id)
+        counts["portfolio_links"] += 1
+
+    counts["portfolio_files"] = 0
+    for row in data.get("portfolio_files", []):
+        item_id = portfolio_item_id_map.get(row["portfolio_item_id"])
+        file_content_b64 = row.get("file_content_base64")
+        if not item_id or not file_content_b64:
+            continue  # orphaned row, or backup captured no file content
+        suffix = Path(row.get("original_filename", "")).suffix
+        dest = PORTFOLIO_DIR / f"{uuid.uuid4()}{suffix}"
+        dest.write_bytes(base64.b64decode(file_content_b64))
+        pf = PortfolioFile(
+            portfolio_item_id=item_id,
+            original_filename=row.get("original_filename", dest.name),
+            file_path=str(dest),
+            content_type=row.get("content_type", ""),
+            size_bytes=row.get("size_bytes", 0),
+            uploaded_at=_dt(row.get("uploaded_at")),
+        )
+        session.add(pf)
+        session.flush()
+        note("portfolio_file", pf.id)
+        counts["portfolio_files"] += 1
 
     counts["self_prs"] = 0
     for row in data.get("self_prs", []):

@@ -164,4 +164,22 @@ export const api = {
   getLearning: () => request('/learning'),
   addLearning: (payload) => request('/learning', { method: 'POST', body: JSON.stringify(payload) }),
   deleteLearning: (id) => request(`/learning/${id}`, { method: 'DELETE' }),
+
+  getPortfolioItems: () => request('/portfolio'),
+  getPortfolioItem: (id) => request(`/portfolio/${id}`),
+  createPortfolioItem: (payload) =>
+    request('/portfolio', { method: 'POST', body: JSON.stringify(payload) }),
+  updatePortfolioItem: (id, payload) =>
+    request(`/portfolio/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deletePortfolioItem: (id) => request(`/portfolio/${id}`, { method: 'DELETE' }),
+  addPortfolioLink: (itemId, label, url) =>
+    request(`/portfolio/${itemId}/links`, { method: 'POST', body: JSON.stringify({ label, url }) }),
+  deletePortfolioLink: (linkId) => request(`/portfolio/links/${linkId}`, { method: 'DELETE' }),
+  uploadPortfolioFiles: (itemId, fileList) => {
+    const form = new FormData()
+    fileList.forEach((f) => form.append('files', f))
+    return requestForm(`/portfolio/${itemId}/files`, form)
+  },
+  deletePortfolioFile: (fileId) => request(`/portfolio/files/${fileId}`, { method: 'DELETE' }),
+  downloadPortfolioFile: (fileId) => requestBlob(`/portfolio/files/${fileId}/download`),
 }

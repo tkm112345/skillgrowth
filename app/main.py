@@ -14,6 +14,7 @@ from app.routers import (
     export,
     goals,
     learning,
+    portfolio,
     profile,
     reflection,
     resume_templates,
@@ -52,6 +53,7 @@ app.include_router(vision.router)
 app.include_router(consult.router)
 app.include_router(reflection.router)
 app.include_router(resume_templates.router)
+app.include_router(portfolio.router)
 
 
 @app.on_event("startup")

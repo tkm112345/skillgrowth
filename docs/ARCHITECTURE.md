@@ -138,6 +138,32 @@ erDiagram
     string url
     datetime created_at
   }
+  Project ||--o{ PortfolioItem : "optional, standalone projects only"
+  PortfolioItem ||--o{ PortfolioLink : "has"
+  PortfolioItem ||--o{ PortfolioFile : "has"
+  PortfolioItem {
+    string id
+    string title
+    text description "free text — deliberately NOT run through skill extraction"
+    string project_id "nullable FK to Project; must be standalone (employment_id IS NULL)"
+    datetime created_at
+  }
+  PortfolioLink {
+    string id
+    string portfolio_item_id
+    string label
+    string url
+    datetime created_at
+  }
+  PortfolioFile {
+    string id
+    string portfolio_item_id
+    string original_filename
+    string file_path "uploaded file, on disk, 10MB cap, no extension allowlist"
+    string content_type
+    int size_bytes
+    datetime uploaded_at
+  }
 ```
 
 ## Schema changes with no migration tool
@@ -527,6 +553,82 @@ never imported, the same reasoning `SelfPR` uses (see "Resume export
 (no LLM)" above) — an import must never silently change which template
 generation defaults to.
 
+## Portfolio (deliverables, kept separate from Profile)
+
+`PortfolioItem`/`PortfolioLink`/`PortfolioFile` (`app/routers/portfolio.py`)
+manage deliverables and work samples — links, PDFs, spreadsheets,
+photos — as a concept deliberately separate from Profile's
+Education/Employment/Project entries, since a portfolio item is meant to
+be shown to someone (a recruiter, a peer) without that context attached.
+`PortfolioItem.description` is free text but, unlike every other
+free-text field in this app, is never sent through
+`services.record_evidence_and_extract` — no skill extraction, no
+`EvidenceEntry` row, matching `ResumeTemplate`'s "deterministic, not
+LLM-involved" shape rather than the Dashboard/Profile/Activity pattern.
+
+`PortfolioLink` mirrors `ExternalLink`'s label+url shape but scoped to one
+item instead of being a flat global list, since a deliverable can have
+several relevant links (a live site, a repository, a writeup). `PortfolioFile`
+follows the same on-disk storage pattern as `ResumeTemplate`
+(`PORTFOLIO_DIR` in `app/db.py`, a `uuid4()`-named file with `file_path`
+stored in the row) but, unlike `ResumeTemplate`, supports many files per
+parent row and preserves the original upload's filename/content-type/size
+so `GET /api/portfolio/files/{id}/download` can serve it back with the
+right `Content-Disposition` and the list UI can show file size without
+re-`stat()`-ing disk.
+
+`POST /api/portfolio/{item_id}/files` accepts multiple `UploadFile`s in a
+single multipart request (`files: list[UploadFile]`) rather than one file
+per request — there's no precedent for this in the app (`ResumeTemplate`
+is one file per row/request), but it matches the natural UI action
+("select several files, upload them together") and lets the endpoint
+enforce an all-or-nothing batch: every file's size is checked against the
+10MB cap *before* any file is written to disk, so a batch containing one
+oversized file is rejected as a whole rather than leaving a partial set of
+files already written.
+
+**The privacy-critical invariant**: `PortfolioItem.project_id` may only
+point at a *standalone* `Project` — one whose `employment_id` is `None`,
+i.e. not tied to any `Employment`/company — so that a portfolio item can
+never make an employer identifiable. This is enforced in
+`_validate_project_id()` in `app/routers/portfolio.py`, called from both
+create and update, checking the *current* `employment_id` on the
+referenced `Project` row (a 400 if it's set, or if the project doesn't
+exist). The frontend's project picker also pre-filters to standalone
+projects (the same `!p.employment_id` computed `Profile.vue` already
+uses), but that filtering is a UX convenience only — the server-side check
+is what actually prevents a company-tied project from ever being linked,
+since the API must never trust client-supplied filtering alone for a
+privacy-relevant constraint.
+
+### Portfolio backup (base64-embedded, like resume templates)
+
+`app/routers/backup.py::_dump_portfolio_files` follows
+`_dump_resume_templates`'s pattern exactly: each `PortfolioFile` row's
+on-disk content is embedded as base64 (`file_content_base64`, `None` if
+the file is missing), not just its path — a deliberately uploaded file
+would be a real loss if a restore elsewhere only had the path. `RESET_TABLE_ORDER`
+lists `portfolio_link`/`portfolio_file` before `portfolio_item` (children
+before the parent, same as everywhere else in that list) — but, matching
+`resume_template`'s existing behavior there, `reset_sample_data` only
+deletes the DB rows and does not unlink the underlying files from disk;
+this is a pre-existing asymmetry in the codebase, not something this
+feature introduces or fixes.
+
+`app/backup_import.py::import_backup` needed a `project_id_map` for the
+first time — until this feature, nothing imported a `project_id` foreign
+key, so the existing `projects` loop only ever tracked ids via `note()`
+for sample-data reset, never in a `{old_id: new_id}` map. That map is now
+built alongside the existing loop and used to remap
+`PortfolioItem.project_id`. `PortfolioItem`'s own fresh id is likewise
+captured in a `portfolio_item_id_map`, used to remap
+`PortfolioLink.portfolio_item_id` and `PortfolioFile.portfolio_item_id` —
+the same "id map built while inserting the parent, consumed by children
+afterward" shape `ConsultSession`/`ConsultMessage` already use. A
+`PortfolioFile` row with no `file_content_base64` (an older export, or a
+file already missing when exported) is skipped, the same as
+`ResumeTemplate` handles that case.
+
 ## LLM configuration
 
 `Settings` is a singleton DB row (id=1), editable from the Settings page. It
@@ -539,7 +641,7 @@ model name change.
 ## Frontend routing
 
 The SPA has one route per top-level concern (Concept, Dashboard, Vision,
-Skills, Activity, Profile, Resume, AI Integration, Settings), listed in
+Skills, Activity, Profile, Portfolio, Resume, AI Integration, Settings), listed in
 `frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
 used to be a separate Learning Log page — see "Activity ⨯ Learning Log
 merge" below. `/consult/:id` (`Consult.vue`) is the one exception to

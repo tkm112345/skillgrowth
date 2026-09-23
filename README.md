@@ -67,6 +67,10 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   complement to the Dashboard's three specific goals.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
+- **Portfolio** — deliverables and work samples: title, description (not
+  fed into skill extraction), any number of links, and any number of
+  uploaded files (PDF, spreadsheets, photos, up to 10MB each). Can
+  optionally link to a standalone project, never one tied to an employer.
 - **Skills** — the current skill picture derived from the activity log;
   supports adding a skill directly by name, editing a skill's name/category
   in place, or importing a batch from a `name,category` CSV file —

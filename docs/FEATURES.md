@@ -70,6 +70,24 @@ There's deliberately no "import resume" feature: a personal resume's layout
 varies too much for reliable LLM extraction. Bulk-loading skills instead
 goes through the CSV import on the Skills page.
 
+## Portfolio
+
+Deliverables and work samples — a Web link, a PDF, a spreadsheet, a
+photo — kept separately from Profile's Education/Employment/Project
+entries, so they can be shown to someone without those entries' baggage.
+
+- Each item has a title, a free-text description (**not** run through
+  skill extraction, unlike every other free-text field in this app), any
+  number of links (label + URL), and any number of uploaded files. No
+  file-type restriction, but each file is capped at 10MB.
+- An item can optionally be linked to an existing Project from Profile —
+  but **only a standalone project, never one tied to an employer**. This
+  is enforced by the server, not just hidden from the dropdown, so a
+  portfolio item can never end up identifying who you work for.
+- Included in data backup/restore, with every uploaded file's actual
+  content embedded (the same treatment Word resume templates get, since
+  losing a deliberately-uploaded file on restore would be a real loss).
+
 ## Skills
 
 - The current skill picture, derived from the activity log: name, category,

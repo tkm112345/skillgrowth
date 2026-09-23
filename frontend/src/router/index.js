@@ -5,6 +5,7 @@ import Concept from '../views/Concept.vue'
 import Consult from '../views/Consult.vue'
 import Dashboard from '../views/Dashboard.vue'
 import ExportView from '../views/Export.vue'
+import Portfolio from '../views/Portfolio.vue'
 import Profile from '../views/Profile.vue'
 import SettingsView from '../views/Settings.vue'
 import Skills from '../views/Skills.vue'
@@ -17,6 +18,7 @@ export default createRouter({
     { path: '/', name: 'dashboard', component: Dashboard },
     { path: '/vision', name: 'vision', component: Vision },
     { path: '/profile', name: 'profile', component: Profile },
+    { path: '/portfolio', name: 'portfolio', component: Portfolio },
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },
     { path: '/export', name: 'export', component: ExportView },

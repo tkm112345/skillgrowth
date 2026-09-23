@@ -10,6 +10,7 @@ import {
   Notebook,
   Promotion,
   Setting,
+  Suitcase,
   Sunrise,
   TrendCharts,
 } from '@element-plus/icons-vue'
@@ -71,6 +72,10 @@ onMounted(async () => {
         <el-menu-item index="/profile">
           <el-icon style="color: var(--hue-violet)"><Notebook /></el-icon>
           <template #title>{{ t('nav.profile') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/portfolio">
+          <el-icon style="color: var(--hue-red)"><Suitcase /></el-icon>
+          <template #title>{{ t('nav.portfolio') }}</template>
         </el-menu-item>
         <el-menu-item index="/export">
           <el-icon style="color: var(--hue-green)"><Files /></el-icon>

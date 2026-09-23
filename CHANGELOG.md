@@ -10,6 +10,15 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A new Portfolio page for tracking deliverables and work samples: each
+  item has a title, a free-text description (deliberately not run through
+  skill extraction), any number of links, and any number of uploaded files
+  (PDF, spreadsheets, photos, etc. — no extension restriction, 10MB per
+  file). An item can optionally link to an existing Project, but only a
+  standalone one not tied to an employer — enforced server-side, not just
+  hidden in the UI — so a portfolio item can never identify who you work
+  for. Included in data backup/restore, with uploaded file content
+  embedded like Word resume templates.
 - Word template resume export: upload a `.docx` file with tags like
   `{{p self_pr }}` (see the in-app tag reference on the Resume page) and
   generate a filled copy on demand — deterministic, no LLM involved, same

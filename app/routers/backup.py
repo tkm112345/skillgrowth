@@ -20,6 +20,9 @@ from app.models import (
     ExportSnapshot,
     ExternalLink,
     LearningActivity,
+    PortfolioFile,
+    PortfolioItem,
+    PortfolioLink,
     Project,
     ReflectionLog,
     ResumeTemplate,
@@ -43,6 +46,9 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("external_link", ExternalLink),
     ("resume_export", ExportSnapshot),
     ("resume_template", ResumeTemplate),
+    ("portfolio_link", PortfolioLink),
+    ("portfolio_file", PortfolioFile),
+    ("portfolio_item", PortfolioItem),
     ("skill", Skill),
     ("evidence", EvidenceEntry),
     ("self_pr", SelfPR),
@@ -60,6 +66,21 @@ def _dump_resume_templates(session: Session) -> list[dict]:
     # can't resolve.
     rows = []
     for row in session.exec(select(ResumeTemplate)).all():
+        data = row.model_dump(mode="json")
+        try:
+            data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
+        except FileNotFoundError:
+            data["file_content_base64"] = None
+        rows.append(data)
+    return rows
+
+
+def _dump_portfolio_files(session: Session) -> list[dict]:
+    # Same reasoning as _dump_resume_templates: a portfolio file is few and
+    # deliberately uploaded, so losing it on a restore elsewhere would be a
+    # real loss, unlike EvidenceEntry's certificate images (path only).
+    rows = []
+    for row in session.exec(select(PortfolioFile)).all():
         data = row.model_dump(mode="json")
         try:
             data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
@@ -90,6 +111,9 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "external_links": dump(ExternalLink),
         "resume_exports": dump(ExportSnapshot),
         "resume_templates": _dump_resume_templates(session),
+        "portfolio_items": dump(PortfolioItem),
+        "portfolio_links": dump(PortfolioLink),
+        "portfolio_files": _dump_portfolio_files(session),
         "self_prs": dump(SelfPR),
         "consult_sessions": dump(ConsultSession),
         "consult_messages": dump(ConsultMessage),

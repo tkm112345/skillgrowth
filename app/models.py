@@ -111,6 +111,34 @@ class ExternalLink(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class PortfolioItem(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    title: str
+    description: str = ""  # free text, deliberately not run through skill extraction
+    # nullable FK to Project; must be a standalone project (employment_id IS NULL),
+    # enforced in app/routers/portfolio.py, not at the schema level
+    project_id: Optional[str] = Field(default=None, foreign_key="project.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class PortfolioLink(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    portfolio_item_id: str = Field(foreign_key="portfolioitem.id")
+    label: str
+    url: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class PortfolioFile(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    portfolio_item_id: str = Field(foreign_key="portfolioitem.id")
+    original_filename: str
+    file_path: str
+    content_type: str = ""
+    size_bytes: int = 0
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 class LearningActivity(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     # "reading" | "talk_given" | "talk_attended" | "certification" | "other"

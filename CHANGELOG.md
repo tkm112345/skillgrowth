@@ -9,6 +9,23 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- Screenshots in README.md (Dashboard, Skills, Activity, Resume), captured
+  against the built-in sample data.
+- A terminology note in README.md and both FEATURES docs clarifying that
+  "skill" throughout this app means the user's own career/professional
+  skill, not an AI/agent "skill" such as a Claude Code Skill.
+- The Activity feed now groups entries under a year/month heading (e.g.
+  "September 2026") instead of one flat chronological list.
+
+### Removed
+- `.env.example` and all env-var-based LLM configuration plumbing
+  (`load_dotenv()` in `app/main.py`, `env_file` in `docker-compose.yml`,
+  the `python-dotenv` dependency). Nothing in the app read those variables
+  any more — LLM connection settings have lived in the database, edited
+  from the Settings page, since that feature was added; the `.env`-based
+  docs and wiring were stale leftovers from before that.
+
 ## [0.2.1] - 2026-09-22
 
 ### Added

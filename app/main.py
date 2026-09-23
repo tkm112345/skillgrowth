@@ -1,15 +1,12 @@
 from pathlib import Path
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-load_dotenv()
-
-from app.db import init_db  # noqa: E402
-from app.llm import LLMRequestError  # noqa: E402
-from app.routers import (  # noqa: E402
+from app.db import init_db
+from app.llm import LLMRequestError
+from app.routers import (
     ai,
     backup,
     consult,

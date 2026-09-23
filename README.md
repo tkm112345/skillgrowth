@@ -3,6 +3,13 @@
 A self-hosted tool for your career and skill growth that grows together
 with you, instead of asking you to fill out a static profile once.
 
+> **A note on terminology:** every "skill" in this app is one of *your own*
+> career/professional skills (e.g. "Python", "public speaking", "project
+> management") — not an AI "skill" in the sense of a Claude Code Skill, an
+> LLM plugin, or an agent capability. skillgrowth tracks skills that belong
+> to you as a person; the LLM it optionally talks to is just a tool it
+> uses to extract and match them, not a source of skills itself.
+
 ## Why
 
 Your career history keeps ending up on someone else's platform. During a
@@ -84,6 +91,19 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - A **Contribute** button lives in the sidebar on every page (above the
   copyright line) — skillgrowth is MIT-licensed and issues/PRs are
   genuinely welcome.
+
+## Screenshots
+
+Shown with the built-in sample data (Settings → "Try it with sample
+data"), not a real account.
+
+| Dashboard | Skills |
+|---|---|
+| ![Dashboard](docs/images/screenshot-dashboard.png) | ![Skills](docs/images/screenshot-skills.png) |
+
+| Activity | Resume |
+|---|---|
+| ![Activity](docs/images/screenshot-activity.png) | ![Resume](docs/images/screenshot-resume.png) |
 
 ## Design choices
 

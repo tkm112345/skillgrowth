@@ -2,6 +2,10 @@
 
 日本語版: [FEATURES.ja.md](FEATURES.ja.md)
 
+> **Terminology:** every "skill" below is one of *your own* career/professional
+> skills, not an AI "skill" (a Claude Code Skill, an LLM plugin, an agent
+> capability). See the README's note on terminology.
+
 ## Dashboard
 
 - **Career path goals** — three optional free-text boxes (this year / 5 years /
@@ -94,10 +98,13 @@ Log page, and a read-only feed that already showed the same entries):
 - **Feed** — a chronological view of every activity entry ever added (quick
   updates, certifications, the free-text side of every
   Education/Employment/Project entry, and the entries added above),
-  labeled by source type. Loads 50 at a time with a "Load more" button,
-  since this log only ever grows over the life of the app. (Manually added
-  and CSV-imported skills don't appear here — they bypass the activity log
-  entirely, since there's no free text behind them.)
+  labeled by source type and grouped under a year/month heading (e.g.
+  "September 2026"). Loads 50 at a time with a "Load more" button, since
+  this log only ever grows over the life of the app — groups are computed
+  client-side from whatever's currently loaded, so a group can be partial
+  until more is loaded. (Manually added and CSV-imported skills don't
+  appear here — they bypass the activity log entirely, since there's no
+  free text behind them.)
 - **Delete** — only shown on entries added through the form above; it
   removes that entry's structured type/title/date, while the entry itself
   stays in the feed as plain text, since the underlying activity log is

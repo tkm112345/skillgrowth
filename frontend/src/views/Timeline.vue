@@ -98,6 +98,24 @@ async function removeLearning(learningActivityId) {
 }
 
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))
+
+const groupedEntries = computed(() => {
+  const formatMonth = new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long' })
+  const groups = []
+  const groupByKey = {}
+  for (const entry of entries.value) {
+    const date = new Date(entry.created_at)
+    const key = `${date.getFullYear()}-${date.getMonth()}`
+    let group = groupByKey[key]
+    if (!group) {
+      group = { key, label: formatMonth.format(date), items: [] }
+      groupByKey[key] = group
+      groups.push(group)
+    }
+    group.items.push(entry)
+  }
+  return groups
+})
 </script>
 
 <template>
@@ -137,29 +155,34 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
     <el-button type="primary" :loading="submitting" @click="submit">{{ t('common.add') }}</el-button>
   </el-card>
 
-  <el-timeline v-loading="loading">
-    <el-timeline-item
-      v-for="entry in entries"
-      :key="entry.id"
-      :timestamp="formatDateTime(entry.created_at)"
-    >
-      <el-card shadow="never">
-        <div class="entry-header">
-          <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
-          <el-button
-            v-if="learningByEvidenceId[entry.id]"
-            size="small"
-            text
-            type="danger"
-            @click="removeLearning(learningByEvidenceId[entry.id])"
-          >
-            {{ t('common.delete') }}
-          </el-button>
-        </div>
-        <p>{{ entry.raw_input || t('timeline.image') }}</p>
-      </el-card>
-    </el-timeline-item>
-  </el-timeline>
+  <div v-loading="loading">
+    <div v-for="group in groupedEntries" :key="group.key" class="month-group">
+      <h2 class="month-heading">{{ group.label }}</h2>
+      <el-timeline>
+        <el-timeline-item
+          v-for="entry in group.items"
+          :key="entry.id"
+          :timestamp="formatDateTime(entry.created_at)"
+        >
+          <el-card shadow="never">
+            <div class="entry-header">
+              <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
+              <el-button
+                v-if="learningByEvidenceId[entry.id]"
+                size="small"
+                text
+                type="danger"
+                @click="removeLearning(learningByEvidenceId[entry.id])"
+              >
+                {{ t('common.delete') }}
+              </el-button>
+            </div>
+            <p>{{ entry.raw_input || t('timeline.image') }}</p>
+          </el-card>
+        </el-timeline-item>
+      </el-timeline>
+    </div>
+  </div>
 
   <el-button v-if="hasMore" :loading="loadingMore" @click="loadMore" class="load-more-btn">
     {{ t('timeline.loadMore') }}
@@ -176,6 +199,17 @@ const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(loca
 
 .chart-card {
   margin-bottom: 1.5rem;
+}
+
+.month-group + .month-group {
+  margin-top: 1rem;
+}
+
+.month-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin: 0 0 0.5rem;
 }
 
 .entry-header {

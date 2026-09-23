@@ -61,16 +61,28 @@ fix.
 ## Versioning and releases
 
 - The version lives in the `VERSION` file — bump it by hand, don't infer
-  it from git tags or commit count.
+  it from git tags or commit count. `VERSION` tracks the version being
+  worked toward, not the last released one — see the release cycle below.
 - `CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/).
   Add entries under `## [Unreleased]` as changes are made, not batched up
   right before a release. English only (see "Language" above), even in
   an otherwise-Japanese session.
+- Release cycle: `VERSION` is bumped to the next version immediately
+  after each tag is pushed (last bullet below), so by the time you cut a
+  release `VERSION` already holds the version being released — no bump
+  needed at cut time, unless what shipped turned out to need a bigger
+  bump than the placeholder chosen right after the previous tag (e.g.
+  minor instead of patch), in which case adjust `VERSION` by hand before
+  cutting.
 - Cutting a release: move the `Unreleased` content into a new dated
-  version section in `CHANGELOG.md`, bump `VERSION` to match, commit,
-  then `git tag vX.Y.Z` and `gh release create vX.Y.Z` with release notes
-  built from the same changelog entry (see prior releases for the
-  "Highlights" format).
+  version section in `CHANGELOG.md` matching the current `VERSION`,
+  commit, then `git tag vX.Y.Z` and `gh release create vX.Y.Z` with
+  release notes built from the same changelog entry (see prior releases
+  for the "Highlights" format).
+- Immediately after tagging and creating the release, bump `VERSION` to
+  the next version in its own commit (e.g. "Bump version to 0.2.3") —
+  every commit from that point on is already working toward the next
+  release, not still showing the one that just shipped.
 - This repo pushes directly to `main` (no PR workflow) and branch
   protection is bypassed by the repo owner — that's expected, not an
   error to work around.

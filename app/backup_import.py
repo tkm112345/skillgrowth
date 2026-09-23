@@ -1,7 +1,10 @@
+import base64
+import uuid
 from datetime import date, datetime
 
 from sqlmodel import Session
 
+from app.db import RESUME_TEMPLATE_DIR
 from app.models import (
     CareerGoal,
     CareerGoalHistory,
@@ -16,6 +19,7 @@ from app.models import (
     LearningActivity,
     Project,
     ReflectionLog,
+    ResumeTemplate,
     SelfPR,
     Skill,
     SkillLink,
@@ -225,6 +229,27 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("resume_export", snapshot.id)
         counts["resume_exports"] += 1
+
+    counts["resume_templates"] = 0
+    for row in data.get("resume_templates", []):
+        file_content_b64 = row.get("file_content_base64")
+        if not file_content_b64:
+            continue  # backup captured only the path, or the file was missing when exported
+        dest = RESUME_TEMPLATE_DIR / f"{uuid.uuid4()}.docx"
+        dest.write_bytes(base64.b64decode(file_content_b64))
+        # is_selected is deliberately never imported — same reasoning as
+        # SelfPR below: an import must never silently change which
+        # template generation defaults to.
+        template = ResumeTemplate(
+            name=row.get("name", "Untitled"),
+            file_path=str(dest),
+            section_formats=row.get("section_formats", "{}"),
+            uploaded_at=_dt(row.get("uploaded_at")),
+        )
+        session.add(template)
+        session.flush()
+        note("resume_template", template.id)
+        counts["resume_templates"] += 1
 
     counts["self_prs"] = 0
     for row in data.get("self_prs", []):

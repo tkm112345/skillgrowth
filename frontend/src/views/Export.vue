@@ -28,6 +28,34 @@ const editingExportId = ref(null)
 const draftContent = ref('')
 const savingExport = ref(false)
 
+const SECTION_FORMAT_FIELDS = [
+  { key: 'employment', labelKey: 'export.resumeTemplateFormatEmployment', options: ['bullet', 'table'] },
+  { key: 'projects', labelKey: 'export.resumeTemplateFormatProjects', options: ['bullet', 'table'] },
+  { key: 'skills', labelKey: 'export.resumeTemplateFormatSkills', options: ['list', 'table'] },
+  { key: 'certifications', labelKey: 'export.resumeTemplateFormatCertifications', options: ['list', 'table'] },
+]
+const FORMAT_OPTION_LABEL_KEYS = {
+  bullet: 'export.resumeTemplateFormatBullet',
+  table: 'export.resumeTemplateFormatTable',
+  list: 'export.resumeTemplateFormatList',
+}
+const RESUME_TAGS = [
+  { tag: 'self_pr', labelKey: 'export.resumeTemplateTagSelfPr' },
+  { tag: 'employment', labelKey: 'export.resumeTemplateTagEmployment' },
+  { tag: 'projects', labelKey: 'export.resumeTemplateTagProjects' },
+  { tag: 'education', labelKey: 'export.resumeTemplateTagEducation' },
+  { tag: 'skills', labelKey: 'export.resumeTemplateTagSkills' },
+  { tag: 'certifications', labelKey: 'export.resumeTemplateTagCertifications' },
+]
+
+const resumeTemplates = ref([])
+const loadingResumeTemplates = ref(true)
+const newTemplateName = ref('')
+const newTemplateFile = ref(null)
+const uploadingTemplate = ref(false)
+const generatingTemplateId = ref(null)
+const savingFormatId = ref(null)
+
 const editingSelfPRId = ref(null)
 const draftSelfPR = ref('')
 const savingSelfPR = ref(false)
@@ -35,21 +63,97 @@ const selectingSelfPRId = ref(null)
 
 onMounted(async () => {
   try {
-    const [page, prs] = await Promise.all([
+    const [page, prs, templates] = await Promise.all([
       api.getExports(PAGE_SIZE, 0),
       api.getSelfPRs(SELF_PR_PAGE_SIZE, 0),
+      api.getResumeTemplates(),
     ])
     exports.value = page
     hasMore.value = page.length === PAGE_SIZE
     selfPRs.value = prs
     hasMoreSelfPR.value = prs.length === SELF_PR_PAGE_SIZE
+    resumeTemplates.value = templates
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
     loadingSelfPR.value = false
+    loadingResumeTemplates.value = false
   }
 })
+
+function parseSectionFormats(tpl) {
+  try {
+    return JSON.parse(tpl.section_formats || '{}')
+  } catch (e) {
+    return {}
+  }
+}
+
+function handleTemplateFileChange(uploadFile) {
+  newTemplateFile.value = uploadFile.raw
+}
+
+async function uploadTemplate() {
+  if (!newTemplateName.value.trim() || !newTemplateFile.value) return
+  uploadingTemplate.value = true
+  try {
+    const template = await api.uploadResumeTemplate(newTemplateName.value, newTemplateFile.value)
+    resumeTemplates.value.unshift(template)
+    newTemplateName.value = ''
+    newTemplateFile.value = null
+    ElMessage.success(t('export.resumeTemplateUploaded'))
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateUploadError', { error: e.message }))
+  } finally {
+    uploadingTemplate.value = false
+  }
+}
+
+async function setDefaultTemplate(tpl) {
+  const updated = await api.updateResumeTemplate(tpl.id, { is_selected: true })
+  for (const other of resumeTemplates.value) other.is_selected = other.id === updated.id
+  ElMessage.success(t('export.resumeTemplateSelected'))
+}
+
+async function updateSectionFormat(tpl, key, value) {
+  const formats = { ...parseSectionFormats(tpl), [key]: value }
+  savingFormatId.value = tpl.id
+  try {
+    const updated = await api.updateResumeTemplate(tpl.id, { section_formats: formats })
+    tpl.section_formats = updated.section_formats
+    ElMessage.success(t('export.resumeTemplateFormatSaved'))
+  } finally {
+    savingFormatId.value = null
+  }
+}
+
+async function generateFromTemplate(tpl) {
+  generatingTemplateId.value = tpl.id
+  try {
+    const blob = await api.generateResumeDocx(tpl.id)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${tpl.name}.docx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateGenerateError', { error: e.message }))
+  } finally {
+    generatingTemplateId.value = null
+  }
+}
+
+function tagSyntax(tag) {
+  return `{{p ${tag} }}`
+}
+
+async function removeTemplate(id) {
+  await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
+  await api.deleteResumeTemplate(id)
+  resumeTemplates.value = resumeTemplates.value.filter((tpl) => tpl.id !== id)
+}
 
 async function loadMoreSelfPR() {
   loadingMoreSelfPR.value = true
@@ -253,6 +357,99 @@ async function selectSelfPR(pr) {
     </el-button>
   </el-card>
 
+  <el-card shadow="never" class="export-card accent-blue" v-loading="loadingResumeTemplates">
+    <template #header>{{ t('export.resumeTemplateHeader') }}</template>
+    <p class="self-pr-hint">{{ t('export.resumeTemplateHint') }}</p>
+
+    <div class="template-upload-row">
+      <el-input v-model="newTemplateName" :placeholder="t('export.resumeTemplateNamePlaceholder')" />
+      <el-upload
+        :auto-upload="false"
+        :show-file-list="true"
+        :limit="1"
+        accept=".docx"
+        :on-change="handleTemplateFileChange"
+      >
+        <el-button size="small">{{ t('export.resumeTemplateChooseFile') }}</el-button>
+      </el-upload>
+      <el-button
+        type="primary"
+        :loading="uploadingTemplate"
+        :disabled="!newTemplateName.trim() || !newTemplateFile"
+        @click="uploadTemplate"
+      >
+        {{ t('export.resumeTemplateUpload') }}
+      </el-button>
+    </div>
+
+    <el-empty
+      v-if="!loadingResumeTemplates && resumeTemplates.length === 0"
+      :description="t('export.resumeTemplateEmpty')"
+    />
+
+    <el-card v-for="tpl in resumeTemplates" :key="tpl.id" shadow="never" class="template-card">
+      <template #header>
+        <div class="export-header">
+          <span>
+            {{ tpl.name }}
+            <el-tag v-if="tpl.is_selected" size="small" type="success" class="self-pr-selected-tag">
+              {{ t('export.resumeTemplateDefault') }}
+            </el-tag>
+          </span>
+          <div class="export-header-actions">
+            <el-button
+              v-if="!tpl.is_selected"
+              size="small"
+              text
+              @click="setDefaultTemplate(tpl)"
+            >
+              {{ t('export.resumeTemplateUseAsDefault') }}
+            </el-button>
+            <el-button
+              size="small"
+              text
+              type="primary"
+              :loading="generatingTemplateId === tpl.id"
+              @click="generateFromTemplate(tpl)"
+            >
+              {{ t('export.resumeTemplateGenerate') }}
+            </el-button>
+            <el-button size="small" text type="danger" @click="removeTemplate(tpl.id)">
+              {{ t('common.delete') }}
+            </el-button>
+          </div>
+        </div>
+      </template>
+      <div class="template-format-row" v-for="field in SECTION_FORMAT_FIELDS" :key="field.key">
+        <span class="template-format-label">{{ t(field.labelKey) }}</span>
+        <el-select
+          :model-value="parseSectionFormats(tpl)[field.key] || field.options[0]"
+          size="small"
+          :disabled="savingFormatId === tpl.id"
+          @update:model-value="(value) => updateSectionFormat(tpl, field.key, value)"
+        >
+          <el-option
+            v-for="opt in field.options"
+            :key="opt"
+            :value="opt"
+            :label="t(FORMAT_OPTION_LABEL_KEYS[opt])"
+          />
+        </el-select>
+      </div>
+    </el-card>
+
+    <el-collapse class="resume-tags-collapse">
+      <el-collapse-item :title="t('export.resumeTemplateTagsHeader')">
+        <p class="self-pr-hint">{{ t('export.resumeTemplateTagsHint') }}</p>
+        <ul class="resume-tags-list">
+          <li v-for="item in RESUME_TAGS" :key="item.tag">
+            <code>{{ tagSyntax(item.tag) }}</code> — {{ t(item.labelKey) }}
+          </li>
+        </ul>
+      </el-collapse-item>
+    </el-collapse>
+  </el-card>
+
   <el-button type="primary" :loading="generating" @click="generate">{{ t('export.generate') }}</el-button>
 
   <div v-loading="loading">
@@ -375,5 +572,50 @@ async function selectSelfPR(pr) {
   display: flex;
   gap: 0.25rem;
   margin-top: 0.5rem;
+}
+
+.template-upload-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.template-upload-row .el-input {
+  flex: 1;
+}
+
+.template-card {
+  margin-top: 1rem;
+}
+
+.template-format-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+}
+
+.template-format-label {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+}
+
+.resume-tags-collapse {
+  margin-top: 1rem;
+}
+
+.resume-tags-list {
+  font-size: 0.85rem;
+  line-height: 1.8;
+  padding-left: 1.2rem;
+}
+
+.resume-tags-list code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(128, 128, 128, 0.12);
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
 }
 </style>

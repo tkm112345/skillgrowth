@@ -1,3 +1,4 @@
+import base64
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,7 @@ from app.models import (
     LearningActivity,
     Project,
     ReflectionLog,
+    ResumeTemplate,
     SampleDataRecord,
     SelfPR,
     Skill,
@@ -40,6 +42,7 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("learning_activity", LearningActivity),
     ("external_link", ExternalLink),
     ("resume_export", ExportSnapshot),
+    ("resume_template", ResumeTemplate),
     ("skill", Skill),
     ("evidence", EvidenceEntry),
     ("self_pr", SelfPR),
@@ -47,6 +50,23 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("consult_message", ConsultMessage),
     ("consult_session", ConsultSession),
 ]
+
+
+def _dump_resume_templates(session: Session) -> list[dict]:
+    # Unlike EvidenceEntry's certificate images (path only, file not
+    # included — see docs/ARCHITECTURE.md), a resume template is few and
+    # deliberately authored, so its file content is embedded as base64
+    # rather than just referencing a local path that a restore elsewhere
+    # can't resolve.
+    rows = []
+    for row in session.exec(select(ResumeTemplate)).all():
+        data = row.model_dump(mode="json")
+        try:
+            data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
+        except FileNotFoundError:
+            data["file_content_base64"] = None
+        rows.append(data)
+    return rows
 
 
 @router.get("/export")
@@ -69,6 +89,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "learning_activities": dump(LearningActivity),
         "external_links": dump(ExternalLink),
         "resume_exports": dump(ExportSnapshot),
+        "resume_templates": _dump_resume_templates(session),
         "self_prs": dump(SelfPR),
         "consult_sessions": dump(ConsultSession),
         "consult_messages": dump(ConsultMessage),

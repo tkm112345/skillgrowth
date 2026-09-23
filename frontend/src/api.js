@@ -27,6 +27,14 @@ async function requestForm(path, form) {
   return res.json()
 }
 
+async function requestBlob(path, options = {}) {
+  const res = await fetch(`/api${path}`, options)
+  if (!res.ok) {
+    throw new Error(await errorMessage(res))
+  }
+  return res.blob()
+}
+
 export const api = {
   getSkills: () => request('/skills'),
   addSkill: (name, category) =>
@@ -64,6 +72,18 @@ export const api = {
   generateExport: () => request('/export', { method: 'POST' }),
   updateExport: (id, content) =>
     request(`/export/${id}`, { method: 'PUT', body: JSON.stringify({ content }) }),
+
+  getResumeTemplates: () => request('/resume-templates'),
+  uploadResumeTemplate: (name, file) => {
+    const form = new FormData()
+    form.append('name', name)
+    form.append('file', file)
+    return requestForm('/resume-templates', form)
+  },
+  updateResumeTemplate: (id, payload) =>
+    request(`/resume-templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteResumeTemplate: (id) => request(`/resume-templates/${id}`, { method: 'DELETE' }),
+  generateResumeDocx: (id) => requestBlob(`/resume-templates/${id}/generate`, { method: 'POST' }),
 
   getSelfPRs: (limit = 20, offset = 0) => request(`/self-pr?limit=${limit}&offset=${offset}`),
   addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),

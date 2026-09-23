@@ -146,6 +146,17 @@ Log page, and a read-only feed that already showed the same entries):
   template can't get exactly right, or tailoring one snapshot for a
   specific application without generating a fresh one. An edited snapshot
   shows both when it was generated and when it was last edited.
+- **Word template export** — alongside the Markdown resume above, upload a
+  `.docx` file with tags like `{{p self_pr }}` (an in-app reference panel
+  lists all six available tags and the exact syntax they need) and
+  generate a filled copy on demand — just as deterministic as the
+  Markdown generator, no LLM involved. Multiple templates can be saved
+  and switched between, with one marked as the default. Work history,
+  projects, skills, and certifications can each be rendered as a bullet
+  list or a native Word table — picked per template from a dropdown in
+  the UI, not by editing the template file's own logic — so the same
+  `.docx` design can show a table one way and a list another without
+  keeping two separate template files.
 
 ## AI Integration
 

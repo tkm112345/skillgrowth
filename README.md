@@ -79,7 +79,10 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   used) plus a resume generator that fills a fixed Markdown template from
   your current data — **no LLM involved**, rendered and downloadable, with
   past generations kept as browsable snapshots, any of which can be edited
-  directly as Markdown afterward.
+  directly as Markdown afterward. Alongside that, upload your own `.docx`
+  template with tags like `{{p self_pr }}` and generate a filled copy of
+  it — also no LLM involved, with per-section bullet-list/table layout
+  chosen from the UI.
 - **AI Integration** — the only features that call an LLM on demand:
   Career Consult (a saved, multi-turn chat with an AI career consultant,
   grounded in your actual skills/activity/history/goals on every
@@ -218,8 +221,10 @@ frontend separately with hot reload.
 - The "current skills" view is read from the database directly, but the
   match/merge step that keeps it deduplicated runs at evidence-ingestion
   time via an LLM call — quality depends on the configured model.
-- Generated resumes follow a fixed set of sections and aren't customizable
-  per-export; edit the downloaded Markdown by hand for anything beyond that.
+- The Markdown resume generator follows a fixed set of sections and isn't
+  customizable per-export; edit the downloaded Markdown by hand for
+  anything beyond that, or use the Word template export for a custom
+  layout instead.
 
 ## Changelog
 

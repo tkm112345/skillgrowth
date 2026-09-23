@@ -117,6 +117,14 @@ erDiagram
     text content
     datetime generated_at
   }
+  ResumeTemplate {
+    string id
+    string name
+    string file_path "uploaded .docx, on disk"
+    string section_formats "JSON text: per-section bullet/table or list/table choice"
+    bool is_selected
+    datetime uploaded_at
+  }
   Settings {
     int id "singleton row, id=1"
     string openai_base_url
@@ -443,6 +451,81 @@ cases apart in the UI — a snapshot with `edited_at` set shows both when
 it was generated and when it was last hand-edited. Since `ExportSnapshot`
 already existed before this field was added, adding it required the
 `_ensure_column` migration step described above.
+
+## Word-template resume export
+
+`ResumeTemplate` (`app/models.py`) stores an uploaded `.docx` file on disk
+under `data/uploads/resume_templates/` (`RESUME_TEMPLATE_DIR` in
+`app/db.py`), referenced by `file_path`, plus a `name`, an `is_selected`
+flag (the same single-selected-row pattern `SelfPR` uses, via
+`_select_only()` — now duplicated in `app/routers/resume_templates.py`),
+and `section_formats` — a JSON text column holding which layout each of
+four sections should use.
+
+`app/resume_builder.py::build_resume_markdown` was split so its
+data-gathering half, `gather_resume_context(session)`, is shared with
+`app/resume_docx.py::render_resume_docx(session, template)` — the
+Markdown and Word paths read exactly the same fields, so they can't
+silently drift on what a resume includes.
+
+`render_resume_docx` uses [docxtpl](https://docxtpl.readthedocs.io/) (a
+Jinja2-over-python-docx templating library — pure Python, no native
+system libraries required, unlike e.g. WeasyPrint) to fill six tags in
+the uploaded template: `self_pr`, `employment`, `projects`, `education`,
+`skills`, `certifications`. `employment`/`projects`/`skills`/
+`certifications` are each built as a docxtpl "subdoc" — a dynamically
+constructed native Word paragraph list or table (via `python-docx`'s
+paragraph/table APIs), chosen per `SECTION_FORMAT_CHOICES` in
+`app/resume_docx.py` from that section's entry in `section_formats`
+(defaulting to bullet/list if unset). `self_pr` and `education` are also
+rendered as subdocs (one paragraph per line/entry) rather than plain
+strings, since a plain string substituted into docxtpl doesn't respect
+embedded newlines.
+
+**A subdoc tag must use docxtpl's paragraph-substitution syntax,
+`{{p tag_name }}`, not the plain `{{ tag_name }}`.** With a plain tag,
+docxtpl nests the substituted XML inside the surrounding `<w:t>` text
+run instead of replacing the whole paragraph — this parses without
+error but silently produces an empty-looking section when the file is
+opened (confirmed by direct reproduction while building this feature:
+`Document(BytesIO(...)).paragraphs` came back with empty `.text`, even
+though the correct XML fragment had been built successfully). The
+in-app tag reference panel on the Resume page shows the `{{p ... }}`
+form for exactly this reason — it's not optional styling, tags written
+as plain `{{ tag_name }}` will not render.
+
+Unlike the Markdown generator, `render_resume_docx` never omits a tag
+for empty data — an uploaded template's own headings and layout are
+static content the user wrote, so an empty section just renders as
+blank content at that tag's position, the same way any Word mail-merge
+behaves; there's no equivalent of `build_resume_markdown`'s
+per-section `if ctx[...]:` guards.
+
+Requires the `docxtpl[subdoc]` extra (pulls in `docxcompose`) — see
+`requirements.txt`. Installing plain `docxtpl` without the extra makes
+`DocxTemplate.new_subdoc()` raise `ModuleNotFoundError` the first time a
+template is generated, not at import time, since `docxtpl` imports
+`docxcompose` lazily inside that one method.
+
+### Resume template backup (asymmetric with certificate images)
+
+`ResumeTemplate` rows are included in backup export
+(`app/routers/backup.py::_dump_resume_templates`) with the template
+file's *content* embedded as base64 (`file_content_base64`), not just
+the on-disk `file_path` — deliberately different from how
+`EvidenceEntry.file_path` (certificate images) is handled, where only
+the path is exported and the file itself is left out (see "Evidence →
+skill extraction flow" above). A resume template is few in number and
+deliberately authored, so losing the underlying file on a restore
+elsewhere would be a real loss in a way that losing an old certificate
+screenshot mostly isn't. `app/backup_import.py::import_backup` decodes
+`file_content_base64` and writes it as a new file under
+`RESUME_TEMPLATE_DIR`; a row with no `file_content_base64` (an older
+export, or one whose file was already missing when exported) is skipped
+rather than creating a template with no backing file. `is_selected` is
+never imported, the same reasoning `SelfPR` uses (see "Resume export
+(no LLM)" above) — an import must never silently change which template
+generation defaults to.
 
 ## LLM configuration
 

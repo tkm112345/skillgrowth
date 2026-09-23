@@ -1,4 +1,7 @@
+from io import BytesIO
+
 import pytest
+from docx import Document
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
@@ -42,3 +45,19 @@ def client(engine, monkeypatch):
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def sample_docx_bytes():
+    """A minimal .docx with one tag per resume section, for exercising the
+    Word-template renderer without checking a binary fixture into the repo."""
+
+    def build() -> bytes:
+        doc = Document()
+        for tag in ("self_pr", "employment", "projects", "education", "skills", "certifications"):
+            doc.add_paragraph("{{p " + tag + " }}")
+        buf = BytesIO()
+        doc.save(buf)
+        return buf.getvalue()
+
+    return build

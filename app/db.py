@@ -6,6 +6,8 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
 UPLOAD_DIR = DATA_DIR / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+RESUME_TEMPLATE_DIR = UPLOAD_DIR / "resume_templates"
+RESUME_TEMPLATE_DIR.mkdir(exist_ok=True)
 
 engine = create_engine(f"sqlite:///{DATA_DIR / 'skillgrowth.db'}")
 

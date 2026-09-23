@@ -10,6 +10,15 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- Word template resume export: upload a `.docx` file with tags like
+  `{{p self_pr }}` (see the in-app tag reference on the Resume page) and
+  generate a filled copy on demand — deterministic, no LLM involved, same
+  as the existing Markdown resume generator which it runs alongside.
+  Multiple templates can be saved and switched between. Work history,
+  projects, skills, and certifications can each be rendered as a bullet
+  list or a native Word table, chosen per template from the UI. Included
+  in data backup/restore (with the template file itself embedded, unlike
+  certificate images).
 - A "Reflect" card on the Dashboard: shows what's changed (new skills,
   new activity, whether Vision or any career goal was edited) since you
   last marked yourself as having reflected, or everything so far if you

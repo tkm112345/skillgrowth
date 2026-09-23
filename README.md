@@ -3,6 +3,12 @@
 A self-hosted tool for your career and skill growth that grows together
 with you, instead of asking you to fill out a static profile once.
 
+**Who it's for:** working professionals building their career over the
+long term — but it's especially useful if you're actively job hunting or
+considering a change, since your skills, activity, and history are
+already organized into a ready-to-use resume the moment you need one,
+instead of having to reconstruct them from memory under time pressure.
+
 > **A note on terminology:** every "skill" in this app is one of *your own*
 > career/professional skills (e.g. "Python", "public speaking", "project
 > management") — not an AI "skill" in the sense of a Claude Code Skill, an

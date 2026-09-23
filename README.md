@@ -60,7 +60,8 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   optional, editable with a full — paginated — history of past edits), a
   skill growth timeline chart, a category breakdown chart, a quick
   update box, and a Reflect card showing what's changed since you last
-  marked yourself as having reflected.
+  marked yourself as having reflected — each reflection can carry an
+  optional comment, browsable later via a paginated History link.
 - **Vision** — one free-form text box for a rough sketch of the kind of
   career you're aiming for, with no time horizon or structure — a looser
   complement to the Dashboard's three specific goals.
@@ -87,8 +88,11 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   requirements you already meet).
 - **Settings** — language, theme (light/dark/system) and an accent color,
   the LLM connection (base URL / API key / model, with a test button), a
-  full data backup download, restoring from a backup file, and an About
-  panel with the app version and license.
+  skill extraction toggle (**off by default** — turn it on to have Quick
+  update/Activity/Profile text automatically run through the LLM; off,
+  those saves are instant with no LLM call), a full data backup download,
+  restoring from a backup file, and an About panel with the app version
+  and license.
 - A **Contribute** button lives in the sidebar on every page (above the
   copyright line) — skillgrowth is MIT-licensed and issues/PRs are
   genuinely welcome.
@@ -117,6 +121,9 @@ data"), not a real account.
   the AI Integration features are the only things that call an LLM.
   Adding/editing skills by hand, career path goals, Vision, Self PR,
   resume generation, and backup/restore all work with none configured.
+  Extraction itself is also **off by default** even once an LLM is
+  configured — a separate Settings toggle you turn on explicitly, so a
+  slow local model never blocks a save unless you've asked for it to.
 - **Pluggable LLM.** When a feature does call one, it talks to any
   OpenAI-compatible chat completions endpoint — a cloud API or a local
   Ollama server (`http://localhost:11434/v1`). Configured from the
@@ -162,15 +169,19 @@ A typical first session looks like this:
    OpenAI-compatible provider, or a local Ollama server, then "Test
    connection." Skip this if you only want the LLM-free parts of the app
    (Resume, backup/restore, browsing) for now — you can come back to it
-   later.
+   later. Skill extraction itself is a separate toggle on the same page,
+   **off by default** — turn it on if you want step 3 below to actually
+   extract skills from what you write.
 2. **Settings → Try it with sample data**, if you want to see a populated
    app before typing anything yourself. A matching "Reset sample data"
    button removes exactly what this added, whenever you're ready to start
    for real.
 3. **Dashboard → Quick update.** Write a sentence or two about something
-   you've been working on. This is the fastest way to see the evidence →
-   extraction → skill loop in action: submit it, and any skills the LLM
-   recognized show up immediately.
+   you've been working on. With skill extraction turned on (step 1),
+   this is the fastest way to see the evidence → extraction → skill loop
+   in action: submit it, and any skills the LLM recognized show up
+   immediately. With it off, the same submit just saves your update to
+   the activity log instantly, with no skills extracted.
 4. **Activity**, **Profile**, and **Skills** are the other ways to feed the
    same loop: log a certification or a book you read on Activity, fill in
    education/employment/projects on Profile (their free-text fields feed

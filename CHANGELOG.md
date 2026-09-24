@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-09-24
+
 ### Added
 - Backend linting/formatting with [ruff](https://docs.astral.sh/ruff/) and
   frontend linting with ESLint, unified behind `make check` (and `make

@@ -66,9 +66,7 @@ def list_education(session: Session = Depends(get_session)) -> list[Education]:
 @router.post("/education")
 def create_education(payload: EducationIn, session: Session = Depends(get_session)) -> EducationResult:
     settings = session.get(Settings, 1)
-    text = services.text_block(
-        学校=payload.school, 専攻=payload.major, 学位=payload.degree, 実績=payload.achievements
-    )
+    text = services.text_block(学校=payload.school, 専攻=payload.major, 学位=payload.degree, 実績=payload.achievements)
     entry, linked = services.record_evidence_and_extract(session, "education", text, settings)
     edu = Education(**payload.model_dump(), evidence_id=entry.id)
     session.add(edu)
@@ -120,9 +118,7 @@ def list_projects(session: Session = Depends(get_session)) -> list[Project]:
 @router.post("/projects")
 def create_project(payload: ProjectIn, session: Session = Depends(get_session)) -> ProjectResult:
     settings = session.get(Settings, 1)
-    text = services.text_block(
-        プロジェクト=payload.title, 役割=payload.role, 内容=payload.description
-    )
+    text = services.text_block(プロジェクト=payload.title, 役割=payload.role, 内容=payload.description)
     entry, linked = services.record_evidence_and_extract(session, "project", text, settings)
     project = Project(**payload.model_dump(), evidence_id=entry.id)
     session.add(project)

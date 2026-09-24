@@ -8,9 +8,7 @@ def test_add_link_creates_and_lists(client):
 
 
 def test_delete_link(client):
-    created = client.post(
-        "/api/profile/links", json={"label": "X", "url": "https://x.com/example"}
-    ).json()
+    created = client.post("/api/profile/links", json={"label": "X", "url": "https://x.com/example"}).json()
 
     resp = client.delete(f"/api/profile/links/{created['id']}")
     assert resp.status_code == 200

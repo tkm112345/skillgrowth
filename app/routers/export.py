@@ -16,9 +16,7 @@ class ExportContentIn(BaseModel):
 
 
 @router.get("")
-def list_exports(
-    limit: int = 20, offset: int = 0, session: Session = Depends(get_session)
-) -> list[ExportSnapshot]:
+def list_exports(limit: int = 20, offset: int = 0, session: Session = Depends(get_session)) -> list[ExportSnapshot]:
     return session.exec(
         select(ExportSnapshot).order_by(ExportSnapshot.generated_at.desc()).offset(offset).limit(limit)
     ).all()
@@ -36,9 +34,7 @@ def generate_export(session: Session = Depends(get_session)) -> ExportSnapshot:
 
 
 @router.put("/{export_id}")
-def update_export(
-    export_id: str, payload: ExportContentIn, session: Session = Depends(get_session)
-) -> ExportSnapshot:
+def update_export(export_id: str, payload: ExportContentIn, session: Session = Depends(get_session)) -> ExportSnapshot:
     snapshot = session.get(ExportSnapshot, export_id)
     if snapshot is None:
         raise HTTPException(status_code=404, detail="Resume snapshot not found")

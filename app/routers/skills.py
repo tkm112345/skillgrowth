@@ -59,11 +59,7 @@ def _upsert_skill(session: Session, name: str, category: str) -> Skill | None:
 @router.get("")
 def list_skills(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc())).all()
-    counts = dict(
-        session.exec(
-            select(SkillLink.skill_id, func.count(SkillLink.id)).group_by(SkillLink.skill_id)
-        ).all()
-    )
+    counts = dict(session.exec(select(SkillLink.skill_id, func.count(SkillLink.id)).group_by(SkillLink.skill_id)).all())
     return [
         {
             "id": s.id,
@@ -120,9 +116,7 @@ def set_skill_resume_inclusion(
 
 
 @router.post("/import-csv")
-def import_skills_csv(
-    file: UploadFile = File(...), session: Session = Depends(get_session)
-) -> CsvImportResult:
+def import_skills_csv(file: UploadFile = File(...), session: Session = Depends(get_session)) -> CsvImportResult:
     raw = file.file.read().decode("utf-8-sig")
     reader = csv.DictReader(io.StringIO(raw))
 
@@ -154,10 +148,7 @@ def delete_skill(skill_id: str, session: Session = Depends(get_session)):
 @router.get("/timeline")
 def skill_timeline(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.first_observed_at.asc())).all()
-    return [
-        {"date": s.first_observed_at, "name": s.name, "category": s.category}
-        for s in skills
-    ]
+    return [{"date": s.first_observed_at, "name": s.name, "category": s.category} for s in skills]
 
 
 @router.get("/{skill_id}")

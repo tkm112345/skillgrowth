@@ -21,12 +21,8 @@ def _select_only(session: Session, entry: SelfPR) -> None:
 
 
 @router.get("")
-def list_self_pr(
-    limit: int = 20, offset: int = 0, session: Session = Depends(get_session)
-) -> list[SelfPR]:
-    return session.exec(
-        select(SelfPR).order_by(SelfPR.created_at.desc()).offset(offset).limit(limit)
-    ).all()
+def list_self_pr(limit: int = 20, offset: int = 0, session: Session = Depends(get_session)) -> list[SelfPR]:
+    return session.exec(select(SelfPR).order_by(SelfPR.created_at.desc()).offset(offset).limit(limit)).all()
 
 
 @router.post("")

@@ -19,9 +19,7 @@ def test_test_settings_reports_success(client, monkeypatch):
 def test_test_settings_reports_failure(client, monkeypatch):
     from app import llm
 
-    monkeypatch.setattr(
-        llm, "test_connection", lambda settings: {"ok": False, "message": "invalid api key"}
-    )
+    monkeypatch.setattr(llm, "test_connection", lambda settings: {"ok": False, "message": "invalid api key"})
 
     resp = client.post(
         "/api/settings/test",

@@ -137,8 +137,15 @@ def test_import_career_goal_fills_only_when_empty(client):
     client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "既に書いた目標"})
 
     payload = {
-        "evidence": [], "skills": [], "skill_links": [], "education": [], "employment": [],
-        "projects": [], "learning_activities": [], "external_links": [], "resume_exports": [],
+        "evidence": [],
+        "skills": [],
+        "skill_links": [],
+        "education": [],
+        "employment": [],
+        "projects": [],
+        "learning_activities": [],
+        "external_links": [],
+        "resume_exports": [],
         "career_goals": [
             {"horizon": "this_year", "description": "サンプルの目標"},
             {"horizon": "5_years", "description": "サンプルの5年後目標"},
@@ -157,8 +164,15 @@ def test_import_career_vision_fills_only_when_empty(client):
     client.put("/api/vision", json={"content": "既に書いたビジョン"})
 
     payload = {
-        "evidence": [], "skills": [], "skill_links": [], "education": [], "employment": [],
-        "projects": [], "learning_activities": [], "external_links": [], "resume_exports": [],
+        "evidence": [],
+        "skills": [],
+        "skill_links": [],
+        "education": [],
+        "employment": [],
+        "projects": [],
+        "learning_activities": [],
+        "external_links": [],
+        "resume_exports": [],
         "career_vision": [{"content": "サンプルのビジョン"}],
     }
     resp = client.post("/api/backup/import", json=payload)

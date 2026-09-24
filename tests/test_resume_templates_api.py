@@ -67,9 +67,7 @@ def test_generate_returns_a_docx_file(client, sample_docx_bytes):
 
     resp = client.post(f"/api/resume-templates/{template['id']}/generate")
     assert resp.status_code == 200
-    assert resp.headers["content-type"] == (
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    assert resp.headers["content-type"] == ("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     doc = Document(BytesIO(resp.content))
     text = "\n".join(p.text for p in doc.paragraphs)
     assert "Python" in text

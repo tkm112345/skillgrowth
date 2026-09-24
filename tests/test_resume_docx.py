@@ -64,9 +64,7 @@ def test_section_format_table_renders_a_native_table(session, tmp_path, sample_d
     session.commit()
 
     bullet_template = ResumeTemplate(name="Bullet", file_path=str(template_path), section_formats="{}")
-    table_template = ResumeTemplate(
-        name="Table", file_path=str(template_path), section_formats='{"skills": "table"}'
-    )
+    table_template = ResumeTemplate(name="Table", file_path=str(template_path), section_formats='{"skills": "table"}')
 
     assert not _has_table(render_resume_docx(session, bullet_template))
     assert _has_table(render_resume_docx(session, table_template))

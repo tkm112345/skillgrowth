@@ -123,12 +123,8 @@ def render_resume_docx(session: Session, template: ResumeTemplate) -> bytes:
     tpl = DocxTemplate(template.file_path)
     context = {
         "self_pr": _build_self_pr_subdoc(tpl, ctx["self_pr"]),
-        "employment": _build_employment_subdoc(
-            tpl, ctx["employment"], section_formats.get("employment", "bullet")
-        ),
-        "projects": _build_projects_subdoc(
-            tpl, ctx["standalone_projects"], section_formats.get("projects", "bullet")
-        ),
+        "employment": _build_employment_subdoc(tpl, ctx["employment"], section_formats.get("employment", "bullet")),
+        "projects": _build_projects_subdoc(tpl, ctx["standalone_projects"], section_formats.get("projects", "bullet")),
         "education": _build_education_subdoc(tpl, ctx["education"]),
         "skills": _build_skills_subdoc(tpl, ctx["skills_by_category"], section_formats.get("skills", "list")),
         "certifications": _build_certifications_subdoc(

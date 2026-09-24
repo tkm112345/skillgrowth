@@ -2,24 +2,18 @@ from pathlib import Path
 
 
 def _create_item(client, title="My Deliverable", project_id=None):
-    return client.post(
-        "/api/portfolio", json={"title": title, "description": "desc", "project_id": project_id}
-    )
+    return client.post("/api/portfolio", json={"title": title, "description": "desc", "project_id": project_id})
 
 
 def _create_standalone_project(client):
-    return client.post(
-        "/api/profile/projects", json={"title": "Side project"}
-    ).json()["project"]["id"]
+    return client.post("/api/profile/projects", json={"title": "Side project"}).json()["project"]["id"]
 
 
 def _create_company_project(client):
-    employment_id = client.post(
-        "/api/profile/employment", json={"company": "Acme"}
-    ).json()["employment"]["id"]
-    return client.post(
-        "/api/profile/projects", json={"title": "Work project", "employment_id": employment_id}
-    ).json()["project"]["id"]
+    employment_id = client.post("/api/profile/employment", json={"company": "Acme"}).json()["employment"]["id"]
+    return client.post("/api/profile/projects", json={"title": "Work project", "employment_id": employment_id}).json()[
+        "project"
+    ]["id"]
 
 
 def test_create_item_requires_title(client):

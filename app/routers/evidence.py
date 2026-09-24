@@ -23,9 +23,7 @@ class EvidenceResult(BaseModel):
 
 
 @router.get("")
-def list_evidence(
-    limit: int = 50, offset: int = 0, session: Session = Depends(get_session)
-) -> list[EvidenceEntry]:
+def list_evidence(limit: int = 50, offset: int = 0, session: Session = Depends(get_session)) -> list[EvidenceEntry]:
     return session.exec(
         select(EvidenceEntry).order_by(EvidenceEntry.created_at.desc()).offset(offset).limit(limit)
     ).all()

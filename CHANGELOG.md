@@ -9,6 +9,12 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- Backend linting/formatting with [ruff](https://docs.astral.sh/ruff/) and
+  frontend linting with ESLint, unified behind `make check` (and `make
+  lint` for a faster subset) and enforced in CI. See
+  `docs/CONTRIBUTING.md`.
+
 ## [0.2.3] - 2026-09-24
 
 ### Added

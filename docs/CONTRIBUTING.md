@@ -44,6 +44,19 @@ This writes static assets to `frontend/dist`. Once built, the backend alone
 (`uvicorn app.main:app`) serves the full app on one port — this is what the
 `Dockerfile`'s multi-stage build does.
 
+## Linting and type-checking
+
+```bash
+make check
+```
+
+Runs everything CI checks: backend lint/format (`ruff check .`, `ruff
+format --check .`), backend tests (`pytest -q`), frontend lint (`npm run
+lint`, from `frontend/`), and the frontend build. Run `make lint` alone to
+skip the slower test/build steps. Individual commands also work directly
+(`.venv/bin/ruff check .`, `cd frontend && npm run lint`, etc.) if you only
+need one of them.
+
 ## Project layout
 
 ```

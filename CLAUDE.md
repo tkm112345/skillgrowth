@@ -17,8 +17,8 @@ short — put anything long in `docs/` and link to it from here.
 
 ## Before committing
 
-1. `pytest -q` (backend, from the repo root) and `npm run build` (from
-   `frontend/`) both pass.
+1. `make check` passes (backend `ruff check`/`ruff format --check`/`pytest`,
+   frontend `eslint`/`vite build`; see `docs/CONTRIBUTING.md`).
 2. If the `app` service in `docker-compose.yml` is currently running,
    rebuild it (`docker compose up --build -d`) and smoke-test the change
    with `curl` against the live container. This has caught real bugs the

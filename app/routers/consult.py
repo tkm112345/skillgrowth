@@ -20,9 +20,7 @@ class MessageIn(BaseModel):
 
 
 @router.get("/sessions")
-def list_sessions(
-    limit: int = 20, offset: int = 0, session: Session = Depends(get_session)
-) -> list[ConsultSession]:
+def list_sessions(limit: int = 20, offset: int = 0, session: Session = Depends(get_session)) -> list[ConsultSession]:
     return session.exec(
         select(ConsultSession).order_by(ConsultSession.updated_at.desc()).offset(offset).limit(limit)
     ).all()
@@ -66,9 +64,7 @@ def list_messages(session_id: str, session: Session = Depends(get_session)) -> l
 
 
 @router.post("/sessions/{session_id}/messages")
-def send_message(
-    session_id: str, payload: MessageIn, session: Session = Depends(get_session)
-) -> ConsultMessage:
+def send_message(session_id: str, payload: MessageIn, session: Session = Depends(get_session)) -> ConsultMessage:
     consult = session.get(ConsultSession, session_id)
     if consult is None:
         raise HTTPException(status_code=404, detail="Consultation session not found")

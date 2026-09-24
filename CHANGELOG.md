@@ -14,6 +14,12 @@ commit as the change, moved into a dated section when a release is cut).
   frontend linting with ESLint, unified behind `make check` (and `make
   lint` for a faster subset) and enforced in CI. See
   `docs/CONTRIBUTING.md`.
+- A Claude Code `PreToolUse` hook (`.claude/hooks/protect_db.py`) that
+  blocks Bash commands which would delete/overwrite
+  `data/skillgrowth.db` while the app container is running, plus two
+  Claude Code skills (`release-cutting`, `schema-migration`) that carry
+  the step-by-step procedures previously spelled out in full in
+  `CLAUDE.md`.
 
 ## [0.2.3] - 2026-09-24
 

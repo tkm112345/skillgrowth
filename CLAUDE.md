@@ -49,50 +49,33 @@ The app runs against a bind-mounted SQLite file. Deleting or truncating
 it while `docker compose up` is live corrupts the running instance (this
 happened once — it produced `no such table` errors mid-session). Stop the
 container first (`docker compose stop`), or simply don't touch the file
-while `up --build` is running.
+while `up --build` is running. A `PreToolUse` hook
+(`.claude/hooks/protect_db.py`, registered in `.claude/settings.json`)
+mechanically blocks Bash commands that would delete/overwrite the file
+while the container is running, as a backstop.
 
 ## Schema changes: there is no migration tool
 
-There's no Alembic (or anything else). `SQLModel.metadata.create_all()`
-(called from `app/db.py::init_db()`) only creates *tables* that don't
-exist yet — it never alters a table that's already on disk.
-
-**Any new column added to an existing model needs a matching
-`app/db.py::_ensure_column(engine, table, column, ddl_type)` call inside
-`init_db()`.** Skip this and every self-hosted instance that already has
-that table crashes the moment the column is first written to — a fresh
-install is fine (`create_all()` gives it the full current schema), an
-upgraded one is not. A brand new table needs no such call; `create_all()`
-handles that case correctly on its own. This actually happened once
-(`ExportSnapshot.edited_at`) — see `docs/ARCHITECTURE.md`'s "Schema
-changes with no migration tool" section for the full incident and the
-fix.
+There's no Alembic (or anything else) — `SQLModel.metadata.create_all()`
+never alters a table already on disk. **Adding a column to an existing
+model?** Use the `schema-migration` skill — skipping the step it
+describes crashes every self-hosted install that already has that table
+the moment the column is first written to.
 
 ## Versioning and releases
 
 - The version lives in the `VERSION` file — bump it by hand, don't infer
   it from git tags or commit count. `VERSION` tracks the version being
-  worked toward, not the last released one — see the release cycle below.
+  worked toward, not the last released one: it's bumped to the next
+  version immediately after each tag is pushed, so it already holds the
+  version being released by the time a release is cut.
 - `CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/).
   Add entries under `## [Unreleased]` as changes are made, not batched up
   right before a release. English only (see "Language" above), even in
   an otherwise-Japanese session.
-- Release cycle: `VERSION` is bumped to the next version immediately
-  after each tag is pushed (last bullet below), so by the time you cut a
-  release `VERSION` already holds the version being released — no bump
-  needed at cut time, unless what shipped turned out to need a bigger
-  bump than the placeholder chosen right after the previous tag (e.g.
-  minor instead of patch), in which case adjust `VERSION` by hand before
-  cutting.
-- Cutting a release: move the `Unreleased` content into a new dated
-  version section in `CHANGELOG.md` matching the current `VERSION`,
-  commit, then `git tag vX.Y.Z` and `gh release create vX.Y.Z` with
-  release notes built from the same changelog entry (see prior releases
-  for the "Highlights" format).
-- Immediately after tagging and creating the release, bump `VERSION` to
-  the next version in its own commit (e.g. "Bump version to 0.2.3") —
-  every commit from that point on is already working toward the next
-  release, not still showing the one that just shipped.
 - This repo pushes directly to `main` (no PR workflow) and branch
   protection is bypassed by the repo owner — that's expected, not an
   error to work around.
+- To cut a release (move `Unreleased` into a dated section, tag, publish
+  the GitHub release, bump `VERSION` for the next cycle), use the
+  `release-cutting` skill.

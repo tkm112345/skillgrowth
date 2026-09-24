@@ -1,4 +1,30 @@
-# Local development
+# Contributing
+
+Bug reports, feature requests, and pull requests are all welcome. This
+project follows the [Code of Conduct](../CODE_OF_CONDUCT.md).
+
+## Reporting bugs and requesting features
+
+Please use the [issue templates](../.github/ISSUE_TEMPLATE) — they ask for
+the details needed to act on a report (version, reproduction steps,
+logs). Questions and anything else are fine as a blank issue.
+
+## Submitting a pull request
+
+1. Fork the repo and create a branch for your change.
+2. Follow the local development setup below to run the backend and
+   frontend.
+3. Run `make check` before opening the PR — it runs everything CI checks
+   (backend lint/format/tests, frontend lint, frontend build).
+4. Update `docs/FEATURES.md` and `docs/FEATURES.ja.md` together for any
+   user-facing change, and `docs/ARCHITECTURE.md` for any backend/data
+   model change.
+5. Add an entry under `CHANGELOG.md`'s `## [Unreleased]` section.
+6. Commit messages and the PR title/description must be in English,
+   regardless of what language you write the linked discussion in — this
+   repo is public and its history should be readable by anyone.
+
+## Local development
 
 Running the backend and frontend separately gives you hot reload on both
 sides. This is the recommended way to work on the app; `docker compose up`

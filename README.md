@@ -221,8 +221,9 @@ A typical first session looks like this:
 
 ## Local development
 
-See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for running the backend and
-frontend separately with hot reload.
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for reporting bugs, opening
+pull requests, and running the backend and frontend separately with hot
+reload.
 
 ## Known limitations
 

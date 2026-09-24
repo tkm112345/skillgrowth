@@ -9,6 +9,12 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- `CODE_OF_CONDUCT.md` (Contributor Covenant), GitHub issue templates for
+  bug reports and feature requests, a pull request template, and a
+  contribution workflow (reporting bugs, opening PRs) documented in
+  `docs/CONTRIBUTING.md`.
+
 ### Fixed
 - Vision and Career path goals showed a "Last updated" timestamp even when
   nothing had ever been saved (the API synthesized a fresh timestamp for an

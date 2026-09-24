@@ -256,6 +256,7 @@ const categoryOption = computed(() => {
 
   <el-card shadow="never" class="chart-card accent-blue">
     <template #header>{{ t('dashboard.checkinHeader') }}</template>
+    <p class="card-hint">{{ t('dashboard.checkinHint') }}</p>
     <el-input
       v-model="checkinText"
       type="textarea"
@@ -274,6 +275,8 @@ const categoryOption = computed(() => {
 
   <el-card shadow="never" class="chart-card accent-violet">
     <template #header>{{ t('dashboard.goalsHeader') }}</template>
+    <p class="card-hint">{{ t('dashboard.goalsHint') }}</p>
+    <router-link to="/vision" class="card-hint-link">{{ t('dashboard.goalsVisionLink') }} →</router-link>
     <el-row :gutter="16">
       <el-col :span="8" v-for="goal in goals" :key="goal.horizon">
         <div class="goal-label">{{ t(horizonLabelKeys[goal.horizon]) }}</div>
@@ -430,12 +433,35 @@ const categoryOption = computed(() => {
 .concept-link {
   display: inline-block;
   margin-bottom: 1rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   font-size: 0.85rem;
+  font-weight: 600;
   color: var(--accent);
   text-decoration: none;
 }
 
 .concept-link:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  text-decoration: underline;
+}
+
+.card-hint {
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.card-hint-link {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.card-hint-link:hover {
   text-decoration: underline;
 }
 

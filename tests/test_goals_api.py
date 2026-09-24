@@ -4,6 +4,14 @@ def test_list_goals_returns_three_default_horizons(client):
     horizons = [g["horizon"] for g in resp.json()]
     assert horizons == ["this_year", "5_years", "10_years"]
     assert all(g["description"] == "" for g in resp.json())
+    assert all(g["updated_at"] is None for g in resp.json())
+
+
+def test_list_goals_returns_real_timestamp_only_for_saved_horizon(client):
+    client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "AWS認定を取る"})
+    goals = {g["horizon"]: g for g in client.get("/api/goals").json()}
+    assert goals["this_year"]["updated_at"] is not None
+    assert goals["5_years"]["updated_at"] is None
 
 
 def test_update_goal_persists_description(client):

@@ -132,6 +132,7 @@ async function submitCsvImport() {
         <el-button size="small" text type="danger" @click="remove(row.id)">{{ t('common.delete') }}</el-button>
       </template>
     </el-table-column>
+    <template #empty><span></span></template>
   </el-table>
 
   <el-empty v-if="!loading && skills.length === 0" :description="t('skills.noEntries')" />

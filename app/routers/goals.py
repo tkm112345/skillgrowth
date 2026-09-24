@@ -19,10 +19,23 @@ class GoalIn(BaseModel):
     description: str
 
 
+class GoalOut(BaseModel):
+    horizon: str
+    description: str
+    updated_at: Optional[datetime] = None
+
+
 @router.get("")
-def list_goals(session: Session = Depends(get_session)) -> list[CareerGoal]:
+def list_goals(session: Session = Depends(get_session)) -> list[GoalOut]:
     existing = {g.horizon: g for g in session.exec(select(CareerGoal)).all()}
-    return [existing.get(h) or CareerGoal(horizon=h) for h in HORIZONS]
+    result = []
+    for h in HORIZONS:
+        goal = existing.get(h)
+        if goal is None:
+            result.append(GoalOut(horizon=h, description="", updated_at=None))
+        else:
+            result.append(GoalOut(horizon=h, description=goal.description, updated_at=goal.updated_at))
+    return result
 
 
 @router.put("/{horizon}")

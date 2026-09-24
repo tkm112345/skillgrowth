@@ -9,6 +9,22 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Fixed
+- Vision and Career path goals showed a "Last updated" timestamp even when
+  nothing had ever been saved (the API synthesized a fresh timestamp for an
+  unsaved default row). Both now return `null` until an actual save happens.
+- The Concept page's "core loop" diagram: step 1's label text overlapped the
+  card header on narrower renders.
+- The Skills page showed two redundant empty-state messages ("No Data" from
+  the table plus a separate illustration) when no skills were recorded yet.
+
+### Changed
+- The Dashboard's "New here?" link is now a more visible pill-style button
+  instead of small inline text.
+- Added a short clarifying hint to the "Quick update" and "Career path
+  goals" cards on the Dashboard, since their overlap with the Activity page
+  and the Vision page respectively wasn't obvious at a glance.
+
 ## [0.2.4] - 2026-09-24
 
 ### Added

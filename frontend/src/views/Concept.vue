@@ -167,7 +167,7 @@ const arcPaths = computed(() => {
   position: relative;
   width: 100%;
   max-width: 540px;
-  margin: 0.5rem auto 1.5rem;
+  margin: 8rem auto 1.5rem;
   aspect-ratio: 1 / 1;
 }
 

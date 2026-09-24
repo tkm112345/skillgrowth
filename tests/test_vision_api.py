@@ -2,6 +2,13 @@ def test_get_vision_returns_empty_default_when_unset(client):
     resp = client.get("/api/vision")
     assert resp.status_code == 200
     assert resp.json()["content"] == ""
+    assert resp.json()["updated_at"] is None
+
+
+def test_get_vision_returns_real_timestamp_only_after_save(client):
+    client.put("/api/vision", json={"content": "Go deep on infra."})
+    resp = client.get("/api/vision")
+    assert resp.json()["updated_at"] is not None
 
 
 def test_update_vision_persists_and_overwrites_in_place(client):

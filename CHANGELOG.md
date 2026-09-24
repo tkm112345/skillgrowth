@@ -21,6 +21,15 @@ commit as the change, moved into a dated section when a release is cut).
   the step-by-step procedures previously spelled out in full in
   `CLAUDE.md`.
 
+### Security
+- CI now runs [`invisible-unicode-check`](https://github.com/tkm112345/invisible-unicode-check)
+  on every pull request, blocking merges that introduce invisible or
+  adversarial Unicode (GlassWorm-style payload encoding, Trojan Source).
+- Dependabot is configured for pip, npm, Docker base images, and GitHub
+  Actions, with a 7-day cooldown before a newly published version is
+  proposed, to avoid pulling in a version before a supply-chain
+  compromise in it would typically be caught.
+
 ## [0.2.3] - 2026-09-24
 
 ### Added

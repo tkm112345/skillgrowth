@@ -33,3 +33,13 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  invisible-unicode:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: tkm112345/invisible-unicode-check@v1

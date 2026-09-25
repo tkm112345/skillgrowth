@@ -25,6 +25,8 @@ commit as the change, moved into a dated section when a release is cut).
   and Career Consult/gap-check/growth-guidance call is now capped at the
   300 most recently observed, instead of unbounded — keeps prompt
   size/latency from growing indefinitely over years of use.
+- `docs/CONTRIBUTING.md` now sets expectations about response time
+  (solo-maintained, no guaranteed turnaround).
 
 ## [0.2.5] - 2026-09-26
 

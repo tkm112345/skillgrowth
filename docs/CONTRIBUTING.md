@@ -3,6 +3,10 @@
 Bug reports, feature requests, and pull requests are all welcome. This
 project follows the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
+This is a solo-maintained side project, so responses can take a while —
+there's no guaranteed turnaround time. Reports and PRs are read, just not
+always quickly.
+
 ## Reporting bugs and requesting features
 
 Please use the [issue templates](../.github/ISSUE_TEMPLATE) — they ask for

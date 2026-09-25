@@ -15,10 +15,10 @@ commit as the change, moved into a dated section when a release is cut).
   contribution workflow (reporting bugs, opening PRs) documented in
   `docs/CONTRIBUTING.md`.
 - A CI status badge in `README.md`.
-- A `docker-publish` workflow that builds and pushes the app image to
-  `ghcr.io/tkm112345/skillgrowth` on each tagged release, plus a
-  `docker run` quick-start option in `README.md` for running that image
-  without cloning the repo.
+- A `docker-publish` workflow that builds and pushes multi-arch
+  (`linux/amd64`, `linux/arm64`) images to `ghcr.io/tkm112345/skillgrowth`
+  on each tagged release, plus a `docker run` quick-start option in
+  `README.md` for running that image without cloning the repo.
 
 ### Fixed
 - Vision and Career path goals showed a "Last updated" timestamp even when

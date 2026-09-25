@@ -1,5 +1,7 @@
 # skillgrowth
 
+[![CI](https://github.com/tkm112345/skillgrowth/actions/workflows/ci.yml/badge.svg)](https://github.com/tkm112345/skillgrowth/actions/workflows/ci.yml)
+
 A self-hosted tool for your career and skill growth that grows together
 with you, instead of asking you to fill out a static profile once.
 
@@ -150,6 +152,12 @@ data"), not a real account.
 
 ```bash
 docker compose up --build
+```
+
+Or, without cloning the repo, run the prebuilt image directly:
+
+```bash
+docker run -d -p 8000:8000 -v $(pwd)/data:/app/data ghcr.io/tkm112345/skillgrowth:latest
 ```
 
 Open http://localhost:8000, then set your LLM connection under Settings.

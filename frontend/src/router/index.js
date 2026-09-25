@@ -7,6 +7,7 @@ import Dashboard from '../views/Dashboard.vue'
 import ExportView from '../views/Export.vue'
 import Portfolio from '../views/Portfolio.vue'
 import Profile from '../views/Profile.vue'
+import SelfFeedback from '../views/SelfFeedback.vue'
 import SettingsView from '../views/Settings.vue'
 import Skills from '../views/Skills.vue'
 import Timeline from '../views/Timeline.vue'
@@ -17,6 +18,7 @@ export default createRouter({
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
     { path: '/vision', name: 'vision', component: Vision },
+    { path: '/self-feedback', name: 'self-feedback', component: SelfFeedback },
     { path: '/profile', name: 'profile', component: Profile },
     { path: '/portfolio', name: 'portfolio', component: Portfolio },
     { path: '/skills', name: 'skills', component: Skills },

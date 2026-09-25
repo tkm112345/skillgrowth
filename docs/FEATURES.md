@@ -18,15 +18,6 @@
 - **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other activity source does.
-- **Reflect** — a card showing what's changed (new skills, new activity,
-  whether Vision or any career goal was edited) since you last marked
-  yourself as having reflected, or everything so far if you never have.
-  An "I reflected" button logs a new timestamp and resets the count to
-  zero — a deliberately manual, explicit action rather than inferring
-  "reflected" from an edit, so you can reflect (and decide nothing needs
-  to change) without having to edit anything. An optional comment can go
-  along with each reflection, and a "History" link browses every past
-  reflection (date + comment), 5 at a time with a "Load more" button.
 - **Skill growth timeline** — a step-line chart of cumulative skill count
   over time, built from each skill's `first_observed_at`.
 - **Category breakdown** — a bar chart of skill count per category.
@@ -49,6 +40,25 @@ saved and overwritten in place on Save — unlike career path goals, past
 versions aren't kept as history. Like career path goals, it's plain text
 with no LLM involvement (extraction or otherwise) and doesn't appear in
 the Activity feed.
+
+## Self Feedback
+
+A dedicated page for structured, periodic self-review — its own entity
+(`SelfFeedback`), separate from the activity log, not evidence-linked and
+never run through skill extraction (like Vision and career path goals).
+Replaced the Dashboard's old "Reflect" card, which only tracked a
+timestamp and an optional free-text comment.
+
+- **Add an entry** — a date (any date you choose; there's no imposed
+  weekly/monthly structure) plus three side-by-side text areas: what you
+  did, your thoughts/reflection on it, and what to carry forward next
+  time. The Add button stays disabled until at least one of the three has
+  something in it.
+- **Past entries** — listed newest-first, each shown in the same
+  three-column layout as the add form, loading 50 at a time with a "Load
+  more" button. Unlike the append-only activity log, entries here can be
+  fully **edited** (date and all three fields, via a dialog) or
+  **deleted** — this is a personal journal, not an audit trail.
 
 ## Profile
 
@@ -241,7 +251,7 @@ separate branch for the fifth:
    actually have.
 3. **Record** — education, work history, projects at work or in the open
    (OSS).
-4. **Reflect** — revisit what you wrote in step 1, and think about what's
+4. **Reflect** — on Self Feedback, look back at what you did and what's
    still missing.
 
 Step 4 flows straight back into step 1 — that's the main loop, and it's

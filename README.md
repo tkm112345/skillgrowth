@@ -66,13 +66,15 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional, editable with a full — paginated — history of past edits), a
-  skill growth timeline chart, a category breakdown chart, a quick
-  update box, and a Reflect card showing what's changed since you last
-  marked yourself as having reflected — each reflection can carry an
-  optional comment, browsable later via a paginated History link.
+  skill growth timeline chart, a category breakdown chart, and a quick
+  update box.
 - **Vision** — one free-form text box for a rough sketch of the kind of
   career you're aiming for, with no time horizon or structure — a looser
   complement to the Dashboard's three specific goals.
+- **Self Feedback** — periodic self-review on any date you choose: what
+  you did, your reflection on it, and what to carry forward, side by
+  side. Fully editable and deletable, unlike the append-only activity
+  log elsewhere in the app.
 - **Profile** — education, employment, and projects (standalone or linked to
   an employer). Free-text descriptions also feed skill extraction.
 - **Portfolio** — deliverables and work samples: title, description (not

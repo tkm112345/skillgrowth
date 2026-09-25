@@ -16,8 +16,8 @@ from app.routers import (
     learning,
     portfolio,
     profile,
-    reflection,
     resume_templates,
+    self_feedback,
     self_pr,
     settings,
     skills,
@@ -51,9 +51,9 @@ app.include_router(ai.router)
 app.include_router(self_pr.router)
 app.include_router(vision.router)
 app.include_router(consult.router)
-app.include_router(reflection.router)
 app.include_router(resume_templates.router)
 app.include_router(portfolio.router)
+app.include_router(self_feedback.router)
 
 
 @app.on_event("startup")

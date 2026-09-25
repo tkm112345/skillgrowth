@@ -6,6 +6,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "vision": "Vision",
+    "selfFeedback": "Self Feedback",
     "profile": "Profile",
     "portfolio": "Portfolio",
     "skills": "Skills",
@@ -53,24 +54,7 @@
     "horizon5Years": "5 years",
     "horizon10Years": "10 years",
     "conceptLink": "New here? See the concept behind this app",
-    "aiLink": "See how to grow toward these goals (AI Integration)",
-    "reflectionHeader": "Reflect",
-    "reflectionSubtitle": "Revisit your Vision and career path goals above, then mark that you reflected.",
-    "reflectionNeverYet": "You haven't marked a reflection yet — here's everything so far.",
-    "reflectionSince": "Since you last reflected, on {date}:",
-    "reflectionCaughtUp": "You're all caught up — nothing new since you reflected on {date}. Ready to prepare a next step?",
-    "reflectionNewSkills": "{count} new skill(s)",
-    "reflectionNewActivity": "{count} new activity entry/entries",
-    "reflectionVisionUpdated": "Vision was updated",
-    "reflectionGoalsUpdated": "Career goals updated: {horizons}",
-    "reflectionMarkButton": "I reflected",
-    "reflectionMarked": "Reflection recorded",
-    "reflectionNotePlaceholder": "Anything on your mind? (optional)",
-    "reflectionHistory": "History",
-    "reflectionHistoryHide": "Hide history",
-    "reflectionHistoryEmpty": "No reflections yet",
-    "reflectionHistoryLoadMore": "Load more",
-    "reflectionNoNote": "(no comment)"
+    "aiLink": "See how to grow toward these goals (AI Integration)"
   },
   "vision": {
     "title": "Vision",
@@ -78,6 +62,20 @@
     "placeholder": "What kind of career are you aiming for, broadly speaking?",
     "saved": "Saved",
     "updatedAt": "Last updated {date}"
+  },
+  "selfFeedback": {
+    "title": "Self Feedback",
+    "subtitle": "Look back on any date you choose — what you did, how it went, and what to carry forward.",
+    "add": "Add entry",
+    "edit": "Edit entry",
+    "dateLabel": "Date",
+    "accomplishments": "What I did",
+    "reflection": "Thoughts & reflection",
+    "nextSteps": "What to carry forward",
+    "saved": "Saved",
+    "deleteConfirm": "Delete this entry? This can't be undone.",
+    "noEntries": "Nothing here yet",
+    "loadMore": "Load more"
   },
   "profile": {
     "title": "Profile",
@@ -268,7 +266,7 @@
     "loopVision": "Sketch out, even roughly, the kind of career you want to build — in Vision or on the Dashboard",
     "loopSkillTrack": "Keep recording and updating the skills and activity you actually have",
     "loopRecord": "Record your education, work history, and projects — at work or in the open (OSS)",
-    "loopReflect": "Reflect: revisit what you wrote in step 1, and think about what's still missing",
+    "loopReflect": "Reflect: on Self Feedback, look back at what you did and what's still missing",
     "loopPrepare": "Prepare to take the next step in your career (resume generation, a job-posting gap check, growth guidance toward your goals). The LLM-backed features here haven't been thoroughly vetted yet, so their reliability isn't guaranteed",
     "loopBranchLabel": "4 back to 1 is the main flow. It occasionally detours through 5 first",
     "loopNote": "The main flow is 4 back to 1: reflecting on your Vision leads straight back into recording more activity and skills. Every so often it detours through step 5 instead — resume generation, a job-posting gap check, growth guidance toward your goals — before circling back to 1. Many of this app's screens — Dashboard, Profile, Activity, Skills — are different views onto that same append-only activity log. Vision, career path goals, Self PR, and resume generation itself all sit outside that log, though, and never go through LLM extraction at any point.",

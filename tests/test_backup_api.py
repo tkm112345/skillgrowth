@@ -22,6 +22,7 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "portfolio_links",
         "portfolio_files",
         "self_prs",
+        "self_feedback",
         "consult_sessions",
         "consult_messages",
     ]:
@@ -158,6 +159,7 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "portfolio_links": 0,
         "portfolio_files": 0,
         "self_prs": 0,
+        "self_feedback": 0,
         "consult_sessions": 0,
         "consult_messages": 0,
     }

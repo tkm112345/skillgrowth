@@ -143,9 +143,13 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
 
-  getReflectionSummary: () => request('/reflection/summary'),
-  markReflected: (note = '') => request('/reflection', { method: 'POST', body: JSON.stringify({ note }) }),
-  getReflectionHistory: (limit = 5, offset = 0) => request(`/reflection/history?limit=${limit}&offset=${offset}`),
+  getSelfFeedback: (limit = 50, offset = 0) =>
+    request(`/self-feedback?limit=${limit}&offset=${offset}`),
+  addSelfFeedback: (payload) =>
+    request('/self-feedback', { method: 'POST', body: JSON.stringify(payload) }),
+  updateSelfFeedback: (id, payload) =>
+    request(`/self-feedback/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteSelfFeedback: (id) => request(`/self-feedback/${id}`, { method: 'DELETE' }),
 
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>

@@ -25,6 +25,7 @@ from app.models import (
     Project,
     ReflectionLog,
     ResumeTemplate,
+    SelfFeedback,
     SelfPR,
     Skill,
     SkillLink,
@@ -341,6 +342,21 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("self_pr", entry.id)
         counts["self_prs"] += 1
+
+    counts["self_feedback"] = 0
+    for row in data.get("self_feedback", []):
+        entry = SelfFeedback(
+            entry_date=_d(row["entry_date"]),
+            accomplishments=row.get("accomplishments", ""),
+            reflection=row.get("reflection", ""),
+            next_steps=row.get("next_steps", ""),
+            created_at=_dt(row.get("created_at")),
+            updated_at=_dt(row.get("updated_at")),
+        )
+        session.add(entry)
+        session.flush()
+        note("self_feedback", entry.id)
+        counts["self_feedback"] += 1
 
     consult_session_id_map: dict[str, str] = {}
     for row in data.get("consult_sessions", []):

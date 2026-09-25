@@ -2,6 +2,7 @@
 import {
   Compass,
   DataAnalysis,
+  EditPen,
   Expand,
   Files,
   Fold,
@@ -60,6 +61,10 @@ onMounted(async () => {
         <el-menu-item index="/vision">
           <el-icon style="color: var(--hue-aqua)"><Sunrise /></el-icon>
           <template #title>{{ t('nav.vision') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/self-feedback">
+          <el-icon style="color: var(--hue-yellow)"><EditPen /></el-icon>
+          <template #title>{{ t('nav.selfFeedback') }}</template>
         </el-menu-item>
         <el-menu-item index="/skills">
           <el-icon style="color: var(--hue-orange)"><List /></el-icon>

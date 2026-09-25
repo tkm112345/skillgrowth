@@ -79,10 +79,26 @@ erDiagram
   }
   LearningActivity {
     string id
-    string activity_type "reading/talk_given/talk_attended/certification/other"
+    string activity_type "free text matching an ActivityType.label at creation time, not a FK"
     string title
     date activity_date
     text notes
+  }
+  ActivityType {
+    string id
+    string label "shown in the Activity type picker; what new entries' activity_type gets set to"
+    bool is_protected "true only for the seeded 'certification' row — can't be renamed/deleted"
+    string translation_key "learning.type* i18n key for the seeded defaults; cleared on rename"
+    datetime created_at
+  }
+  SelfFeedback {
+    string id
+    date entry_date "user-chosen, not evidence-linked or extracted"
+    text accomplishments "やったこと"
+    text reflection "所感・反省"
+    text next_steps "次に活かすこと"
+    datetime created_at
+    datetime updated_at
   }
   CareerGoal {
     string horizon "this_year/5_years/10_years, primary key"
@@ -159,7 +175,7 @@ erDiagram
     string id
     string portfolio_item_id
     string original_filename
-    string file_path "uploaded file, on disk, 10MB cap, no extension allowlist"
+    string file_path "uploaded file, on disk, 10MB cap, PDF/spreadsheet/photo allowlist"
     string content_type
     int size_bytes
     datetime uploaded_at
@@ -641,7 +657,8 @@ model name change.
 ## Frontend routing
 
 The SPA has one route per top-level concern (Concept, Dashboard, Vision,
-Skills, Activity, Profile, Portfolio, Resume, AI Integration, Settings), listed in
+Self Feedback, Skills, Activity, Profile, Portfolio, Resume, AI Integration,
+Settings), listed in
 `frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
 used to be a separate Learning Log page — see "Activity ⨯ Learning Log
 merge" below. `/consult/:id` (`Consult.vue`) is the one exception to

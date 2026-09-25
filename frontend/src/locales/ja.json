@@ -6,6 +6,7 @@
   "nav": {
     "dashboard": "ダッシュボード",
     "vision": "ビジョン",
+    "selfFeedback": "セルフフィードバック",
     "profile": "プロフィール",
     "portfolio": "ポートフォリオ",
     "skills": "スキル一覧",
@@ -53,24 +54,7 @@
     "horizon5Years": "5年後",
     "horizon10Years": "10年後",
     "conceptLink": "はじめての方へ: このアプリのコンセプトを見る",
-    "aiLink": "目標に向けた伸ばし方を見る（AI連携）",
-    "reflectionHeader": "振り返り",
-    "reflectionSubtitle": "上のビジョンとキャリアパスの目標を見直したら、振り返ったことを記録しましょう。",
-    "reflectionNeverYet": "まだ振り返りを記録していません — これまでの内容は以下の通りです。",
-    "reflectionSince": "前回振り返った{date}から:",
-    "reflectionCaughtUp": "追いついています — {date}に振り返ってから新しい変化はありません。次の一歩を準備しませんか？",
-    "reflectionNewSkills": "新しいスキル {count}件",
-    "reflectionNewActivity": "新しいアクティビティ {count}件",
-    "reflectionVisionUpdated": "ビジョンが更新されました",
-    "reflectionGoalsUpdated": "更新されたキャリア目標: {horizons}",
-    "reflectionMarkButton": "振り返った",
-    "reflectionMarked": "振り返りを記録しました",
-    "reflectionNotePlaceholder": "気になっていることがあれば（任意）",
-    "reflectionHistory": "履歴",
-    "reflectionHistoryHide": "履歴を閉じる",
-    "reflectionHistoryEmpty": "まだ振り返りの記録がありません",
-    "reflectionHistoryLoadMore": "もっと見る",
-    "reflectionNoNote": "（コメントなし）"
+    "aiLink": "目標に向けた伸ばし方を見る（AI連携）"
   },
   "vision": {
     "title": "ビジョン",
@@ -78,6 +62,20 @@
     "placeholder": "大まかにどんなキャリアを目指したいですか？",
     "saved": "保存しました",
     "updatedAt": "最終更新: {date}"
+  },
+  "selfFeedback": {
+    "title": "セルフフィードバック",
+    "subtitle": "好きな日付を選んで、やったこと・所感や反省・次に活かすことを振り返って記録します。",
+    "add": "記録を追加",
+    "edit": "記録を編集",
+    "dateLabel": "日付",
+    "accomplishments": "やったこと",
+    "reflection": "所感・反省",
+    "nextSteps": "次に活かすこと",
+    "saved": "保存しました",
+    "deleteConfirm": "この記録を削除しますか？元に戻せません。",
+    "noEntries": "まだ記録がありません",
+    "loadMore": "もっと見る"
   },
   "profile": {
     "title": "プロフィール",
@@ -268,7 +266,7 @@
     "loopVision": "ビジョンやダッシュボードで、どんなキャリアを築きたいかをざっくり書く",
     "loopSkillTrack": "今持っているスキルやアクティビティを継続的に記録・更新する",
     "loopRecord": "学歴・職歴、会社でのプロジェクトやOSS活動などを記録する",
-    "loopReflect": "振り返り: 1で書いたビジョンを見返し、自分に足りないものを考える",
+    "loopReflect": "振り返り: セルフフィードバックで、やったことと足りないものを見返す",
     "loopPrepare": "次のキャリアを形成するための準備をする（職務経歴書の生成、求人ギャップチェック、目標に向けた成長ガイダンスなど）。LLMを使う機能はまだ十分な検証ができておらず、動作保証は準備中です",
     "loopBranchLabel": "4→1がメインの流れ。ときどき5にも寄り道してから1に戻ります",
     "loopNote": "メインの流れは4→1です。ビジョンを振り返ったら、そのままアクティビティやスキルの記録に戻ります。ときどき5（職務経歴書の生成、求人ギャップチェック、成長ガイダンスなど）にも寄り道してから1に戻ります。ダッシュボード・プロフィール・アクティビティ・スキル一覧など、このアプリの多くの画面は同じ「追記型のアクティビティログ」を異なる角度から見ています。一方でビジョン・キャリアパスの目標・自己PR・職務経歴書の生成はこのログの外側にあり、どの段階でもLLMによる抽出には関与しません。",

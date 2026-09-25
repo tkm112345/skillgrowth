@@ -28,6 +28,7 @@ from app.models import (
     ReflectionLog,
     ResumeTemplate,
     SampleDataRecord,
+    SelfFeedback,
     SelfPR,
     Skill,
     SkillLink,
@@ -117,6 +118,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "portfolio_links": dump(PortfolioLink),
         "portfolio_files": _dump_portfolio_files(session),
         "self_prs": dump(SelfPR),
+        "self_feedback": dump(SelfFeedback),
         "consult_sessions": dump(ConsultSession),
         "consult_messages": dump(ConsultMessage),
     }

@@ -9,6 +9,20 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- **Self Feedback**, a new page for structured periodic self-review: pick
+  any date and write three things side by side — what you did, your
+  reflection on it, and what to carry forward. Past entries are listed
+  the same way, fully editable and deletable (`GET/POST /api/self-feedback`,
+  `PUT/DELETE /api/self-feedback/{id}`), included in backup/restore.
+
+### Removed
+- The Dashboard's "Reflect" card (mark a timestamp, optional comment,
+  browse history) — superseded by Self Feedback. The underlying
+  `ReflectionLog` table and any existing reflections are **not**
+  deleted (still included in backup/restore), just no longer written to
+  or shown anywhere.
+
 ### Security
 - Portfolio file uploads now only accept the file types the page is
   actually for (PDFs, spreadsheets, photos) instead of any file type.

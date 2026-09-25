@@ -19,6 +19,8 @@ commit as the change, moved into a dated section when a release is cut).
   (`linux/amd64`, `linux/arm64`) images to `ghcr.io/tkm112345/skillgrowth`
   on each tagged release, plus a `docker run` quick-start option in
   `README.md` for running that image without cloning the repo.
+- `SECURITY.md`, documenting how to report a vulnerability and this
+  project's scope (single-user self-hosted; no auth/multi-tenancy reports).
 
 ### Security
 - `GET /api/settings` no longer returns the LLM API key in plaintext; it's

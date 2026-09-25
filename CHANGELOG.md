@@ -27,6 +27,11 @@ commit as the change, moved into a dated section when a release is cut).
 - Certification image evidence uploads (`POST /api/evidence/image`) now
   enforce the same 10MB size limit as portfolio file uploads, closing a
   disk-exhaustion gap where that endpoint had no limit at all.
+- The Docker image now runs the app as a non-root user instead of root.
+  A `docker-entrypoint.sh` chowns `/app/data` to that user on every
+  container start before dropping privileges (via `gosu`), so installs
+  upgrading from the old always-root image keep working even though their
+  existing data directory was created by root.
 
 ### Fixed
 - The Resume page's "Word template" section (upload a .docx template, fill

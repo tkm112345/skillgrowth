@@ -193,6 +193,7 @@
     "added": "Added",
     "noEntries": "Nothing here yet",
     "confirmDeleteLearning": "Remove this activity's structured details (type, title, date)? It stays in the feed below as plain text.",
+    "jumpToMonth": "Jump to month",
     "loadMore": "Load more",
     "image": "(image)",
     "sourceCertification": "Certification",

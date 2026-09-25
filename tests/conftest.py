@@ -20,8 +20,9 @@ def engine():
 @pytest.fixture
 def session(engine):
     with Session(engine, expire_on_commit=False) as s:
-        s.add(Settings(id=1))
-        s.commit()
+        if s.get(Settings, 1) is None:
+            s.add(Settings(id=1))
+            s.commit()
         yield s
 
 

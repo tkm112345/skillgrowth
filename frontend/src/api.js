@@ -55,7 +55,13 @@ export const api = {
   getSkillTimeline: () => request('/skills/timeline'),
   getSkill: (id) => request(`/skills/${id}`),
 
-  getEvidence: (limit = 50, offset = 0) => request(`/evidence?limit=${limit}&offset=${offset}`),
+  getEvidence: (limit = 50, offset = 0, year = null, month = null) => {
+    const params = new URLSearchParams({ limit, offset })
+    if (year != null) params.set('year', year)
+    if (month != null) params.set('month', month)
+    return request(`/evidence?${params.toString()}`)
+  },
+  getEvidenceMonths: () => request('/evidence/months'),
   addTextEvidence: (sourceType, text) =>
     request('/evidence/text', {
       method: 'POST',

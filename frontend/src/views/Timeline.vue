@@ -14,6 +14,8 @@ const loading = ref(true)
 const loadingMore = ref(false)
 const hasMore = ref(false)
 const learningByEvidenceId = ref({})
+const selectedMonth = ref(null)
+const monthBuckets = ref([])
 
 const submitting = ref(false)
 const form = reactive({ activity_type: 'reading', title: '', activity_date: '', notes: '' })
@@ -41,16 +43,27 @@ function sourceLabel(sourceType) {
   return key ? t(key) : sourceType
 }
 
+function selectedYearMonth() {
+  if (!selectedMonth.value) return [null, null]
+  const [year, month] = selectedMonth.value.split('-').map(Number)
+  return [year, month]
+}
+
 async function reload() {
-  const [page, learningList] = await Promise.all([api.getEvidence(PAGE_SIZE, 0), api.getLearning()])
+  const [year, month] = selectedYearMonth()
+  const [page, learningList] = await Promise.all([api.getEvidence(PAGE_SIZE, 0, year, month), api.getLearning()])
   entries.value = page
   hasMore.value = page.length === PAGE_SIZE
   learningByEvidenceId.value = Object.fromEntries(learningList.map((l) => [l.evidence_id, l.id]))
 }
 
+async function loadMonths() {
+  monthBuckets.value = await api.getEvidenceMonths()
+}
+
 onMounted(async () => {
   try {
-    await reload()
+    await Promise.all([reload(), loadMonths()])
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -61,7 +74,8 @@ onMounted(async () => {
 async function loadMore() {
   loadingMore.value = true
   try {
-    const page = await api.getEvidence(PAGE_SIZE, entries.value.length)
+    const [year, month] = selectedYearMonth()
+    const page = await api.getEvidence(PAGE_SIZE, entries.value.length, year, month)
     entries.value.push(...page)
     hasMore.value = page.length === PAGE_SIZE
   } catch (e) {
@@ -84,7 +98,7 @@ async function submit() {
     await api.addLearning(form)
     Object.assign(form, { activity_type: 'reading', title: '', activity_date: '', notes: '' })
     certFile.value = null
-    await reload()
+    await Promise.all([reload(), loadMonths()])
     ElMessage.success(t('timeline.added'))
   } finally {
     submitting.value = false
@@ -113,6 +127,26 @@ const groupedEntries = computed(() => {
       groups.push(group)
     }
     group.items.push(entry)
+  }
+  return groups
+})
+
+const monthGroups = computed(() => {
+  const formatMonth = new Intl.DateTimeFormat(locale.value, { month: 'long' })
+  const groupsByYear = {}
+  const groups = []
+  for (const bucket of monthBuckets.value) {
+    let group = groupsByYear[bucket.year]
+    if (!group) {
+      group = { year: bucket.year, months: [] }
+      groupsByYear[bucket.year] = group
+      groups.push(group)
+    }
+    const label = formatMonth.format(new Date(bucket.year, bucket.month - 1, 1))
+    group.months.push({
+      key: `${bucket.year}-${String(bucket.month).padStart(2, '0')}`,
+      label: `${label} (${bucket.count})`,
+    })
   }
   return groups
 })
@@ -154,6 +188,19 @@ const groupedEntries = computed(() => {
     </el-form>
     <el-button type="primary" :loading="submitting" @click="submit">{{ t('common.add') }}</el-button>
   </el-card>
+
+  <el-select
+    v-if="monthGroups.length"
+    v-model="selectedMonth"
+    clearable
+    :placeholder="t('timeline.jumpToMonth')"
+    class="month-jump"
+    @change="reload"
+  >
+    <el-option-group v-for="group in monthGroups" :key="group.year" :label="String(group.year)">
+      <el-option v-for="m in group.months" :key="m.key" :label="m.label" :value="m.key" />
+    </el-option-group>
+  </el-select>
 
   <div v-loading="loading">
     <div v-for="group in groupedEntries" :key="group.key" class="month-group">
@@ -199,6 +246,12 @@ const groupedEntries = computed(() => {
 
 .chart-card {
   margin-bottom: 1.5rem;
+}
+
+.month-jump {
+  display: block;
+  margin-bottom: 1rem;
+  width: 220px;
 }
 
 .month-group + .month-group {

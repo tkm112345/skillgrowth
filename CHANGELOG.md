@@ -21,6 +21,12 @@ commit as the change, moved into a dated section when a release is cut).
   `README.md` for running that image without cloning the repo.
 - `SECURITY.md`, documenting how to report a vulnerability and this
   project's scope (single-user self-hosted; no auth/multi-tenancy reports).
+- A "Jump to month" dropdown on the Activity page, grouped by year with a
+  count per month, backed by a new `GET /api/evidence/months` aggregate
+  endpoint. Picking a month replaces the feed with just that month's
+  entries (`GET /api/evidence` now also accepts `year`/`month` filters) —
+  this scales to a long-running log without having to page through
+  everything in between to reach an old month.
 
 ### Security
 - `GET /api/settings` no longer returns the LLM API key in plaintext; it's
@@ -60,6 +66,8 @@ commit as the change, moved into a dated section when a release is cut).
 - Added a short clarifying hint to the "Quick update" and "Career path
   goals" cards on the Dashboard, since their overlap with the Activity page
   and the Vision page respectively wasn't obvious at a glance.
+- Bumped the base font size (13px → 14px, and Element Plus's small variant
+  12px → 13px) — the previous size read as slightly small.
 
 ## [0.2.4] - 2026-09-24
 

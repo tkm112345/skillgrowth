@@ -132,6 +132,13 @@ Log page, and a read-only feed that already showed the same entries):
   until more is loaded. (Manually added and CSV-imported skills don't
   appear here — they bypass the activity log entirely, since there's no
   free text behind them.)
+- **Jump to month** — a dropdown, grouped by year with a count per month,
+  built from a server-side aggregate rather than whatever happens to be
+  loaded in the browser. Picking a month replaces the feed with just that
+  month's entries (still paginated 50 at a time within it); clearing the
+  selection returns to the normal newest-first feed. This is what makes
+  jumping to an old month cheap even once the log has years of entries —
+  the app never has to page through everything in between first.
 - **Delete** — only shown on entries added through the form above; it
   removes that entry's structured type/title/date, while the entry itself
   stays in the feed as plain text, since the underlying activity log is

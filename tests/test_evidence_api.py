@@ -1,4 +1,7 @@
+from datetime import datetime, timezone
+
 from app import llm
+from app.models import EvidenceEntry
 
 
 def _enable_skill_extraction(client):
@@ -54,6 +57,39 @@ def test_second_checkin_reuses_matched_skill(client, monkeypatch):
     skills = client.get("/api/skills").json()
     assert len(skills) == 1
     assert skills[0]["evidence_count"] == 2
+
+
+def test_list_evidence_months_groups_by_year_month(client, session):
+    session.add(
+        EvidenceEntry(source_type="checkin", raw_input="a", created_at=datetime(2024, 1, 5, tzinfo=timezone.utc))
+    )
+    session.add(
+        EvidenceEntry(source_type="checkin", raw_input="b", created_at=datetime(2024, 1, 20, tzinfo=timezone.utc))
+    )
+    session.add(
+        EvidenceEntry(source_type="checkin", raw_input="c", created_at=datetime(2024, 3, 1, tzinfo=timezone.utc))
+    )
+    session.commit()
+
+    resp = client.get("/api/evidence/months")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        {"year": 2024, "month": 3, "count": 1},
+        {"year": 2024, "month": 1, "count": 2},
+    ]
+
+
+def test_list_evidence_filters_by_year_and_month(client, session):
+    session.add(
+        EvidenceEntry(source_type="checkin", raw_input="jan", created_at=datetime(2024, 1, 5, tzinfo=timezone.utc))
+    )
+    session.add(
+        EvidenceEntry(source_type="checkin", raw_input="mar", created_at=datetime(2024, 3, 1, tzinfo=timezone.utc))
+    )
+    session.commit()
+
+    body = client.get("/api/evidence?year=2024&month=1").json()
+    assert [e["raw_input"] for e in body] == ["jan"]
 
 
 def test_add_image_evidence_over_limit_is_rejected(client):

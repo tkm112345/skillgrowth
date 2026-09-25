@@ -1,9 +1,10 @@
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app import llm, services
 from app.db import UPLOAD_DIR, get_session
@@ -24,11 +25,45 @@ class EvidenceResult(BaseModel):
     linked_skills: list[Skill]
 
 
+class EvidenceMonthCount(BaseModel):
+    year: int
+    month: int
+    count: int
+
+
 @router.get("")
-def list_evidence(limit: int = 50, offset: int = 0, session: Session = Depends(get_session)) -> list[EvidenceEntry]:
-    return session.exec(
-        select(EvidenceEntry).order_by(EvidenceEntry.created_at.desc()).offset(offset).limit(limit)
+def list_evidence(
+    limit: int = 50,
+    offset: int = 0,
+    year: int | None = None,
+    month: int | None = None,
+    session: Session = Depends(get_session),
+) -> list[EvidenceEntry]:
+    query = select(EvidenceEntry)
+    if year is not None and month is not None:
+        start = datetime(year, month, 1, tzinfo=timezone.utc)
+        end = (
+            datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+            if month == 12
+            else datetime(year, month + 1, 1, tzinfo=timezone.utc)
+        )
+        query = query.where(EvidenceEntry.created_at >= start, EvidenceEntry.created_at < end)
+    return session.exec(query.order_by(EvidenceEntry.created_at.desc()).offset(offset).limit(limit)).all()
+
+
+@router.get("/months")
+def list_evidence_months(session: Session = Depends(get_session)) -> list[EvidenceMonthCount]:
+    bucket = func.strftime("%Y-%m", EvidenceEntry.created_at)
+    rows = session.exec(
+        select(
+            func.strftime("%Y", EvidenceEntry.created_at),
+            func.strftime("%m", EvidenceEntry.created_at),
+            func.count(EvidenceEntry.id),
+        )
+        .group_by(bucket)
+        .order_by(bucket.desc())
     ).all()
+    return [EvidenceMonthCount(year=int(y), month=int(m), count=c) for y, m, c in rows]
 
 
 @router.post("/text")

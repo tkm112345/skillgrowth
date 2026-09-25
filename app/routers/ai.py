@@ -6,6 +6,7 @@ from app import llm
 from app.db import get_session
 from app.models import CareerGoal, Settings, Skill
 from app.routers.goals import HORIZON_LABELS, HORIZONS
+from app.services import MAX_SKILLS_IN_PROMPT
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
@@ -15,7 +16,7 @@ class GapCheckIn(BaseModel):
 
 
 def _current_skills_payload(session: Session) -> list[dict]:
-    skills = session.exec(select(Skill)).all()
+    skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc()).limit(MAX_SKILLS_IN_PROMPT)).all()
     return [{"name": s.name, "category": s.category} for s in skills]
 
 

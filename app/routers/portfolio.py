@@ -11,7 +11,14 @@ from app.models import PortfolioFile, PortfolioItem, PortfolioLink, Project
 
 router = APIRouter(prefix="/api/portfolio", tags=["portfolio"])
 
-MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB per file, no extension allowlist
+MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB per file
+
+# Matches what the page's own subtitle promises ("links, PDFs, spreadsheets,
+# photos"). Downloads already force Content-Disposition: attachment (see
+# download_portfolio_file below), so this isn't an XSS control — it's here
+# so an upload can't silently accept something (an executable, a script)
+# that was never part of what this feature is for.
+ALLOWED_EXTENSIONS = {".pdf", ".xlsx", ".xls", ".csv", ".ods", ".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 class PortfolioItemIn(BaseModel):
@@ -151,9 +158,12 @@ def upload_portfolio_files(
     if item is None:
         raise HTTPException(status_code=404, detail="Portfolio item not found")
 
-    # Validate every file's size before writing anything, so a batch is all-or-nothing.
+    # Validate every file before writing anything, so a batch is all-or-nothing.
     contents: list[tuple[UploadFile, bytes]] = []
     for f in files:
+        suffix = Path(f.filename or "").suffix.lower()
+        if suffix not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"{f.filename}: unsupported file type")
         data = f.file.read()
         if len(data) > MAX_FILE_SIZE_BYTES:
             raise HTTPException(status_code=400, detail=f"{f.filename}: file exceeds 10MB limit")

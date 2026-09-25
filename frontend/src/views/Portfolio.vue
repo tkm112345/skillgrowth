@@ -196,6 +196,7 @@ async function downloadFile(file) {
             :ref="(el) => setUploadRef(item.id, el)"
             :auto-upload="false"
             multiple
+            accept=".pdf,.xlsx,.xls,.csv,.ods,.jpg,.jpeg,.png,.gif,.webp"
             :on-change="(_, fileList) => handleFilesChange(item.id, fileList)"
           >
             <el-button size="small">{{ t('portfolio.chooseFiles') }}</el-button>

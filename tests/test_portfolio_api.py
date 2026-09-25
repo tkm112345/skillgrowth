@@ -98,9 +98,20 @@ def test_upload_file_over_limit_rejects_whole_batch(client):
 
     oversized = b"x" * (10 * 1024 * 1024 + 1)
     files = [
-        ("files", ("small.txt", b"ok", "text/plain")),
-        ("files", ("big.bin", oversized, "application/octet-stream")),
+        ("files", ("small.pdf", b"ok", "application/pdf")),
+        ("files", ("big.pdf", oversized, "application/pdf")),
     ]
+    resp = client.post(f"/api/portfolio/{item['id']}/files", files=files)
+    assert resp.status_code == 400
+
+    detail = client.get(f"/api/portfolio/{item['id']}").json()
+    assert detail["files"] == []
+
+
+def test_upload_rejects_unsupported_extension(client):
+    item = _create_item(client).json()
+
+    files = [("files", ("script.exe", b"MZ", "application/octet-stream"))]
     resp = client.post(f"/api/portfolio/{item['id']}/files", files=files)
     assert resp.status_code == 400
 

@@ -9,6 +9,23 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Security
+- Portfolio file uploads now only accept the file types the page is
+  actually for (PDFs, spreadsheets, photos) instead of any file type.
+
+### Changed
+- Added indexes on every foreign-key column (`SkillLink.evidence_id`/
+  `skill_id`, `Education`/`Employment`/`Project`/`LearningActivity`'s
+  `evidence_id`, `Project.employment_id`, `PortfolioItem.project_id`,
+  `PortfolioLink`/`PortfolioFile.portfolio_item_id`,
+  `ConsultMessage.session_id`) — a no-op on a fresh install, applied to
+  existing installs' databases on next startup. Doesn't change behavior
+  at today's data volumes; keeps lookups cheap as they grow.
+- The list of existing skills sent to the LLM on every skill-extraction
+  and Career Consult/gap-check/growth-guidance call is now capped at the
+  300 most recently observed, instead of unbounded — keeps prompt
+  size/latency from growing indefinitely over years of use.
+
 ## [0.2.5] - 2026-09-26
 
 ### Added

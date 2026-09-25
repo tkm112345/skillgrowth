@@ -78,8 +78,10 @@ entries, so they can be shown to someone without those entries' baggage.
 
 - Each item has a title, a free-text description (**not** run through
   skill extraction, unlike every other free-text field in this app), any
-  number of links (label + URL), and any number of uploaded files. No
-  file-type restriction, but each file is capped at 10MB.
+  number of links (label + URL), and any number of uploaded files —
+  PDFs, spreadsheets (.xlsx/.xls/.csv/.ods), and photos
+  (.jpg/.jpeg/.png/.gif/.webp), matching what this page is for. Each
+  file is capped at 10MB.
 - An item can optionally be linked to an existing Project from Profile —
   but **only a standalone project, never one tied to an employer**. This
   is enforced by the server, not just hidden from the dropdown, so a

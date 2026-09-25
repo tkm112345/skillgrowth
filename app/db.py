@@ -27,6 +27,18 @@ def _ensure_column(target_engine, table: str, column: str, ddl_type: str) -> Non
             conn.commit()
 
 
+def _ensure_index(target_engine, table: str, column: str) -> None:
+    # Same problem as _ensure_column, different DDL: create_all() only adds
+    # indexes to tables it's creating fresh — a `Field(index=True)` added to
+    # a model whose table already exists on disk needs this, or an upgraded
+    # install just silently never gets the index. Unlike ALTER TABLE ADD
+    # COLUMN, SQLite's CREATE INDEX supports IF NOT EXISTS directly, so this
+    # doesn't need _ensure_column's existence check first.
+    with target_engine.connect() as conn:
+        conn.exec_driver_sql(f"CREATE INDEX IF NOT EXISTS ix_{table}_{column} ON {table} ({column})")
+        conn.commit()
+
+
 def default_activity_types() -> list:
     from app.models import ActivityType  # noqa: PLC0415 (avoid circular import at module load)
 
@@ -48,6 +60,17 @@ def init_db() -> None:
     _ensure_column(engine, "skill", "include_in_resume", "BOOLEAN DEFAULT 1")
     _ensure_column(engine, "settings", "skill_extraction_enabled", "BOOLEAN DEFAULT 0")
     _ensure_column(engine, "reflectionlog", "note", "TEXT DEFAULT ''")
+    _ensure_index(engine, "skilllink", "evidence_id")
+    _ensure_index(engine, "skilllink", "skill_id")
+    _ensure_index(engine, "education", "evidence_id")
+    _ensure_index(engine, "employment", "evidence_id")
+    _ensure_index(engine, "project", "employment_id")
+    _ensure_index(engine, "project", "evidence_id")
+    _ensure_index(engine, "portfolioitem", "project_id")
+    _ensure_index(engine, "portfoliolink", "portfolio_item_id")
+    _ensure_index(engine, "portfoliofile", "portfolio_item_id")
+    _ensure_index(engine, "learningactivity", "evidence_id")
+    _ensure_index(engine, "consultmessage", "session_id")
     with Session(engine) as session:
         if session.get(Settings, 1) is None:
             session.add(Settings(id=1))

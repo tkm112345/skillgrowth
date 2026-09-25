@@ -5,9 +5,15 @@ from sqlmodel import Session, select
 from app import llm
 from app.models import EvidenceEntry, Settings, Skill, SkillLink
 
+# Sent into the LLM prompt on every extraction/consult call, so it needs a
+# cap: an unbounded list grows the prompt (latency, cost) linearly with the
+# skill count over years of use. Ordered by last_observed_at so a truncation
+# drops the skills least likely to recur, not an arbitrary slice.
+MAX_SKILLS_IN_PROMPT = 300
+
 
 def existing_skills_payload(session: Session) -> list[dict]:
-    skills = session.exec(select(Skill)).all()
+    skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc()).limit(MAX_SKILLS_IN_PROMPT)).all()
     return [{"id": s.id, "name": s.name} for s in skills]
 
 

@@ -25,8 +25,8 @@ class Skill(SQLModel, table=True):
 
 class SkillLink(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    evidence_id: str = Field(foreign_key="evidenceentry.id")
-    skill_id: str = Field(foreign_key="skill.id")
+    evidence_id: str = Field(foreign_key="evidenceentry.id", index=True)
+    skill_id: str = Field(foreign_key="skill.id", index=True)
     mention_text: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -80,7 +80,7 @@ class Education(SQLModel, table=True):
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     achievements: str = ""
-    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
 
 
 class Employment(SQLModel, table=True):
@@ -90,18 +90,18 @@ class Employment(SQLModel, table=True):
     role: str = ""
     start_date: Optional[date] = None
     end_date: Optional[date] = None  # null = 現職
-    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
 
 
 class Project(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    employment_id: Optional[str] = Field(default=None, foreign_key="employment.id")
+    employment_id: Optional[str] = Field(default=None, foreign_key="employment.id", index=True)
     title: str
     role: str = ""
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     description: str = ""
-    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
 
 
 class ExternalLink(SQLModel, table=True):
@@ -117,13 +117,13 @@ class PortfolioItem(SQLModel, table=True):
     description: str = ""  # free text, deliberately not run through skill extraction
     # nullable FK to Project; must be a standalone project (employment_id IS NULL),
     # enforced in app/routers/portfolio.py, not at the schema level
-    project_id: Optional[str] = Field(default=None, foreign_key="project.id")
+    project_id: Optional[str] = Field(default=None, foreign_key="project.id", index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class PortfolioLink(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    portfolio_item_id: str = Field(foreign_key="portfolioitem.id")
+    portfolio_item_id: str = Field(foreign_key="portfolioitem.id", index=True)
     label: str
     url: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -131,7 +131,7 @@ class PortfolioLink(SQLModel, table=True):
 
 class PortfolioFile(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    portfolio_item_id: str = Field(foreign_key="portfolioitem.id")
+    portfolio_item_id: str = Field(foreign_key="portfolioitem.id", index=True)
     original_filename: str
     file_path: str
     content_type: str = ""
@@ -150,7 +150,7 @@ class LearningActivity(SQLModel, table=True):
     title: str
     activity_date: Optional[date] = None
     notes: str = ""
-    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+    evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
 
 
 class ActivityType(SQLModel, table=True):
@@ -180,7 +180,7 @@ class ConsultSession(SQLModel, table=True):
 
 class ConsultMessage(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    session_id: str = Field(foreign_key="consultsession.id")
+    session_id: str = Field(foreign_key="consultsession.id", index=True)
     role: str  # "user" | "assistant"
     content: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

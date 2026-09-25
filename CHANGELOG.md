@@ -20,6 +20,14 @@ commit as the change, moved into a dated section when a release is cut).
   on each tagged release, plus a `docker run` quick-start option in
   `README.md` for running that image without cloning the repo.
 
+### Security
+- `GET /api/settings` no longer returns the LLM API key in plaintext; it's
+  masked in responses, and saving/testing settings without changing it now
+  reuses the stored key server-side instead of requiring it to be retyped.
+- Certification image evidence uploads (`POST /api/evidence/image`) now
+  enforce the same 10MB size limit as portfolio file uploads, closing a
+  disk-exhaustion gap where that endpoint had no limit at all.
+
 ### Fixed
 - Vision and Career path goals showed a "Last updated" timestamp even when
   nothing had ever been saved (the API synthesized a fresh timestamp for an

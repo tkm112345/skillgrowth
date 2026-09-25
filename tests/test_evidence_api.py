@@ -56,6 +56,18 @@ def test_second_checkin_reuses_matched_skill(client, monkeypatch):
     assert skills[0]["evidence_count"] == 2
 
 
+def test_add_image_evidence_over_limit_is_rejected(client):
+    oversized = b"x" * (10 * 1024 * 1024 + 1)
+    resp = client.post(
+        "/api/evidence/image",
+        files={"file": ("big.png", oversized, "image/png")},
+        data={"source_type": "certification"},
+    )
+    assert resp.status_code == 400
+
+    assert client.get("/api/evidence").json() == []
+
+
 def test_llm_failure_surfaces_as_502_with_clear_detail(client, monkeypatch):
     _enable_skill_extraction(client)
 

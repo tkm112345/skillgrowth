@@ -1,7 +1,7 @@
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -10,6 +10,8 @@ from app.db import UPLOAD_DIR, get_session
 from app.models import EvidenceEntry, Settings, Skill
 
 router = APIRouter(prefix="/api/evidence", tags=["evidence"])
+
+MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB, matches the portfolio upload limit
 
 
 class TextEvidenceIn(BaseModel):
@@ -42,9 +44,13 @@ def add_image_evidence(
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
 ) -> EvidenceResult:
+    data = file.file.read()
+    if len(data) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(status_code=400, detail=f"{file.filename}: file exceeds 10MB limit")
+
     ext = Path(file.filename or "upload.png").suffix or ".png"
     dest = UPLOAD_DIR / f"{uuid.uuid4()}{ext}"
-    dest.write_bytes(file.file.read())
+    dest.write_bytes(data)
 
     entry = EvidenceEntry(source_type=source_type, raw_input=file.filename or "", file_path=str(dest))
     session.add(entry)

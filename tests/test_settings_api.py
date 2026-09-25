@@ -1,3 +1,61 @@
+def test_get_settings_masks_api_key(client):
+    client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "real-secret-key",
+            "llm_model": "gpt-4o-mini",
+            "llm_vision_model": "gpt-4o-mini",
+        },
+    )
+
+    resp = client.get("/api/settings")
+    assert resp.status_code == 200
+    assert resp.json()["openai_api_key"] == "••••••••"
+
+
+def test_put_settings_with_masked_key_keeps_existing_key(client, monkeypatch):
+    from app import llm
+
+    client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "real-secret-key",
+            "llm_model": "gpt-4o-mini",
+            "llm_vision_model": "gpt-4o-mini",
+        },
+    )
+
+    client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "••••••••",
+            "llm_model": "gpt-4o",
+            "llm_vision_model": "gpt-4o-mini",
+        },
+    )
+
+    seen = {}
+
+    def fake_test_connection(settings):
+        seen["key"] = settings.openai_api_key
+        return {"ok": True, "message": "ok"}
+
+    monkeypatch.setattr(llm, "test_connection", fake_test_connection)
+    client.post(
+        "/api/settings/test",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "••••••••",
+            "llm_model": "gpt-4o",
+            "llm_vision_model": "gpt-4o-mini",
+        },
+    )
+    assert seen["key"] == "real-secret-key"
+
+
 def test_test_settings_reports_success(client, monkeypatch):
     from app import llm
 

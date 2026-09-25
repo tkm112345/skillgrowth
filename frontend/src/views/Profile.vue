@@ -170,6 +170,7 @@ async function removeLink(id) {
       <p v-if="p.description">{{ p.description }}</p>
       <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
     </el-card>
+    <el-empty v-if="!loading && standaloneProjects.length === 0" :description="t('profile.noEntries')" />
   </section>
 
   <section class="section" v-loading="loading">

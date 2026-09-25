@@ -1,6 +1,7 @@
 {
   "app": {
-    "brand": "skillgrowth"
+    "brand": "skillgrowth",
+    "toggleSidebar": "サイドバーの折りたたみ切り替え"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -223,7 +224,7 @@
     "selfPrSelected": "このバージョンが職務経歴書に使われます",
     "confirmDeleteSelfPr": "この自己PRを削除しますか？",
     "resumeTemplateHeader": "Wordテンプレート",
-    "resumeTemplateHint": "{{p self_pr }} のようなタグを埋め込んだ.docxファイルをアップロードすると、現在のデータをそのタグの位置に展開して生成できます(下のタグ一覧を参照)。上のMarkdown版と同様、LLMは使わない決定論的な生成です。",
+    "resumeTemplateHint": "{'{'}{'{'}p self_pr {'}'}{'}'} のようなタグを埋め込んだ.docxファイルをアップロードすると、現在のデータをそのタグの位置に展開して生成できます(下のタグ一覧を参照)。上のMarkdown版と同様、LLMは使わない決定論的な生成です。",
     "resumeTemplateNamePlaceholder": "テンプレート名",
     "resumeTemplateChooseFile": ".docxファイルを選択",
     "resumeTemplateUpload": "アップロード",

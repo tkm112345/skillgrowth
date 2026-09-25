@@ -103,7 +103,12 @@ onMounted(async () => {
     </el-aside>
     <el-container class="main-area">
       <el-header class="topbar">
-        <el-button text @click="toggleCollapsed" :icon="collapsed ? Expand : Fold" />
+        <el-button
+          text
+          @click="toggleCollapsed"
+          :icon="collapsed ? Expand : Fold"
+          :aria-label="t('app.toggleSidebar')"
+        />
       </el-header>
       <el-main class="content">
         <router-view />

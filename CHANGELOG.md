@@ -29,6 +29,16 @@ commit as the change, moved into a dated section when a release is cut).
   disk-exhaustion gap where that endpoint had no limit at all.
 
 ### Fixed
+- The Resume page's "Word template" section (upload a .docx template, fill
+  it with current data) was silently missing from every render. A literal
+  `{{p self_pr }}` example in the hint text broke vue-i18n's message
+  compiler, which threw before the section could mount; the example is now
+  escaped so it renders as intended.
+- The Profile page's "Other projects" section had no empty-state message
+  when it had no entries, unlike Education, Work history, and Links right
+  next to it.
+- The sidebar collapse/expand button had no accessible name (icon-only,
+  no `aria-label`), so screen reader users couldn't tell what it did.
 - Vision and Career path goals showed a "Last updated" timestamp even when
   nothing had ever been saved (the API synthesized a fresh timestamp for an
   unsaved default row). Both now return `null` until an actual save happens.

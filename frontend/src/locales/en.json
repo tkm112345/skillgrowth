@@ -1,6 +1,7 @@
 {
   "app": {
-    "brand": "skillgrowth"
+    "brand": "skillgrowth",
+    "toggleSidebar": "Toggle sidebar"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -223,7 +224,7 @@
     "selfPrSelected": "This version will be used in the resume",
     "confirmDeleteSelfPr": "Delete this Self PR entry?",
     "resumeTemplateHeader": "Word template",
-    "resumeTemplateHint": "Upload a .docx file with tags like {{p self_pr }} — see the tag reference below — and fill it with your current data on demand. Deterministic, like the Markdown resume above: no LLM involved.",
+    "resumeTemplateHint": "Upload a .docx file with tags like {'{'}{'{'}p self_pr {'}'}{'}'} — see the tag reference below — and fill it with your current data on demand. Deterministic, like the Markdown resume above: no LLM involved.",
     "resumeTemplateNamePlaceholder": "Template name",
     "resumeTemplateChooseFile": "Choose .docx file",
     "resumeTemplateUpload": "Upload",

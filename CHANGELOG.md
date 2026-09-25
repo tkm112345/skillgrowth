@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-09-26
+
 ### Added
 - `CODE_OF_CONDUCT.md` (Contributor Covenant), GitHub issue templates for
   bug reports and feature requests, a pull request template, and a

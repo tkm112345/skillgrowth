@@ -27,6 +27,11 @@ def test_export_backup_returns_all_sections_when_empty(client):
     ]:
         assert body[key] == []
 
+    # Not in the loop above: a fresh install has 5 seeded default types,
+    # not zero.
+    assert len(body["activity_types"]) == 5
+    assert sum(1 for t in body["activity_types"] if t["is_protected"]) == 1
+
 
 def test_export_backup_includes_created_records(client):
     client.post("/api/skills", json={"name": "Python", "category": "技術"})
@@ -37,6 +42,37 @@ def test_export_backup_includes_created_records(client):
     assert len(body["skills"]) == 1
     assert body["skills"][0]["name"] == "Python"
     assert len(body["external_links"]) == 1
+
+
+def test_export_backup_includes_custom_activity_types(client):
+    client.post("/api/learning/types", json={"label": "Side project"})
+
+    body = client.get("/api/backup/export").json()
+    assert "Side project" in [t["label"] for t in body["activity_types"]]
+
+
+def test_import_activity_types_dedupes_default_labels(client):
+    export = client.get("/api/backup/export").json()
+
+    resp = client.post("/api/backup/import", json=export)
+    assert resp.status_code == 200
+    assert resp.json()["activity_types"] == 0
+
+    types = client.get("/api/learning/types").json()
+    assert len(types) == 5
+
+
+def test_import_restores_deleted_custom_type(client):
+    created = client.post("/api/learning/types", json={"label": "Side project"}).json()
+    export = client.get("/api/backup/export").json()
+    client.delete(f"/api/learning/types/{created['id']}")
+
+    resp = client.post("/api/backup/import", json=export)
+    assert resp.status_code == 200
+    assert resp.json()["activity_types"] == 1
+
+    labels = [t["label"] for t in client.get("/api/learning/types").json()]
+    assert "Side project" in labels
 
 
 def test_export_backup_does_not_include_settings(client):
@@ -109,6 +145,7 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "employment": 1,
         "education": 0,
         "projects": 1,
+        "activity_types": 0,
         "learning_activities": 0,
         "external_links": 0,
         "career_goals": 0,

@@ -133,7 +133,7 @@
     "descriptionPlaceholder": "内容や取り組んだこと",
     "projectLabel": "紐付けるプロジェクト（任意）",
     "projectPlaceholder": "紐付けなし",
-    "projectHint": "会社に紐づかないプロジェクトのみ選択できます。",
+    "projectHint": "会社に紐づかない単独のプロジェクトのみ選択できます。プロフィール画面の「その他のプロジェクト」から追加してください（職歴に紐づけて登録したプロジェクトはここには出ません。Portfolioは会社を特定させずに見せるためのものだからです）。",
     "linksHeader": "リンク",
     "addLink": "リンクを追加",
     "linkLabelPlaceholder": "例: 公開サイト、リポジトリ",
@@ -162,7 +162,11 @@
     "typeTalkGiven": "登壇",
     "typeTalkAttended": "聴講",
     "typeCertification": "資格",
-    "typeOther": "その他"
+    "typeOther": "その他",
+    "manageTypes": "種別を管理",
+    "typeLabelPlaceholder": "新しい種別名",
+    "deleteTypeConfirm": "この種別を削除しますか？既にこの種別で記録されたアクティビティはテキストとしてそのまま残ります。",
+    "protectedTypeHint": "組み込みの種別のため名前変更・削除はできません（履歴書の資格セクションと証明書画像からのスキル抽出に使われます）。"
   },
   "skills": {
     "title": "スキル一覧",

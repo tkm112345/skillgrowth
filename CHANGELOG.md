@@ -27,6 +27,15 @@ commit as the change, moved into a dated section when a release is cut).
   entries (`GET /api/evidence` now also accepts `year`/`month` filters) —
   this scales to a long-running log without having to page through
   everything in between to reach an old month.
+- Activity types are now user-managed instead of a fixed list. A "Manage
+  types" dialog on the Activity page lets you add, rename, and delete
+  types (`GET/POST /api/learning/types`, `PUT/DELETE
+  /api/learning/types/{id}`); the app still seeds the same 5 defaults on
+  first run. "Certification" stays a built-in, protected type, since it
+  drives the resume's Certifications section and the certificate-image
+  upload field — it can't be renamed or deleted. Deleting a custom type
+  only removes it from the picker; activities already recorded with it
+  keep it as plain text. Included in backup/restore.
 
 ### Security
 - `GET /api/settings` no longer returns the LLM API key in plaintext; it's
@@ -66,8 +75,17 @@ commit as the change, moved into a dated section when a release is cut).
 - Added a short clarifying hint to the "Quick update" and "Career path
   goals" cards on the Dashboard, since their overlap with the Activity page
   and the Vision page respectively wasn't obvious at a glance.
-- Bumped the base font size (13px → 14px, and Element Plus's small variant
-  12px → 13px) — the previous size read as slightly small.
+- Bumped the base font size (13px → 16px, and Element Plus's small variant
+  12px → 14px) — the previous size read as slightly small.
+- The Portfolio "Add deliverable" dialog and the Activity page's "Add an
+  activity" form used a fixed label-width narrow enough that the larger
+  font size above made longer labels ("Linked project (optional)",
+  "Certificate image (optional)") wrap awkwardly mid-word. Both forms now
+  put labels above their fields instead of beside them.
+- Clarified the "Linked project" hint on the Portfolio "Add deliverable"
+  dialog to say where to create a linkable project (Profile → "Other
+  projects") — it previously only described the filter rule (no employer
+  tie), not where such a project comes from.
 
 ## [0.2.4] - 2026-09-24
 

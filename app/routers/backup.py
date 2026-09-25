@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 from app.backup_import import import_backup
 from app.db import get_session
 from app.models import (
+    ActivityType,
     CareerGoal,
     CareerGoalHistory,
     CareerVision,
@@ -108,6 +109,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "employment": dump(Employment),
         "projects": dump(Project),
         "learning_activities": dump(LearningActivity),
+        "activity_types": dump(ActivityType),
         "external_links": dump(ExternalLink),
         "resume_exports": dump(ExportSnapshot),
         "resume_templates": _dump_resume_templates(session),

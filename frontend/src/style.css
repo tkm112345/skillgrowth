@@ -73,7 +73,7 @@ body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   background: var(--page-bg);
   color: var(--ink-primary);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .page-title {
@@ -101,8 +101,8 @@ html:root {
   --el-color-primary: var(--accent);
   --el-border-radius-base: 8px;
   --el-border-radius-small: 6px;
-  --el-font-size-base: 14px;
-  --el-font-size-small: 13px;
+  --el-font-size-base: 16px;
+  --el-font-size-small: 14px;
   --el-bg-color: var(--surface);
   --el-bg-color-page: var(--page-bg);
   --el-bg-color-overlay: var(--surface);

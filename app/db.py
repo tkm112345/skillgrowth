@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -27,8 +27,20 @@ def _ensure_column(target_engine, table: str, column: str, ddl_type: str) -> Non
             conn.commit()
 
 
+def default_activity_types() -> list:
+    from app.models import ActivityType  # noqa: PLC0415 (avoid circular import at module load)
+
+    return [
+        ActivityType(label="Reading", translation_key="typeReading"),
+        ActivityType(label="Talk given", translation_key="typeTalkGiven"),
+        ActivityType(label="Talk attended", translation_key="typeTalkAttended"),
+        ActivityType(label="certification", is_protected=True, translation_key="typeCertification"),
+        ActivityType(label="Other", translation_key="typeOther"),
+    ]
+
+
 def init_db() -> None:
-    from app.models import Settings  # noqa: PLC0415 (avoid circular import at module load)
+    from app.models import ActivityType, Settings  # noqa: PLC0415 (avoid circular import at module load)
 
     SQLModel.metadata.create_all(engine)
     _ensure_column(engine, "exportsnapshot", "edited_at", "TIMESTAMP")
@@ -39,6 +51,9 @@ def init_db() -> None:
     with Session(engine) as session:
         if session.get(Settings, 1) is None:
             session.add(Settings(id=1))
+            session.commit()
+        if session.exec(select(ActivityType)).first() is None:
+            session.add_all(default_activity_types())
             session.commit()
 
 

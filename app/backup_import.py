@@ -3,10 +3,11 @@ import uuid
 from datetime import date, datetime
 from pathlib import Path
 
-from sqlmodel import Session
+from sqlmodel import Session, func, select
 
 from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR
 from app.models import (
+    ActivityType,
     CareerGoal,
     CareerGoalHistory,
     CareerVision,
@@ -155,6 +156,27 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         project_id_map[row["id"]] = project.id
         note("project", project.id)
     counts["projects"] = len(project_id_map)
+
+    # Deduped by label (case-insensitive), not always-inserted like most
+    # tables above: unlike everything else here, the 5 default types already
+    # exist on any normally-initialized install (seeded by app.db.init_db),
+    # so an unconditional insert would double them on every restore.
+    # is_protected/translation_key are never taken from backup data — those
+    # are this app's own invariants, not something a backup should be able
+    # to grant or revoke.
+    counts["activity_types"] = 0
+    for row in data.get("activity_types", []):
+        label = (row.get("label") or "").strip()
+        if not label:
+            continue
+        existing = session.exec(select(ActivityType).where(func.lower(ActivityType.label) == label.lower())).first()
+        if existing:
+            continue
+        activity_type = ActivityType(label=label)
+        session.add(activity_type)
+        session.flush()
+        note("activity_type", activity_type.id)
+        counts["activity_types"] += 1
 
     counts["learning_activities"] = 0
     for row in data.get("learning_activities", []):

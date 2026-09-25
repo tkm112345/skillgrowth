@@ -133,7 +133,7 @@
     "descriptionPlaceholder": "What it is, what you did",
     "projectLabel": "Linked project (optional)",
     "projectPlaceholder": "No project",
-    "projectHint": "Only projects not tied to an employer can be linked here.",
+    "projectHint": "Only standalone projects can be linked here — add one under Profile → \"Other projects\" (projects listed under a specific employer there aren't shown, since Portfolio items are meant to be shown without identifying an employer).",
     "linksHeader": "Links",
     "addLink": "Add link",
     "linkLabelPlaceholder": "e.g. Live site, Repository",
@@ -162,7 +162,11 @@
     "typeTalkGiven": "Talk given",
     "typeTalkAttended": "Talk attended",
     "typeCertification": "Certification",
-    "typeOther": "Other"
+    "typeOther": "Other",
+    "manageTypes": "Manage types",
+    "typeLabelPlaceholder": "New type name",
+    "deleteTypeConfirm": "Delete this type? Activities already recorded with it keep it as plain text.",
+    "protectedTypeHint": "Built-in — can't be renamed or deleted (used for the resume's Certifications section and certificate image extraction)."
   },
   "skills": {
     "title": "Skills",

@@ -18,16 +18,76 @@ const selectedMonth = ref(null)
 const monthBuckets = ref([])
 
 const submitting = ref(false)
-const form = reactive({ activity_type: 'reading', title: '', activity_date: '', notes: '' })
+const form = reactive({ activity_type: '', title: '', activity_date: '', notes: '' })
 const certFile = ref(null)
 
-const typeOptions = computed(() => [
-  { value: 'reading', label: t('learning.typeReading') },
-  { value: 'talk_given', label: t('learning.typeTalkGiven') },
-  { value: 'talk_attended', label: t('learning.typeTalkAttended') },
-  { value: 'certification', label: t('learning.typeCertification') },
-  { value: 'other', label: t('learning.typeOther') },
-])
+const activityTypes = ref([])
+const manageTypesVisible = ref(false)
+const newTypeLabel = ref('')
+const addingType = ref(false)
+const editingTypeId = ref(null)
+const draftTypeLabel = ref('')
+const savingType = ref(false)
+
+function typeDisplayLabel(type) {
+  return type.translation_key ? t('learning.' + type.translation_key) : type.label
+}
+
+const selectedTypeIsProtected = computed(
+  () => activityTypes.value.find((type) => type.label === form.activity_type)?.is_protected ?? false
+)
+
+async function loadActivityTypes() {
+  activityTypes.value = await api.getActivityTypes()
+  if (!activityTypes.value.some((type) => type.label === form.activity_type)) {
+    form.activity_type = activityTypes.value[0]?.label ?? ''
+  }
+}
+
+async function addActivityType() {
+  const label = newTypeLabel.value.trim()
+  if (!label) return
+  addingType.value = true
+  try {
+    await api.addActivityType(label)
+    newTypeLabel.value = ''
+    await loadActivityTypes()
+  } catch (e) {
+    ElMessage.error(e.message)
+  } finally {
+    addingType.value = false
+  }
+}
+
+function startEditType(type) {
+  editingTypeId.value = type.id
+  draftTypeLabel.value = type.label
+}
+
+function cancelEditType() {
+  editingTypeId.value = null
+}
+
+async function saveTypeEdit(type) {
+  const label = draftTypeLabel.value.trim()
+  if (!label) return
+  savingType.value = true
+  try {
+    await api.updateActivityType(type.id, label)
+    editingTypeId.value = null
+    await loadActivityTypes()
+  } catch (e) {
+    ElMessage.error(e.message)
+  } finally {
+    savingType.value = false
+  }
+}
+
+async function removeType(type) {
+  await ElMessageBox.confirm(t('learning.deleteTypeConfirm'), t('profile.confirm'))
+  await api.deleteActivityType(type.id)
+  await loadActivityTypes()
+}
 
 const sourceLabelKeys = {
   certification: 'timeline.sourceCertification',
@@ -63,7 +123,7 @@ async function loadMonths() {
 
 onMounted(async () => {
   try {
-    await Promise.all([reload(), loadMonths()])
+    await Promise.all([reload(), loadMonths(), loadActivityTypes()])
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
@@ -96,7 +156,12 @@ async function submit() {
       await api.addImageEvidence(certFile.value)
     }
     await api.addLearning(form)
-    Object.assign(form, { activity_type: 'reading', title: '', activity_date: '', notes: '' })
+    Object.assign(form, {
+      activity_type: activityTypes.value[0]?.label ?? '',
+      title: '',
+      activity_date: '',
+      notes: '',
+    })
     certFile.value = null
     await Promise.all([reload(), loadMonths()])
     ElMessage.success(t('timeline.added'))
@@ -158,11 +223,12 @@ const monthGroups = computed(() => {
 
   <el-card shadow="never" class="chart-card accent-aqua">
     <template #header>{{ t('timeline.addHeader') }}</template>
-    <el-form :model="form" label-width="80px">
+    <el-form :model="form" label-position="top">
       <el-form-item :label="t('learning.type')">
         <el-select v-model="form.activity_type">
-          <el-option v-for="o in typeOptions" :key="o.value" :label="o.label" :value="o.value" />
+          <el-option v-for="type in activityTypes" :key="type.id" :label="typeDisplayLabel(type)" :value="type.label" />
         </el-select>
+        <el-button size="small" text @click="manageTypesVisible = true">{{ t('learning.manageTypes') }}</el-button>
       </el-form-item>
       <el-form-item :label="t('learning.titleLabel')">
         <el-input v-model="form.title" :placeholder="t('learning.titlePlaceholder')" />
@@ -173,7 +239,7 @@ const monthGroups = computed(() => {
       <el-form-item :label="t('learning.notes')">
         <el-input v-model="form.notes" type="textarea" :rows="2" />
       </el-form-item>
-      <el-form-item v-if="form.activity_type === 'certification'" :label="t('learning.certImage')">
+      <el-form-item v-if="selectedTypeIsProtected" :label="t('learning.certImage')">
         <el-upload
           :auto-upload="false"
           :show-file-list="true"
@@ -236,10 +302,64 @@ const monthGroups = computed(() => {
   </el-button>
 
   <el-empty v-if="!loading && entries.length === 0" :description="t('timeline.noEntries')" />
+
+  <el-dialog v-model="manageTypesVisible" :title="t('learning.manageTypes')" width="420px">
+    <div v-for="type in activityTypes" :key="type.id" class="type-row">
+      <template v-if="editingTypeId === type.id">
+        <el-input v-model="draftTypeLabel" size="small" />
+        <el-button size="small" @click="cancelEditType">{{ t('common.cancel') }}</el-button>
+        <el-button size="small" type="primary" :loading="savingType" @click="saveTypeEdit(type)">
+          {{ t('common.save') }}
+        </el-button>
+      </template>
+      <template v-else>
+        <span class="type-row-label">{{ typeDisplayLabel(type) }}</span>
+        <template v-if="type.is_protected">
+          <span class="type-row-hint">{{ t('learning.protectedTypeHint') }}</span>
+        </template>
+        <template v-else>
+          <el-button size="small" text @click="startEditType(type)">{{ t('common.edit') }}</el-button>
+          <el-button size="small" text type="danger" @click="removeType(type)">{{ t('common.delete') }}</el-button>
+        </template>
+      </template>
+    </div>
+    <div class="type-row">
+      <el-input
+        v-model="newTypeLabel"
+        size="small"
+        :placeholder="t('learning.typeLabelPlaceholder')"
+        @keyup.enter="addActivityType"
+      />
+      <el-button size="small" type="primary" :loading="addingType" @click="addActivityType">
+        {{ t('common.add') }}
+      </el-button>
+    </div>
+    <template #footer><el-button @click="manageTypesVisible = false">{{ t('common.close') }}</el-button></template>
+  </el-dialog>
 </template>
 
 <style scoped>
 .upload-hint {
+  color: var(--ink-secondary);
+  font-size: 0.8rem;
+}
+
+.type-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+
+.type-row + .type-row {
+  border-top: 1px solid var(--border);
+}
+
+.type-row-label {
+  flex: 1;
+}
+
+.type-row-hint {
   color: var(--ink-secondary);
   font-size: 0.8rem;
 }

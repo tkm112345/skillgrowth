@@ -171,6 +171,12 @@ export const api = {
   addLearning: (payload) => request('/learning', { method: 'POST', body: JSON.stringify(payload) }),
   deleteLearning: (id) => request(`/learning/${id}`, { method: 'DELETE' }),
 
+  getActivityTypes: () => request('/learning/types'),
+  addActivityType: (label) => request('/learning/types', { method: 'POST', body: JSON.stringify({ label }) }),
+  updateActivityType: (id, label) =>
+    request(`/learning/types/${id}`, { method: 'PUT', body: JSON.stringify({ label }) }),
+  deleteActivityType: (id) => request(`/learning/types/${id}`, { method: 'DELETE' }),
+
   getPortfolioItems: () => request('/portfolio'),
   getPortfolioItem: (id) => request(`/portfolio/${id}`),
   createPortfolioItem: (payload) =>

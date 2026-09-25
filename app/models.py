@@ -141,12 +141,27 @@ class PortfolioFile(SQLModel, table=True):
 
 class LearningActivity(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
-    # "reading" | "talk_given" | "talk_attended" | "certification" | "other"
+    # Free text matching an ActivityType.label at the time of creation (see
+    # below) — not a foreign key, so renaming/deleting a type never touches
+    # past entries. "certification" is the one reserved value: it drives the
+    # resume's Certifications section (app/resume_builder.py) and the
+    # certificate-image upload field (frontend Timeline.vue).
     activity_type: str
     title: str
     activity_date: Optional[date] = None
     notes: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id")
+
+
+class ActivityType(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    label: str
+    is_protected: bool = False
+    # Which learning.type* i18n key to display instead of `label` verbatim,
+    # for the seeded defaults. Cleared on rename, since a user-edited label
+    # is free text from then on, not a translated default.
+    translation_key: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class SelfPR(SQLModel, table=True):

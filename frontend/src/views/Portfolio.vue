@@ -219,7 +219,7 @@ async function downloadFile(file) {
   </section>
 
   <el-dialog v-model="newItemDialog" :title="t('portfolio.addItem')" width="480px">
-    <el-form :model="newItemForm" label-width="100px">
+    <el-form :model="newItemForm" label-position="top">
       <el-form-item :label="t('portfolio.titleLabel')">
         <el-input v-model="newItemForm.title" :placeholder="t('portfolio.titlePlaceholder')" />
       </el-form-item>

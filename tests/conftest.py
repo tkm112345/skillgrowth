@@ -2,12 +2,12 @@ from io import BytesIO
 
 import pytest
 from docx import Document
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
 
 from app import db as db_module
-from app.models import Settings
+from app.models import ActivityType, Settings
 
 
 @pytest.fixture
@@ -23,6 +23,9 @@ def session(engine):
         if s.get(Settings, 1) is None:
             s.add(Settings(id=1))
             s.commit()
+        if s.exec(select(ActivityType)).first() is None:
+            s.add_all(db_module.default_activity_types())
+            s.commit()
         yield s
 
 
@@ -35,7 +38,10 @@ def client(engine, monkeypatch):
             yield s
 
     with Session(engine) as s:
-        s.add(Settings(id=1))
+        if s.get(Settings, 1) is None:
+            s.add(Settings(id=1))
+        if s.exec(select(ActivityType)).first() is None:
+            s.add_all(db_module.default_activity_types())
         s.commit()
 
     from app.main import app

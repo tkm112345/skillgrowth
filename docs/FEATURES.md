@@ -117,11 +117,16 @@ Both adding catch-up activity and browsing everything you've added live on
 one page, since they were previously two overlapping screens (a Learning
 Log page, and a read-only feed that already showed the same entries):
 
-- **Add an activity** — reading, talk given, talk attended, certification,
-  or other, each with a title, date, and notes. When the type is
-  certification, an optional certificate image can be attached and is run
-  through the same vision-based skill extraction as the Profile
-  certification flow.
+- **Add an activity** — pick a type, then a title, date, and notes. Types
+  are user-managed via "Manage types" next to the field: the app seeds 5
+  (reading, talk given, talk attended, certification, other), and any of
+  them except certification can be renamed or deleted, and new ones added
+  freely — deleting a type only removes it from the picker, existing
+  entries keep their recorded type as plain text. Certification is the one
+  built-in, protected type: it drives the resume's Certifications section
+  and unlocks an optional certificate-image field (run through the same
+  vision-based skill extraction as the Profile certification flow), so it
+  can't be renamed or removed.
 - **Feed** — a chronological view of every activity entry ever added (quick
   updates, certifications, the free-text side of every
   Education/Employment/Project entry, and the entries added above),

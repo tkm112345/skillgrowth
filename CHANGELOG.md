@@ -25,6 +25,12 @@ commit as the change, moved into a dated section when a release is cut).
   deleted (still included in backup/restore), just no longer written to
   or shown anywhere.
 
+### Fixed
+- The Self Feedback "Edit entry" dialog and the Activity page's "Manage
+  types" dialog were both a fixed pixel width wider than a phone screen,
+  cutting off their Save/Close buttons off-screen with no way to reach
+  them. Both now cap at 92% of the viewport width.
+
 ### Security
 - Portfolio file uploads now only accept the file types the page is
   actually for (PDFs, spreadsheets, photos) instead of any file type.

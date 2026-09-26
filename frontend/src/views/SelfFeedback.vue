@@ -162,7 +162,7 @@ function formatDate(isoDate) {
 
   <el-empty v-if="!loading && entries.length === 0" :description="t('selfFeedback.noEntries')" />
 
-  <el-dialog v-model="dialogVisible" :title="t('selfFeedback.edit')" width="640px">
+  <el-dialog v-model="dialogVisible" :title="t('selfFeedback.edit')" width="min(640px, 92vw)">
     <el-form :model="draft" label-position="top">
       <el-form-item :label="t('selfFeedback.dateLabel')">
         <el-date-picker v-model="draft.entry_date" value-format="YYYY-MM-DD" />

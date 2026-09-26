@@ -303,7 +303,7 @@ const monthGroups = computed(() => {
 
   <el-empty v-if="!loading && entries.length === 0" :description="t('timeline.noEntries')" />
 
-  <el-dialog v-model="manageTypesVisible" :title="t('learning.manageTypes')" width="420px">
+  <el-dialog v-model="manageTypesVisible" :title="t('learning.manageTypes')" width="min(420px, 92vw)">
     <div v-for="type in activityTypes" :key="type.id" class="type-row">
       <template v-if="editingTypeId === type.id">
         <el-input v-model="draftTypeLabel" size="small" />

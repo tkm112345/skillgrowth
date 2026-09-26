@@ -676,6 +676,34 @@ completions endpoint, the same code path works against OpenAI, a hosted
 provider, or a local Ollama server exposing `/v1` — only the base URL and
 model name change.
 
+## Logging
+
+`app/logging_config.py`'s `setup_logging()`, called once from `main.py`'s
+startup event, adds a `RotatingFileHandler` (5MB per file, 5 backups kept)
+writing to `data/logs/app.log`, attached to *two* loggers:
+
+- the root logger, at level WARNING, for this app's own
+  `logging.getLogger(__name__)` calls. WARNING rather than INFO
+  specifically to keep chatty third-party loggers (httpx, the `openai`
+  SDK's HTTP client) out of the file — at INFO they'd log every outgoing
+  request and rotate the actual errors out within minutes.
+- the `"uvicorn"` logger directly — not just root. Uvicorn logs unhandled
+  exception tracebacks through the child logger `"uvicorn.error"`, and
+  that logger's own `propagate` is `True`, but uvicorn's own logging
+  config (`uvicorn.config.LOGGING_CONFIG`) sets `propagate=False` on
+  `"uvicorn"` itself. Python's logger tree walks up from the logger a
+  message was logged on and stops climbing at the first ancestor with
+  `propagate=False` — here that's `"uvicorn"`, one level below root — so a
+  handler attached only to root never sees these tracebacks at all; it
+  has to sit on `"uvicorn"` itself. (`"uvicorn.access"`, the per-request
+  log line, has its own `propagate=False` and stops climbing before even
+  reaching `"uvicorn"`, so it's unaffected by this and stays
+  console-only — deliberately, to keep the file to genuine errors.)
+
+The point of all this is to have something to look back at after a bug
+report that couldn't be reproduced live, instead of only whatever was
+visible in `docker compose logs` at the time.
+
 ## Frontend routing
 
 The SPA has one route per top-level concern (Concept, Dashboard, Vision,

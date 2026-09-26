@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.db import init_db
 from app.llm import LLMRequestError
+from app.logging_config import setup_logging
 from app.routers import (
     ai,
     backup,
@@ -58,6 +59,7 @@ app.include_router(self_feedback.router)
 
 @app.on_event("startup")
 def on_startup():
+    setup_logging()
     init_db()
 
 

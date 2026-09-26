@@ -19,6 +19,9 @@ commit as the change, moved into a dated section when a release is cut).
 - A "Certifications only" filter on the Activity feed, sorting matches by
   their recorded date instead of upload time. Any activity with a
   recorded date now also shows it under its feed entry.
+- Backend logging to a rotating file at `data/logs/app.log` (5MB per
+  file, 5 backups kept), so unhandled-exception tracebacks survive past
+  the container's live console output.
 
 ## [0.2.6] - 2026-09-26
 

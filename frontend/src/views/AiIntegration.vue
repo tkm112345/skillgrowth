@@ -18,6 +18,10 @@ const sessions = ref([])
 const loadingSessions = ref(true)
 const startingSession = ref(false)
 
+const settings = ref(null)
+const customInstructions = ref('')
+const savingCustomInstructions = ref(false)
+
 onMounted(async () => {
   try {
     goals.value = await api.getGoals()
@@ -33,7 +37,26 @@ onMounted(async () => {
   } finally {
     loadingSessions.value = false
   }
+  try {
+    settings.value = await api.getSettings()
+    customInstructions.value = settings.value.consult_custom_instructions
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  }
 })
+
+async function saveCustomInstructions() {
+  savingCustomInstructions.value = true
+  try {
+    settings.value = await api.updateSettings({
+      ...settings.value,
+      consult_custom_instructions: customInstructions.value,
+    })
+    ElMessage.success(t('ai.consultCustomInstructionsSaved'))
+  } finally {
+    savingCustomInstructions.value = false
+  }
+}
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
@@ -87,6 +110,27 @@ async function runGapCheck() {
   <el-card shadow="never" class="section-card accent-aqua" v-loading="loadingSessions">
     <template #header>{{ t('ai.consultHeader') }}</template>
     <p class="hint">{{ t('ai.consultHint') }}</p>
+
+    <el-collapse class="consult-custom-collapse">
+      <el-collapse-item :title="t('ai.consultCustomInstructionsLabel')">
+        <p class="hint">{{ t('ai.consultCustomInstructionsHint') }}</p>
+        <el-input
+          v-model="customInstructions"
+          type="textarea"
+          :rows="3"
+          :placeholder="t('ai.consultCustomInstructionsPlaceholder')"
+        />
+        <el-button
+          size="small"
+          type="primary"
+          :loading="savingCustomInstructions"
+          @click="saveCustomInstructions"
+          class="consult-custom-save-btn"
+        >
+          {{ t('common.save') }}
+        </el-button>
+      </el-collapse-item>
+    </el-collapse>
 
     <el-button type="primary" :loading="startingSession" @click="startConsult">
       {{ t('ai.consultStart') }}
@@ -161,6 +205,14 @@ async function runGapCheck() {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin-top: 0;
+}
+
+.consult-custom-collapse {
+  margin-bottom: 0.75rem;
+}
+
+.consult-custom-save-btn {
+  margin-top: 0.5rem;
 }
 
 .consult-session-list {

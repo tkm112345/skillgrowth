@@ -31,7 +31,7 @@ CONSULT_SYSTEM_PROMPT = """あなたは経験豊富なキャリアコンサル�
 してください。データからは分からないことを一般論で埋めず、必要なら質問してください。
 
 返答は__LOCALE__で行ってください。
-
+__CUSTOM_INSTRUCTIONS__
 --- 相談者のキャリアデータ ---
 __CONTEXT__
 --- ここまで ---
@@ -167,7 +167,13 @@ def gap_check(job_description: str, current_skills: list[dict], settings: Settin
 
 def career_consult_reply(messages: list[dict], context: str, locale: str, settings: Settings) -> str:
     locale_name = "日本語" if locale == "ja" else "English"
-    system_prompt = CONSULT_SYSTEM_PROMPT.replace("__CONTEXT__", context).replace("__LOCALE__", locale_name)
+    custom = settings.consult_custom_instructions.strip()
+    custom_block = f"\n追加の指示:\n{custom}\n" if custom else ""
+    system_prompt = (
+        CONSULT_SYSTEM_PROMPT.replace("__CUSTOM_INSTRUCTIONS__", custom_block)
+        .replace("__CONTEXT__", context)
+        .replace("__LOCALE__", locale_name)
+    )
     resp = _complete(
         settings,
         model=settings.llm_model,

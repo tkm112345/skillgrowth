@@ -45,6 +45,11 @@ class Settings(SQLModel, table=True):
     llm_model: str = "gpt-4o-mini"
     llm_vision_model: str = "gpt-4o-mini"
     skill_extraction_enabled: bool = False
+    # Appended to CONSULT_SYSTEM_PROMPT (app/llm.py) for Career Consult only —
+    # the other two AI features parse a strict JSON contract out of the
+    # LLM's reply, so letting the user edit their prompts risks breaking
+    # that parsing. Consult is free-form chat, so there's nothing to break.
+    consult_custom_instructions: str = ""
 
 
 class CareerGoal(SQLModel, table=True):

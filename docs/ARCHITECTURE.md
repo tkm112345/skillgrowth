@@ -147,6 +147,7 @@ erDiagram
     string openai_api_key
     string llm_model
     string llm_vision_model
+    string consult_custom_instructions "appended to CONSULT_SYSTEM_PROMPT for Career Consult only"
   }
   ExternalLink {
     string id
@@ -446,6 +447,19 @@ the DB level, consistent with how `DELETE /api/skills/{id}` handles its
 `SkillLink` rows). Both tables are included in backup export/import,
 with `ConsultMessage.session_id` remapped through a fresh id map on
 import — the same pattern used for every other foreign-keyed table.
+
+`Settings.consult_custom_instructions` (edited from a collapsed
+"Customize this consultant" field on the AI Integration page) is appended
+to `CONSULT_SYSTEM_PROMPT` via a `__CUSTOM_INSTRUCTIONS__` placeholder,
+read directly off the `settings` object `career_consult_reply` already
+receives — no signature change, no new call site. When the field is
+empty, the placeholder is replaced with an empty string rather than
+leaving it blank-but-present, so no stray marker or extra blank line ever
+reaches the LLM. Deliberately not exposed for `gap_check`/
+`goal_growth_guidance`: both parse a strict JSON shape out of the reply
+(`_parse_json_object`), and a user-edited prompt could easily break that
+contract; Career Consult's reply is free-form chat, so there's no
+parsing contract to break.
 
 ## Resume export (no LLM)
 

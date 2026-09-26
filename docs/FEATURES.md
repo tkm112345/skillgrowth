@@ -217,7 +217,12 @@ activity, not from this page):
   with every reply, so the AI keeps context as you go back and forth. If
   your message is saved but the AI's reply fails (e.g. a bad LLM
   connection), the message you wrote is never lost — only the reply
-  fails.
+  fails. A "Customize this consultant" field (collapsed by default) lets
+  you append your own instructions — tone, what to focus on — to the
+  base system prompt. Deliberately scoped to Career Consult only: the
+  other two AI features below parse a strict JSON shape out of the
+  LLM's reply, so letting their prompts be freely edited risks breaking
+  that parsing; Career Consult is free-form chat with nothing to break.
 - **Growth guidance** — for any career path goal you've written on the
   Dashboard, the LLM suggests what to develop next given your current
   skills. Only calls the LLM for goals that actually have text; if none

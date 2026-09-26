@@ -21,6 +21,7 @@ class SettingsIn(BaseModel):
     llm_model: str
     llm_vision_model: str
     skill_extraction_enabled: bool = False
+    consult_custom_instructions: str = ""
 
 
 def _mask(key: str) -> str:
@@ -43,6 +44,7 @@ def update_settings(payload: SettingsIn, session: Session = Depends(get_session)
     settings.llm_model = payload.llm_model
     settings.llm_vision_model = payload.llm_vision_model
     settings.skill_extraction_enabled = payload.skill_extraction_enabled
+    settings.consult_custom_instructions = payload.consult_custom_instructions
     session.add(settings)
     session.commit()
     session.refresh(settings)

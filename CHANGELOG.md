@@ -9,6 +9,14 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- A "Customize this consultant" field on the AI Integration page (Career
+  Consult), appended to the base system prompt — tone, focus areas,
+  anything to always keep in mind. Scoped to Career Consult only: the
+  other two AI features parse a strict JSON shape out of the LLM's
+  reply, so a user-edited prompt there risks breaking that parsing;
+  Career Consult is free-form chat with nothing to break.
+
 ## [0.2.6] - 2026-09-26
 
 ### Added

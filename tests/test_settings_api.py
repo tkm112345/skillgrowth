@@ -1,3 +1,22 @@
+def test_consult_custom_instructions_round_trips(client):
+    resp = client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "key",
+            "llm_model": "gpt-4o-mini",
+            "llm_vision_model": "gpt-4o-mini",
+            "consult_custom_instructions": "Always answer in a blunt, no-nonsense tone.",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["consult_custom_instructions"] == "Always answer in a blunt, no-nonsense tone."
+
+    assert client.get("/api/settings").json()["consult_custom_instructions"] == (
+        "Always answer in a blunt, no-nonsense tone."
+    )
+
+
 def test_get_settings_masks_api_key(client):
     client.put(
         "/api/settings",

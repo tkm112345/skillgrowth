@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-09-26
+
 ### Added
 - **Self Feedback**, a new page for structured periodic self-review: pick
   any date and write three things side by side — what you did, your

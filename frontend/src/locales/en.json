@@ -196,6 +196,8 @@
     "noEntries": "Nothing here yet",
     "confirmDeleteLearning": "Remove this activity's structured details (type, title, date)? It stays in the feed below as plain text.",
     "jumpToMonth": "Jump to month",
+    "certificationsOnly": "Certifications only",
+    "activityDate": "Date: {date}",
     "loadMore": "Load more",
     "image": "(image)",
     "sourceCertification": "Certification",

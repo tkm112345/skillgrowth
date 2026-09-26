@@ -196,6 +196,8 @@
     "noEntries": "まだ記録がありません",
     "confirmDeleteLearning": "この記録の種別・タイトル・日付を削除しますか？下の一覧にはテキストとして残ります。",
     "jumpToMonth": "月へ移動",
+    "certificationsOnly": "資格のみ表示",
+    "activityDate": "日付: {date}",
     "loadMore": "もっと見る",
     "image": "(画像)",
     "sourceCertification": "資格・修了証",

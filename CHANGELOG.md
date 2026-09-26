@@ -16,6 +16,9 @@ commit as the change, moved into a dated section when a release is cut).
   other two AI features parse a strict JSON shape out of the LLM's
   reply, so a user-edited prompt there risks breaking that parsing;
   Career Consult is free-form chat with nothing to break.
+- A "Certifications only" filter on the Activity feed, sorting matches by
+  their recorded date instead of upload time. Any activity with a
+  recorded date now also shows it under its feed entry.
 
 ## [0.2.6] - 2026-09-26
 

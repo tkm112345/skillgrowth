@@ -161,6 +161,13 @@ Log page, and a read-only feed that already showed the same entries):
   stays in the feed as plain text, since the underlying activity log is
   append-only by design (the same as Education/Employment/Project
   deletions elsewhere in the app).
+- **Certifications only** — a checkbox above the feed that filters it down
+  to certification-type entries, sorted by their recorded date (newest
+  first) instead of the feed's usual upload-time grouping; it filters
+  whatever's currently loaded in the browser, so "Load more" may be needed
+  first if an older certification isn't visible yet. Any entry with a
+  recorded date (most visibly certifications) shows it under its text in
+  the feed.
 
 ## Resume
 

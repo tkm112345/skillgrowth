@@ -16,6 +16,7 @@ const hasMore = ref(false)
 const learningByEvidenceId = ref({})
 const selectedMonth = ref(null)
 const monthBuckets = ref([])
+const certificationsOnly = ref(false)
 
 const submitting = ref(false)
 const form = reactive({ activity_type: '', title: '', activity_date: '', notes: '' })
@@ -114,7 +115,7 @@ async function reload() {
   const [page, learningList] = await Promise.all([api.getEvidence(PAGE_SIZE, 0, year, month), api.getLearning()])
   entries.value = page
   hasMore.value = page.length === PAGE_SIZE
-  learningByEvidenceId.value = Object.fromEntries(learningList.map((l) => [l.evidence_id, l.id]))
+  learningByEvidenceId.value = Object.fromEntries(learningList.map((l) => [l.evidence_id, l]))
 }
 
 async function loadMonths() {
@@ -177,12 +178,30 @@ async function removeLearning(learningActivityId) {
 }
 
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))
+const formatDate = computed(() => (isoDate) => new Date(isoDate).toLocaleDateString(locale.value))
+
+const certificationTypeLabel = computed(() => activityTypes.value.find((type) => type.is_protected)?.label ?? null)
+
+const displayedEntries = computed(() => {
+  if (!certificationsOnly.value) return entries.value
+  return entries.value
+    .filter((entry) => learningByEvidenceId.value[entry.id]?.activity_type === certificationTypeLabel.value)
+    .slice()
+    .sort((a, b) => {
+      const dateA = learningByEvidenceId.value[a.id]?.activity_date || a.created_at
+      const dateB = learningByEvidenceId.value[b.id]?.activity_date || b.created_at
+      return new Date(dateB) - new Date(dateA)
+    })
+})
 
 const groupedEntries = computed(() => {
+  if (certificationsOnly.value) {
+    return displayedEntries.value.length ? [{ key: 'certifications', label: null, items: displayedEntries.value }] : []
+  }
   const formatMonth = new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long' })
   const groups = []
   const groupByKey = {}
-  for (const entry of entries.value) {
+  for (const entry of displayedEntries.value) {
     const date = new Date(entry.created_at)
     const key = `${date.getFullYear()}-${date.getMonth()}`
     let group = groupByKey[key]
@@ -268,9 +287,13 @@ const monthGroups = computed(() => {
     </el-option-group>
   </el-select>
 
+  <el-checkbox v-if="certificationTypeLabel" v-model="certificationsOnly" class="cert-only-toggle">
+    {{ t('timeline.certificationsOnly') }}
+  </el-checkbox>
+
   <div v-loading="loading">
     <div v-for="group in groupedEntries" :key="group.key" class="month-group">
-      <h2 class="month-heading">{{ group.label }}</h2>
+      <h2 v-if="group.label" class="month-heading">{{ group.label }}</h2>
       <el-timeline>
         <el-timeline-item
           v-for="entry in group.items"
@@ -285,12 +308,15 @@ const monthGroups = computed(() => {
                 size="small"
                 text
                 type="danger"
-                @click="removeLearning(learningByEvidenceId[entry.id])"
+                @click="removeLearning(learningByEvidenceId[entry.id].id)"
               >
                 {{ t('common.delete') }}
               </el-button>
             </div>
             <p>{{ entry.raw_input || t('timeline.image') }}</p>
+            <p v-if="learningByEvidenceId[entry.id]?.activity_date" class="entry-activity-date">
+              {{ t('timeline.activityDate', { date: formatDate(learningByEvidenceId[entry.id].activity_date) }) }}
+            </p>
           </el-card>
         </el-timeline-item>
       </el-timeline>
@@ -301,7 +327,7 @@ const monthGroups = computed(() => {
     {{ t('timeline.loadMore') }}
   </el-button>
 
-  <el-empty v-if="!loading && entries.length === 0" :description="t('timeline.noEntries')" />
+  <el-empty v-if="!loading && displayedEntries.length === 0" :description="t('timeline.noEntries')" />
 
   <el-dialog v-model="manageTypesVisible" :title="t('learning.manageTypes')" width="min(420px, 92vw)">
     <div v-for="type in activityTypes" :key="type.id" class="type-row">
@@ -372,6 +398,17 @@ const monthGroups = computed(() => {
   display: block;
   margin-bottom: 1rem;
   width: 220px;
+}
+
+.cert-only-toggle {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.entry-activity-date {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
 }
 
 .month-group + .month-group {

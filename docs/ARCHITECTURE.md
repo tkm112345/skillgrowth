@@ -350,6 +350,27 @@ they're still visible, not just discover they existed once
 `reset-sample` removes them. Scoped to these two screens for now — the
 same helper can cover more list endpoints later if wanted.
 
+`POST /api/backup/reset-all` is a different, much blunter operation:
+`SQLModel.metadata.drop_all(bind)` + `create_all(bind)`, re-seeding only
+the `Settings` singleton and the 5 default `ActivityType` rows — the
+same starting point a fresh install gets, `Settings` included (unlike
+every other path in this section, which deliberately never touches
+`Settings`). Uploaded files under `PORTFOLIO_DIR`/`RESUME_TEMPLATE_DIR`
+are deleted too, since the rows referencing them are gone.
+
+Critically, this operates on `session.get_bind()` — the engine the
+current request's `session` is actually bound to — never the
+module-level `app.db.engine` directly. Code that reaches for that
+module-level engine instead bypasses the `get_session` override
+`tests/conftest.py` uses to isolate every test on its own in-memory
+engine; a route that does this doesn't just fail to be testable, it
+runs its DDL and reseeding against the *real* `data/skillgrowth.db` any
+time a test happens to exercise it, wiping actual data as a side effect
+of running the test suite. `init_db()` couldn't be reused for the
+reseed step for the identical reason — it hardcodes `app.db.engine`
+internally, the same way — so the reseed here is a few lines of its own
+against `bind` instead of a call to it.
+
 ## LLM error handling
 
 Every `app/llm.py` function that calls the configured endpoint goes

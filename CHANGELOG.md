@@ -28,6 +28,10 @@ commit as the change, moved into a dated section when a release is cut).
 - A "Sample" tag on skills and Activity feed entries that came from
   "Try it with sample data," so they're distinguishable from your own
   data before you reset it.
+- A "Reset all data" action on the Settings page, wiping everything
+  (your own data, sample data, and the LLM connection settings) back to
+  a fresh install. Irreversible, so it requires a warning dialog and
+  then typing `RESET` to confirm.
 
 ## [0.2.6] - 2026-09-26
 

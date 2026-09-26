@@ -23,6 +23,7 @@ const importing = ref(false)
 const importFile = ref(null)
 const loadingSample = ref(false)
 const resettingSample = ref(false)
+const resettingAll = ref(false)
 const testing = ref(false)
 const testResult = ref(null)
 const aboutVisible = ref(false)
@@ -137,6 +138,35 @@ async function resetSample() {
     resettingSample.value = false
   }
 }
+
+async function resetAllData() {
+  await ElMessageBox.confirm(t('settings.confirmResetAll'), t('profile.confirm'), {
+    type: 'warning',
+    confirmButtonText: t('settings.resetAllProceed'),
+    cancelButtonText: t('common.cancel'),
+  })
+  // A second, stronger step beyond the confirm above: this is a fully
+  // irreversible wipe (including the LLM connection settings), so a single
+  // confirm dialog (the same one resetSample above uses for a much smaller,
+  // sample-only deletion) isn't enough friction here.
+  await ElMessageBox.prompt(t('settings.resetAllTypePrompt'), t('profile.confirm'), {
+    type: 'warning',
+    inputPattern: /^RESET$/,
+    inputErrorMessage: t('settings.resetAllTypeMismatch'),
+    confirmButtonText: t('settings.resetAllProceed'),
+    cancelButtonText: t('common.cancel'),
+  })
+  resettingAll.value = true
+  try {
+    await api.resetAllData()
+    ElMessage.success(t('settings.resetAllSuccess'))
+    window.location.reload()
+  } catch (e) {
+    ElMessage.error(t('settings.importError', { error: e.message }))
+  } finally {
+    resettingAll.value = false
+  }
+}
 </script>
 
 <template>
@@ -239,6 +269,14 @@ async function resetSample() {
         {{ t('settings.sampleReset') }}
       </el-button>
     </div>
+  </el-card>
+
+  <el-card shadow="never" class="backup-card accent-red">
+    <template #header>{{ t('settings.resetAllHeader') }}</template>
+    <p class="backup-hint">{{ t('settings.resetAllHint') }}</p>
+    <el-button :loading="resettingAll" type="danger" @click="resetAllData">
+      {{ t('settings.resetAllButton') }}
+    </el-button>
   </el-card>
 
   <el-card shadow="never" class="backup-card">

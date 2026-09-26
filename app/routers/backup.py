@@ -4,10 +4,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends
-from sqlmodel import Session, select
+from sqlmodel import Session, SQLModel, select
 
 from app.backup_import import import_backup
-from app.db import get_session
+from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, default_activity_types, get_session
 from app.models import (
     ActivityType,
     CareerGoal,
@@ -30,6 +30,7 @@ from app.models import (
     SampleDataRecord,
     SelfFeedback,
     SelfPR,
+    Settings,
     Skill,
     SkillLink,
 )
@@ -193,3 +194,39 @@ def reset_sample_data(session: Session = Depends(get_session)) -> dict:
 
     session.commit()
     return counts
+
+
+@router.post("/reset-all")
+def reset_all_data(session: Session = Depends(get_session)) -> dict:
+    """Wipe every table and re-seed the same defaults a fresh install gets
+    (the Settings singleton, the 5 default ActivityTypes) — everything,
+    not just sample-tracked rows, including the LLM connection settings.
+
+    Operates on `session.get_bind()`, not the module-level `app.db.engine`
+    directly: tests override `get_session` to point at an isolated engine
+    (see tests/conftest.py), and code that reaches for the module-level
+    `engine` instead bypasses that override — this exact bug shipped once
+    and a test run wiped the real `data/skillgrowth.db` a fresh install's
+    `init_db()` (which does hardcode `app.db.engine`) can't be reused here
+    for the same reason, so the reseed below is done directly against
+    `bind` instead of calling it.
+
+    Deliberately drop_all/create_all rather than a per-table DELETE list
+    (like RESET_TABLE_ORDER above): a table added to a future model would
+    silently be missed by a hand-maintained list, but never by this."""
+    bind = session.get_bind()
+    session.close()
+    SQLModel.metadata.drop_all(bind)
+    SQLModel.metadata.create_all(bind)
+
+    with Session(bind) as fresh:
+        fresh.add(Settings(id=1))
+        fresh.add_all(default_activity_types())
+        fresh.commit()
+
+    for directory in (PORTFOLIO_DIR, RESUME_TEMPLATE_DIR):
+        for f in directory.iterdir():
+            if f.is_file():
+                f.unlink()
+
+    return {"ok": True}

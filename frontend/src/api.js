@@ -126,6 +126,7 @@ export const api = {
   importBackup: (data) => request('/backup/import', { method: 'POST', body: JSON.stringify(data) }),
   loadSampleData: () => request('/backup/load-sample', { method: 'POST' }),
   resetSampleData: () => request('/backup/reset-sample', { method: 'POST' }),
+  resetAllData: () => request('/backup/reset-all', { method: 'POST' }),
 
   getGoals: () => request('/goals'),
   updateGoal: (horizon, description) =>

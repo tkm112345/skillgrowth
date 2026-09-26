@@ -289,3 +289,33 @@ def test_sample_skills_and_evidence_are_flagged_is_sample(client):
     skills = client.get("/api/skills").json()
     assert [s["name"] for s in skills] == ["MyRealSkill"]
     assert skills[0]["is_sample"] is False
+
+
+def test_reset_all_wipes_everything_including_settings(client):
+    client.post("/api/skills", json={"name": "MyRealSkill", "category": "技術"})
+    client.post("/api/backup/load-sample")
+    client.put(
+        "/api/settings",
+        json={
+            "openai_base_url": "https://api.openai.com/v1",
+            "openai_api_key": "sk-should-be-erased",
+            "llm_model": "gpt-4o",
+            "llm_vision_model": "gpt-4o",
+        },
+    )
+
+    resp = client.post("/api/backup/reset-all")
+    assert resp.status_code == 200
+    assert resp.json() == {"ok": True}
+
+    assert client.get("/api/skills").json() == []
+    assert client.get("/api/evidence").json() == []
+    assert client.get("/api/profile/employment").json() == []
+
+    settings = client.get("/api/settings").json()
+    assert settings["openai_api_key"] == ""  # cleared, not the masked placeholder
+    assert settings["llm_model"] == "gpt-4o-mini"  # back to the model's fresh-install default
+
+    # the 5 default activity types are re-seeded, same as a fresh install
+    types = client.get("/api/learning/types").json()
+    assert len(types) == 5

@@ -346,6 +346,12 @@ point.
   times you've run it) — anything you've entered yourself is left alone.
   Only the AI Integration page's three features still need a working LLM
   connection.
+- **Reset all data** — unlike the sample-data reset above, this wipes
+  literally everything: your own data as well as sample data, and the LLM
+  connection settings, back to exactly what a fresh install looks like.
+  Fully irreversible, so it requires two confirmations — a warning dialog,
+  then typing `RESET` — rather than the single confirm the other actions
+  on this page use.
 - **About this app** — opens a dialog with the app name, version (read
   from `/api/version`), and the license. Filing issues/PRs moved to the
   sidebar's Contribute button (see Cross-cutting below) so it's visible

@@ -100,7 +100,11 @@ export const api = {
 
   getConsultSessions: (limit = 20, offset = 0) =>
     request(`/consult/sessions?limit=${limit}&offset=${offset}`),
-  createConsultSession: () => request('/consult/sessions', { method: 'POST' }),
+  createConsultSession: (targetIndustry) =>
+    request('/consult/sessions', {
+      method: 'POST',
+      body: JSON.stringify({ target_industry: targetIndustry || null }),
+    }),
   getConsultSession: (id) => request(`/consult/sessions/${id}`),
   deleteConsultSession: (id) => request(`/consult/sessions/${id}`, { method: 'DELETE' }),
   getConsultMessages: (sessionId) => request(`/consult/sessions/${sessionId}/messages`),

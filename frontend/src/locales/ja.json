@@ -325,6 +325,7 @@
     "consultCustomInstructionsHint": "基本のシステムプロンプトに追加されます——口調、重視してほしい観点など、常に念頭に置いてほしいことを書けます。根拠にするデータの範囲を変えたり、分からないことを質問せず答えさせたりすることはできません。",
     "consultCustomInstructionsPlaceholder": "例: 率直でストレートな物言いにしてほしい。特にリーダーシップの成長を重視してほしい。",
     "consultCustomInstructionsSaved": "保存しました",
+    "consultTargetIndustryPlaceholder": "目指す業界（任意、例: 製造業、AI/IT）",
     "consultStart": "会話を始める",
     "consultUntitled": "無題の相談",
     "consultPageHint": "この会話には、あなたのキャリアデータ全体が渡されます（含まれる内容はAI連携ページの「キャリア相談」カードを参照）。",

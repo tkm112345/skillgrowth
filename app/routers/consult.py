@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -19,6 +20,10 @@ class MessageIn(BaseModel):
     locale: str = "en"
 
 
+class ConsultSessionIn(BaseModel):
+    target_industry: Optional[str] = None
+
+
 @router.get("/sessions")
 def list_sessions(limit: int = 20, offset: int = 0, session: Session = Depends(get_session)) -> list[ConsultSession]:
     return session.exec(
@@ -27,8 +32,10 @@ def list_sessions(limit: int = 20, offset: int = 0, session: Session = Depends(g
 
 
 @router.post("/sessions")
-def create_session(session: Session = Depends(get_session)) -> ConsultSession:
-    consult = ConsultSession()
+def create_session(
+    payload: ConsultSessionIn = ConsultSessionIn(), session: Session = Depends(get_session)
+) -> ConsultSession:
+    consult = ConsultSession(target_industry=payload.target_industry)
     session.add(consult)
     session.commit()
     session.refresh(consult)
@@ -82,7 +89,7 @@ def send_message(session_id: str, payload: MessageIn, session: Session = Depends
     chat_messages = [{"role": m.role, "content": m.content} for m in history]
     context = build_consult_context(session)
     settings = session.get(Settings, 1)
-    reply_text = llm.career_consult_reply(chat_messages, context, payload.locale, settings)
+    reply_text = llm.career_consult_reply(chat_messages, context, payload.locale, settings, consult.target_industry)
 
     assistant_message = ConsultMessage(session_id=session_id, role="assistant", content=reply_text)
     session.add(assistant_message)

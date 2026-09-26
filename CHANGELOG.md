@@ -10,6 +10,12 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- An optional "Target industry" field when starting a Career Consult
+  conversation, asking the consultant to specialize its advice for that
+  industry using its own knowledge (no web search or tool use involved).
+  Set per-conversation rather than as a global setting, so a
+  manufacturing-focused conversation and an AI/IT-focused one can be kept
+  side by side — shown as a small tag next to each conversation's title.
 - A global search box in the top bar, matching keywords across Skills,
   Activity, and Portfolio (SQLite FTS5), grouped by type with a snippet;
   picking a result navigates to that entity's page.

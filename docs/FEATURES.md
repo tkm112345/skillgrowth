@@ -270,6 +270,12 @@ activity, not from this page):
   other two AI features below parse a strict JSON shape out of the
   LLM's reply, so letting their prompts be freely edited risks breaking
   that parsing; Career Consult is free-form chat with nothing to break.
+  An optional "Target industry" field, set when starting a conversation,
+  asks the consultant to specialize its advice for that industry (using
+  its own knowledge — no web search or external lookup involved); it's
+  per-conversation rather than a global setting, so a manufacturing-focused
+  conversation and an AI/IT-focused one can be kept side by side, shown as
+  a small tag next to each conversation's title in the list.
 - **Growth guidance** — for any career path goal you've written on the
   Dashboard, the LLM suggests what to develop next given your current
   skills. Only calls the LLM for goals that actually have text; if none

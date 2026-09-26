@@ -129,6 +129,7 @@ erDiagram
   ConsultSession {
     string id
     text title "set from the first message"
+    string target_industry "optional, set only at creation; specializes this session's advice"
     datetime created_at
     datetime updated_at
   }

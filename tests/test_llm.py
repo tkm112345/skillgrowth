@@ -55,3 +55,50 @@ def test_career_consult_reply_omits_custom_instructions_block_when_empty(monkeyp
 
     assert "__CUSTOM_INSTRUCTIONS__" not in seen["system_prompt"]
     assert "追加の指示" not in seen["system_prompt"]
+
+
+def test_career_consult_reply_includes_target_industry(monkeypatch):
+    seen = {}
+
+    def fake_complete(settings, **kwargs):
+        seen["system_prompt"] = kwargs["messages"][0]["content"]
+
+        class Choice:
+            message = type("M", (), {"content": "ok"})()
+
+        class Resp:
+            choices = [Choice()]
+
+        return Resp()
+
+    monkeypatch.setattr(llm, "_complete", fake_complete)
+
+    settings = _settings()
+    llm.career_consult_reply(
+        [{"role": "user", "content": "hi"}], "career data here", "en", settings, target_industry="製造業"
+    )
+
+    assert "製造業" in seen["system_prompt"]
+
+
+def test_career_consult_reply_omits_target_industry_block_when_absent(monkeypatch):
+    seen = {}
+
+    def fake_complete(settings, **kwargs):
+        seen["system_prompt"] = kwargs["messages"][0]["content"]
+
+        class Choice:
+            message = type("M", (), {"content": "ok"})()
+
+        class Resp:
+            choices = [Choice()]
+
+        return Resp()
+
+    monkeypatch.setattr(llm, "_complete", fake_complete)
+
+    settings = _settings()
+    llm.career_consult_reply([{"role": "user", "content": "hi"}], "career data here", "en", settings)
+
+    assert "__TARGET_INDUSTRY__" not in seen["system_prompt"]
+    assert "相談者が今後進みたいと考えている業界" not in seen["system_prompt"]

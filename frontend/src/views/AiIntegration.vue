@@ -17,6 +17,7 @@ const loadingGuidance = ref(false)
 const sessions = ref([])
 const loadingSessions = ref(true)
 const startingSession = ref(false)
+const targetIndustry = ref('')
 
 const settings = ref(null)
 const customInstructions = ref('')
@@ -65,7 +66,8 @@ function formatDate(iso) {
 async function startConsult() {
   startingSession.value = true
   try {
-    const session = await api.createConsultSession()
+    const session = await api.createConsultSession(targetIndustry.value.trim() || null)
+    targetIndustry.value = ''
     router.push(`/consult/${session.id}`)
   } finally {
     startingSession.value = false
@@ -132,15 +134,25 @@ async function runGapCheck() {
       </el-collapse-item>
     </el-collapse>
 
+    <el-input
+      v-model="targetIndustry"
+      :placeholder="t('ai.consultTargetIndustryPlaceholder')"
+      class="consult-target-industry-input"
+    />
     <el-button type="primary" :loading="startingSession" @click="startConsult">
       {{ t('ai.consultStart') }}
     </el-button>
 
     <ul v-if="sessions.length" class="consult-session-list">
       <li v-for="s in sessions" :key="s.id">
-        <router-link :to="`/consult/${s.id}`" class="consult-session-link">
-          {{ s.title || t('ai.consultUntitled') }}
-        </router-link>
+        <span class="consult-session-title">
+          <router-link :to="`/consult/${s.id}`" class="consult-session-link">
+            {{ s.title || t('ai.consultUntitled') }}
+          </router-link>
+          <el-tag v-if="s.target_industry" size="small" class="consult-session-industry">
+            {{ s.target_industry }}
+          </el-tag>
+        </span>
         <span class="consult-session-date">{{ formatDate(s.updated_at) }}</span>
       </li>
     </ul>
@@ -232,6 +244,13 @@ async function runGapCheck() {
   gap: 1rem;
 }
 
+.consult-session-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
 .consult-session-link {
   color: var(--ink-primary);
   text-decoration: none;
@@ -240,6 +259,11 @@ async function runGapCheck() {
 
 .consult-session-link:hover {
   text-decoration: underline;
+}
+
+.consult-target-industry-input {
+  margin-bottom: 0.5rem;
+  max-width: 320px;
 }
 
 .consult-session-date {

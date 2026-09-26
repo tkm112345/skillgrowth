@@ -33,7 +33,7 @@ def test_send_message_calls_llm_with_full_history_and_context(client, monkeypatc
 
     seen = {}
 
-    def fake_reply(messages, context, locale, settings):
+    def fake_reply(messages, context, locale, settings, target_industry=None):
         seen["messages"] = messages
         seen["context"] = context
         seen["locale"] = locale
@@ -69,7 +69,7 @@ def test_second_message_includes_prior_turns_in_history(client, monkeypatch):
 
     seen_histories = []
 
-    def fake_reply(messages, context, locale, settings):
+    def fake_reply(messages, context, locale, settings, target_industry=None):
         seen_histories.append([m["content"] for m in messages])
         return "ok"
 
@@ -111,3 +111,33 @@ def test_get_session_detail_missing_returns_404(client):
 def test_send_message_to_missing_session_returns_404(client):
     resp = client.post("/api/consult/sessions/does-not-exist/messages", json={"content": "hi"})
     assert resp.status_code == 404
+
+
+def test_create_session_with_target_industry(client):
+    created = client.post("/api/consult/sessions", json={"target_industry": "製造業"}).json()
+    assert created["target_industry"] == "製造業"
+
+    detail = client.get(f"/api/consult/sessions/{created['id']}").json()
+    assert detail["target_industry"] == "製造業"
+
+
+def test_create_session_without_body_defaults_target_industry_to_none(client):
+    created = client.post("/api/consult/sessions").json()
+    assert created["target_industry"] is None
+
+
+def test_send_message_passes_target_industry_to_llm(client, monkeypatch):
+    from app import llm
+
+    seen = {}
+
+    def fake_reply(messages, context, locale, settings, target_industry=None):
+        seen["target_industry"] = target_industry
+        return "ok"
+
+    monkeypatch.setattr(llm, "career_consult_reply", fake_reply)
+
+    created = client.post("/api/consult/sessions", json={"target_industry": "AI/IT"}).json()
+    client.post(f"/api/consult/sessions/{created['id']}/messages", json={"content": "hi"})
+
+    assert seen["target_industry"] == "AI/IT"

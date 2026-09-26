@@ -300,8 +300,16 @@ silently overwrite a goal the user has already written. `CareerVision`
 (see "Career vision" below) gets the same treatment, keyed by its fixed
 `id=1` instead of a horizon. `CareerGoalHistory` rows (see "Career goal
 history" below) are plain insert-only records like `SelfPR`, so every
-imported row is simply added. `Settings` is never part of the payload in
-either direction, so an LLM API key can't leak through a backup file.
+imported row is simply added. `SelfFeedback` is the same — plain
+insert-only, no dedup. `ActivityType` is the other exception: deduped by
+`label` (case-insensitive), not always inserted — needed because
+`app.db.init_db` already seeds the 5 default types on any normally
+initialized install, so an unconditional insert would double them on
+every restore; `is_protected`/`translation_key` are never taken from
+backup data, since those are this app's own invariants, not user data a
+backup should be able to grant or revoke. `Settings` is never part of the
+payload in either direction, so an LLM API key can't leak through a
+backup file.
 
 `load-sample` additionally passes a `track` dict into `import_backup`,
 which the function fills with `{table_name: [new_id, ...]}` as it creates

@@ -268,8 +268,9 @@ for how good the LLM's suggestions actually are.
 Many of this app's screens — Dashboard, Profile, Activity, Skills — are
 different views onto that same append-only activity log, added to a
 little at a time rather than reset each time around. Vision, career path
-goals, Self PR, and resume generation itself all sit outside that log,
-though, and never go through LLM extraction at any point.
+goals, Self Feedback, Self PR, and resume generation itself all sit
+outside that log, though, and never go through LLM extraction at any
+point.
 
 ## Settings
 
@@ -281,7 +282,10 @@ though, and never go through LLM extraction at any point.
 - **LLM connection** — base URL, API key, text model, vision model, stored
   in the database and editable from the UI — no `.env` editing or restart
   required. Works against any OpenAI-compatible chat completions endpoint:
-  a cloud API or a local Ollama server.
+  a cloud API or a local Ollama server. Once a key is set, the page never
+  displays it again in plaintext — it shows a fixed placeholder instead,
+  and saving other fields (or testing the connection) without retyping it
+  reuses the stored key rather than overwriting it with the placeholder.
 - **Skill extraction toggle** — a global on/off switch, **off by default**,
   covering the LLM call that extracts skills from Quick update, Activity,
   and Profile's free-text fields (education/employment/project). Off
@@ -296,10 +300,13 @@ though, and never go through LLM extraction at any point.
   surface elsewhere (a quick update, a growth guidance request, a gap
   check), every LLM-backed endpoint returns the real failure reason as its
   error detail instead of a bare "Internal Server Error".
-- **Data backup** — download every career record (activity, skills,
-  profile, goals with their full history, vision, links, self PR history,
-  resume export history) as a single JSON file. Deliberately excludes the
-  LLM connection settings (so an API key never ends up in a backup file).
+- **Data backup** — download every career record as a single JSON file:
+  activity, skills, profile (education/employment/projects), goals with
+  their full history, vision, self feedback, activity types, links,
+  self PR history, resume export/template history, portfolio
+  items/links/files, and Career Consult sessions. Deliberately excludes
+  the LLM connection settings (so an API key never ends up in a backup
+  file).
 - **Restore from backup** — upload a previously downloaded backup file to
   re-import its records. Always additive: it never deletes or overwrites
   existing rows, and only fills in a career goal if that horizon is still
@@ -324,10 +331,10 @@ though, and never go through LLM extraction at any point.
 
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
   to an icon rail; the state is remembered per browser.
-- **Category/type color coding** — categories, activity types, and activity
-  source types are each assigned one of 8 accent hues by a deterministic
-  hash of their name, so the same category always gets the same color
-  across the app without maintaining an explicit color list per page.
+- **Category/type color coding** — skill categories and activity source
+  types are each assigned one of 8 accent hues by a deterministic hash of
+  their name, so the same category always gets the same color across the
+  app without maintaining an explicit color list per page.
 - **Version** — shown in the sidebar footer, read from the backend's
   `/api/version` (itself read from the repo's `VERSION` file), so it can
   never drift from what's actually deployed.

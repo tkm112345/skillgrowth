@@ -43,6 +43,13 @@ commit as the change, moved into a dated section when a release is cut).
   certificate-image upload path got the right tag. Every other activity
   type (reading, talk given/attended, other, custom types) already
   showed the correct generic tag and is unaffected.
+- The sidebar was narrow enough that a longer nav label ("Self Feedback")
+  triggered a horizontal scrollbar inside it; widened the sidebar and
+  fixed the underlying overflow-x gap so this can't recur for any label.
+- The certification row in Activity's "Manage types" dialog had its label
+  competing for space with its full-sentence hint the same way a label
+  competes with two short buttons on every other row, squeezing the hint
+  into a cramped column instead of letting it wrap normally.
 
 ## [0.2.6] - 2026-09-26
 

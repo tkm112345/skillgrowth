@@ -364,7 +364,9 @@ const monthGroups = computed(() => {
         </el-button>
       </template>
       <template v-else>
-        <span class="type-row-label">{{ typeDisplayLabel(type) }}</span>
+        <span class="type-row-label" :class="{ 'type-row-label-compact': type.is_protected }">
+          {{ typeDisplayLabel(type) }}
+        </span>
         <template v-if="type.is_protected">
           <span class="type-row-hint">{{ t('learning.protectedTypeHint') }}</span>
         </template>
@@ -397,7 +399,7 @@ const monthGroups = computed(() => {
 
 .type-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   padding: 0.4rem 0;
 }
@@ -408,11 +410,22 @@ const monthGroups = computed(() => {
 
 .type-row-label {
   flex: 1;
+  line-height: 24px;
+}
+
+/* The protected (certification) row pairs the label with a full
+   sentence, not a couple of buttons — letting the label grow the same
+   way it does elsewhere squeezes that sentence into whatever's left,
+   instead of giving it the room it needs to wrap normally. */
+.type-row-label-compact {
+  flex: 0 0 auto;
 }
 
 .type-row-hint {
+  flex: 1;
   color: var(--ink-secondary);
   font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 .chart-card {

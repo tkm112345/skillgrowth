@@ -58,7 +58,7 @@ onMounted(async () => {
 
 <template>
   <el-container class="shell">
-    <el-aside :width="collapsed ? '60px' : '212px'" class="sidebar">
+    <el-aside :width="collapsed ? '60px' : '236px'" class="sidebar">
       <div class="brand">
         <img src="/favicon.svg" alt="" class="brand-mark" />
         <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
@@ -208,6 +208,7 @@ onMounted(async () => {
   background: transparent;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .nav :deep(.el-menu-item) {
@@ -215,6 +216,9 @@ onMounted(async () => {
   margin: 1px 8px;
   height: 32px;
   line-height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav :deep(.el-menu-item.is-active) {

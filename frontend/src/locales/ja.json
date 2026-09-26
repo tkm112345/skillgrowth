@@ -208,6 +208,8 @@
     "jumpToMonth": "月へ移動",
     "certificationsOnly": "資格のみ表示",
     "activityDate": "日付: {date}",
+    "includeInResume": "職務経歴書に含む",
+    "resumeToggleError": "更新に失敗しました。もう一度お試しください。",
     "loadMore": "もっと見る",
     "image": "(画像)",
     "sourceCertification": "資格・修了証",

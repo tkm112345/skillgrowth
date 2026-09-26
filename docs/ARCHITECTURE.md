@@ -84,6 +84,7 @@ erDiagram
     string title
     date activity_date
     text notes
+    bool include_in_resume "only meaningful for activity_type=='certification'"
   }
   ActivityType {
     string id

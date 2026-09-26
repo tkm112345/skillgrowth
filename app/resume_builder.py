@@ -76,7 +76,7 @@ def gather_resume_context(session: Session) -> dict:
 
     certification_rows = session.exec(
         select(LearningActivity)
-        .where(LearningActivity.activity_type == "certification")
+        .where(LearningActivity.activity_type == "certification", LearningActivity.include_in_resume == True)  # noqa: E712
         .order_by(LearningActivity.activity_date.desc())
     ).all()
     certifications = [

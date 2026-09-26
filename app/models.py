@@ -160,6 +160,10 @@ class LearningActivity(SQLModel, table=True):
     activity_date: Optional[date] = None
     notes: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
+    # Only meaningful for activity_type == "certification" — controls
+    # whether resume_builder.py's Certifications section includes this
+    # entry, the same role Skill.include_in_resume plays for skills.
+    include_in_resume: bool = True
 
 
 class ActivityType(SQLModel, table=True):

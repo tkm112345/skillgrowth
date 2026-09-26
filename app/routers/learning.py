@@ -19,6 +19,10 @@ class LearningActivityIn(BaseModel):
     notes: str = ""
 
 
+class LearningResumeInclusionIn(BaseModel):
+    include_in_resume: bool
+
+
 class ActivityTypeIn(BaseModel):
     label: str
 
@@ -50,6 +54,20 @@ def create_learning(payload: LearningActivityIn, session: Session = Depends(get_
     session.commit()
     session.refresh(activity)
     return LearningResult(activity=activity, linked_skills=linked)
+
+
+@router.put("/{activity_id}/resume-inclusion")
+def set_learning_resume_inclusion(
+    activity_id: str, payload: LearningResumeInclusionIn, session: Session = Depends(get_session)
+) -> LearningActivity:
+    activity = session.get(LearningActivity, activity_id)
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity.include_in_resume = payload.include_in_resume
+    session.add(activity)
+    session.commit()
+    session.refresh(activity)
+    return activity
 
 
 @router.delete("/{activity_id}")

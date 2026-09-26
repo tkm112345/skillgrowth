@@ -208,6 +208,8 @@
     "jumpToMonth": "Jump to month",
     "certificationsOnly": "Certifications only",
     "activityDate": "Date: {date}",
+    "includeInResume": "Include in resume",
+    "resumeToggleError": "Failed to update — please try again.",
     "loadMore": "Load more",
     "image": "(image)",
     "sourceCertification": "Certification",

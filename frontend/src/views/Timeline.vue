@@ -177,6 +177,17 @@ async function removeLearning(learningActivityId) {
   await reload()
 }
 
+async function toggleLearningResumeInclusion(learningActivity) {
+  const next = !learningActivity.include_in_resume
+  learningActivity.include_in_resume = next
+  try {
+    await api.setLearningResumeInclusion(learningActivity.id, next)
+  } catch (e) {
+    learningActivity.include_in_resume = !next
+    ElMessage.error(t('timeline.resumeToggleError'))
+  }
+}
+
 const formatDateTime = computed(() => (iso) => new Date(iso).toLocaleString(locale.value))
 const formatDate = computed(() => (isoDate) => new Date(isoDate).toLocaleDateString(locale.value))
 
@@ -320,6 +331,17 @@ const monthGroups = computed(() => {
             <p v-if="learningByEvidenceId[entry.id]?.activity_date" class="entry-activity-date">
               {{ t('timeline.activityDate', { date: formatDate(learningByEvidenceId[entry.id].activity_date) }) }}
             </p>
+            <div
+              v-if="learningByEvidenceId[entry.id]?.activity_type === certificationTypeLabel"
+              class="entry-resume-toggle"
+            >
+              <span>{{ t('timeline.includeInResume') }}</span>
+              <el-switch
+                :model-value="learningByEvidenceId[entry.id].include_in_resume"
+                size="small"
+                @change="toggleLearningResumeInclusion(learningByEvidenceId[entry.id])"
+              />
+            </div>
           </el-card>
         </el-timeline-item>
       </el-timeline>
@@ -412,6 +434,15 @@ const monthGroups = computed(() => {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin: 0.25rem 0 0;
+}
+
+.entry-resume-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
 }
 
 .month-group + .month-group {

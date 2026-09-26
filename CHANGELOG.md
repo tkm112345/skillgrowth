@@ -33,6 +33,10 @@ commit as the change, moved into a dated section when a release is cut).
   a fresh install. Irreversible, so it requires a warning dialog and
   then typing `RESET` to confirm.
 
+- An "include in resume" switch on each certification (Activity feed),
+  mirroring Skills' switch of the same name — resume_builder.py's
+  Certifications section now respects it.
+
 ### Fixed
 - Adding a certification from the Activity page tagged its feed entry as
   generic "Learning" rather than "Certification" — only the separate

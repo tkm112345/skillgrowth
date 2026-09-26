@@ -1,4 +1,4 @@
-from app.models import Education, Employment, Skill
+from app.models import Education, Employment, LearningActivity, Skill
 from app.resume_builder import build_resume_markdown
 
 
@@ -41,3 +41,13 @@ def test_resume_omits_empty_sections(session):
     assert "## Self PR" not in content
     assert "## Work History" not in content
     assert content.strip() == "# Resume"
+
+
+def test_certification_excluded_from_resume_when_include_in_resume_is_false(session):
+    session.add(LearningActivity(activity_type="certification", title="Shown Cert"))
+    session.add(LearningActivity(activity_type="certification", title="Hidden Cert", include_in_resume=False))
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "Shown Cert" in content
+    assert "Hidden Cert" not in content

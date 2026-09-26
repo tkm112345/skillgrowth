@@ -148,7 +148,10 @@ Log page, and a read-only feed that already showed the same entries):
   built-in, protected type: it drives the resume's Certifications section
   and unlocks an optional certificate-image field (run through the same
   vision-based skill extraction as the Profile certification flow), so it
-  can't be renamed or removed.
+  can't be renamed or removed. Each certification also gets an **include
+  in resume** switch, shown on its feed entry — same idea as Skills'
+  switch of the same name, on by default — for keeping a certification
+  tracked here without putting it in front of an employer.
 - **Feed** — a chronological view of every activity entry ever added (quick
   updates, certifications, the free-text side of every
   Education/Employment/Project entry, and the entries added above),

@@ -32,6 +32,10 @@ short — put anything long in `docs/` and link to it from here.
 4. If the change belongs in a release, add it under `CHANGELOG.md`'s
    `## [Unreleased]` section as part of the same commit — don't let the
    changelog fall behind and try to reconstruct it later.
+5. When reporting the change as done, state what you actually verified
+   and what you didn't (skipped checks, untested edge cases, endpoints
+   the smoke test didn't hit) — "make check passed" alone isn't a
+   verification record.
 
 ## Commit attribution
 

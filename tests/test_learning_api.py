@@ -34,3 +34,33 @@ def test_toggle_learning_resume_inclusion(client):
 def test_toggle_learning_resume_inclusion_missing_id_returns_404(client):
     resp = client.put("/api/learning/does-not-exist/resume-inclusion", json={"include_in_resume": False})
     assert resp.status_code == 404
+
+
+def test_update_learning_activity(client):
+    created = client.post("/api/learning", json={"activity_type": "certification", "title": "AWS SAA"}).json()
+    activity_id = created["activity"]["id"]
+
+    resp = client.put(
+        f"/api/learning/{activity_id}",
+        json={
+            "activity_type": "certification",
+            "title": "AWS SAP",
+            "activity_date": "2026-01-15",
+            "expiry_date": "2029-01-15",
+            "notes": "renewed",
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["title"] == "AWS SAP"
+    assert body["activity_date"] == "2026-01-15"
+    assert body["expiry_date"] == "2029-01-15"
+    assert body["notes"] == "renewed"
+
+
+def test_update_learning_activity_missing_id_returns_404(client):
+    resp = client.put(
+        "/api/learning/does-not-exist",
+        json={"activity_type": "certification", "title": "AWS SAA"},
+    )
+    assert resp.status_code == 404

@@ -10,6 +10,12 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A dedicated Certifications page (new sidebar entry), listing every
+  certification with its acquisition date and an optional expiry date
+  (flagged with a badge once past), and letting you edit or delete an
+  entry directly — including backfilling an expiry date onto a
+  certification added before this page existed, which the Activity feed
+  has no way to do.
 - A `GET /api/health` endpoint (200 with a live DB connection, 503
   otherwise) and a Docker `HEALTHCHECK` that polls it, so container
   orchestrators, reverse proxies, and uptime monitors can check liveness

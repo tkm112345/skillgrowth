@@ -164,6 +164,9 @@ class LearningActivity(SQLModel, table=True):
     activity_type: str
     title: str
     activity_date: Optional[date] = None
+    # Only meaningful for activity_type == "certification" — an optional
+    # expiration date shown on the certifications list page.
+    expiry_date: Optional[date] = None
     notes: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
     # Only meaningful for activity_type == "certification" — controls

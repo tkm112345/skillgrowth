@@ -91,6 +91,7 @@ erDiagram
     string activity_type "free text matching an ActivityType.label at creation time, not a FK"
     string title
     date activity_date
+    date expiry_date "optional, only meaningful for activity_type=='certification'"
     text notes
     bool include_in_resume "only meaningful for activity_type=='certification'"
   }

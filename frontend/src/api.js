@@ -174,6 +174,7 @@ export const api = {
 
   getLearning: () => request('/learning'),
   addLearning: (payload) => request('/learning', { method: 'POST', body: JSON.stringify(payload) }),
+  updateLearning: (id, payload) => request(`/learning/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteLearning: (id) => request(`/learning/${id}`, { method: 'DELETE' }),
   setLearningResumeInclusion: (id, includeInResume) =>
     request(`/learning/${id}/resume-inclusion`, {

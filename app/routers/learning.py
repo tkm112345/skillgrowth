@@ -16,6 +16,7 @@ class LearningActivityIn(BaseModel):
     activity_type: str
     title: str
     activity_date: Optional[date] = None
+    expiry_date: Optional[date] = None
     notes: str = ""
 
 
@@ -54,6 +55,24 @@ def create_learning(payload: LearningActivityIn, session: Session = Depends(get_
     session.commit()
     session.refresh(activity)
     return LearningResult(activity=activity, linked_skills=linked)
+
+
+@router.put("/{activity_id}")
+def update_learning(
+    activity_id: str, payload: LearningActivityIn, session: Session = Depends(get_session)
+) -> LearningActivity:
+    activity = session.get(LearningActivity, activity_id)
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity.activity_type = payload.activity_type
+    activity.title = payload.title
+    activity.activity_date = payload.activity_date
+    activity.expiry_date = payload.expiry_date
+    activity.notes = payload.notes
+    session.add(activity)
+    session.commit()
+    session.refresh(activity)
+    return activity
 
 
 @router.put("/{activity_id}/resume-inclusion")

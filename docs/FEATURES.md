@@ -184,6 +184,27 @@ Log page, and a read-only feed that already showed the same entries):
 - Sample-data entries carry a small "Sample" tag next to their source-type
   label, same as on the Skills page.
 
+## Certifications
+
+A dedicated page, separate from the Activity feed's "Certifications only"
+filter above, for managing certification entries one at a time:
+
+- **List** — every certification entry, with its acquisition date, an
+  optional expiry date, and the same "include in resume" switch shown on
+  the Activity feed's certification entries (it's the same underlying
+  field either way).
+- **Add / edit** — a dialog for title, acquisition date, an optional
+  expiry date, and notes. Editing is only available here — the Activity
+  feed can delete a certification's structured fields but not edit them,
+  so this is also how you backfill an expiry date on a certification
+  added before this page existed.
+- **Expired badge** — a certification whose expiry date is in the past is
+  flagged with a red badge in the list. This is a visual cue only — there's
+  no reminder or notification for an upcoming expiry.
+- **Delete** — same behavior as the Activity feed: removes the structured
+  type/title/date; the underlying activity log entry stays in the feed as
+  plain text.
+
 ## Resume
 
 - **Self PR** — a free-text pitch about yourself, included at the top of

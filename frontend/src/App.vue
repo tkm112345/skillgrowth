@@ -8,6 +8,7 @@ import {
   Fold,
   List,
   MagicStick,
+  Medal,
   Notebook,
   Promotion,
   Setting,
@@ -87,6 +88,10 @@ onMounted(async () => {
         <el-menu-item index="/timeline">
           <el-icon style="color: var(--hue-magenta)"><TrendCharts /></el-icon>
           <template #title>{{ t('nav.timeline') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/certifications">
+          <el-icon style="color: var(--hue-aqua)"><Medal /></el-icon>
+          <template #title>{{ t('nav.certifications') }}</template>
         </el-menu-item>
         <el-menu-item index="/profile">
           <el-icon style="color: var(--hue-violet)"><Notebook /></el-icon>

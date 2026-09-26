@@ -11,6 +11,7 @@
     "portfolio": "Portfolio",
     "skills": "Skills",
     "timeline": "Activity",
+    "certifications": "Certifications",
     "export": "Resume",
     "ai": "AI Integration",
     "concept": "Concept",
@@ -218,6 +219,21 @@
     "sourceEmployment": "Work history",
     "sourceProject": "Project",
     "sourceLearningActivity": "Learning"
+  },
+  "certifications": {
+    "title": "Certifications",
+    "subtitle": "Your certifications, alongside acquisition and expiry dates, in one list.",
+    "columnTitle": "Certification",
+    "columnDate": "Acquired",
+    "columnExpiry": "Expiry",
+    "expired": "Expired",
+    "noEntries": "No certifications recorded yet",
+    "add": "Add certification",
+    "added": "Certification added",
+    "edit": "Edit certification",
+    "updated": "Certification updated",
+    "expiryLabel": "Expiry date (optional)",
+    "confirmDelete": "Delete this certification?"
   },
   "export": {
     "title": "Resume",

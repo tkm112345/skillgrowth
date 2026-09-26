@@ -11,7 +11,7 @@ const HISTORY_PAGE_SIZE = 5
 const { t, locale } = useI18n()
 
 const skills = ref([])
-const timeline = ref([])
+const actionCounts = ref([])
 const goals = ref([])
 const loading = ref(true)
 const savingGoal = ref('')
@@ -31,9 +31,9 @@ const horizonLabelKeys = {
 }
 
 async function reloadSkillData() {
-  const [skillList, timelineList] = await Promise.all([api.getSkills(), api.getSkillTimeline()])
+  const [skillList, actionCountList] = await Promise.all([api.getSkills(), api.getSkillActionCounts()])
   skills.value = skillList
-  timeline.value = timelineList
+  actionCounts.value = actionCountList
 }
 
 onMounted(async () => {
@@ -123,16 +123,17 @@ const ink = computed(() => (isDark.value ? '#c3c2b7' : '#52514e'))
 const grid = computed(() => (isDark.value ? '#2c2c2a' : '#e1e0d9'))
 const seriesBlue = computed(() => (isDark.value ? '#3987e5' : '#2a78d6'))
 
-const growthOption = computed(() => {
-  const points = timeline.value.map((t, i) => [t.date, i + 1])
+const actionCountOption = computed(() => {
+  const labels = actionCounts.value.map((c) => `${c.year}-${String(c.month).padStart(2, '0')}`)
+  const counts = actionCounts.value.map((c) => c.count)
   return {
     grid: { left: 40, right: 16, top: 20, bottom: 32 },
     tooltip: { trigger: 'axis' },
     xAxis: {
-      type: 'time',
+      type: 'category',
+      data: labels,
       axisLine: { lineStyle: { color: grid.value } },
       axisLabel: { color: ink.value },
-      splitLine: { show: false },
     },
     yAxis: {
       type: 'value',
@@ -143,13 +144,10 @@ const growthOption = computed(() => {
     },
     series: [
       {
-        type: 'line',
-        step: 'end',
-        data: points,
-        symbolSize: 8,
-        lineStyle: { width: 2, color: seriesBlue.value },
-        itemStyle: { color: seriesBlue.value },
-        areaStyle: { color: seriesBlue.value, opacity: 0.08 },
+        type: 'bar',
+        data: counts,
+        barMaxWidth: 40,
+        itemStyle: { color: seriesBlue.value, borderRadius: [4, 4, 0, 0] },
       },
     ],
   }
@@ -280,8 +278,8 @@ const categoryOption = computed(() => {
   </el-card>
 
   <el-card shadow="never" class="chart-card accent-aqua">
-    <template #header>{{ t('dashboard.growthHeader') }}</template>
-    <v-chart v-if="!loading" :option="growthOption" autoresize style="height: 260px" />
+    <template #header>{{ t('dashboard.actionCountHeader') }}</template>
+    <v-chart v-if="!loading" :option="actionCountOption" autoresize style="height: 260px" />
   </el-card>
 
   <el-card shadow="never" class="chart-card accent-orange">

@@ -1,3 +1,8 @@
+from datetime import datetime, timezone
+
+from app.models import EvidenceEntry, Skill, SkillLink
+
+
 def test_add_skill_creates_and_lists(client):
     resp = client.post("/api/skills", json={"name": "Python", "category": "技術"})
     assert resp.status_code == 200
@@ -138,3 +143,48 @@ def test_excluded_skill_is_omitted_from_resume(client):
     content = client.post("/api/export").json()["content"]
     assert included["name"] in content
     assert excluded["name"] not in content
+
+
+def test_skill_action_counts_groups_by_year_month(client, session):
+    skill = Skill(name="Python", category="技術")
+    session.add(skill)
+    session.commit()
+    session.refresh(skill)
+
+    entry = EvidenceEntry(source_type="checkin", raw_input="a")
+    session.add(entry)
+    session.commit()
+    session.refresh(entry)
+
+    session.add(
+        SkillLink(
+            evidence_id=entry.id,
+            skill_id=skill.id,
+            mention_text="Python",
+            created_at=datetime(2024, 1, 5, tzinfo=timezone.utc),
+        )
+    )
+    session.add(
+        SkillLink(
+            evidence_id=entry.id,
+            skill_id=skill.id,
+            mention_text="Python",
+            created_at=datetime(2024, 1, 20, tzinfo=timezone.utc),
+        )
+    )
+    session.add(
+        SkillLink(
+            evidence_id=entry.id,
+            skill_id=skill.id,
+            mention_text="Python",
+            created_at=datetime(2024, 3, 1, tzinfo=timezone.utc),
+        )
+    )
+    session.commit()
+
+    resp = client.get("/api/skills/action-counts")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        {"year": 2024, "month": 1, "count": 2},
+        {"year": 2024, "month": 3, "count": 1},
+    ]

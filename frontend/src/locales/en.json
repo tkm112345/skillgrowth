@@ -3,6 +3,10 @@
     "brand": "skillgrowth",
     "toggleSidebar": "Toggle sidebar"
   },
+  "search": {
+    "placeholder": "Search skills, activity, portfolio…",
+    "noResults": "No results"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "vision": "Vision",
@@ -47,7 +51,7 @@
     "goalHistoryHide": "Hide history",
     "goalHistoryEmpty": "No history yet",
     "goalHistoryLoadMore": "Load more",
-    "growthHeader": "Skill growth timeline",
+    "actionCountHeader": "Skill-improving actions per month",
     "categoryHeader": "Category breakdown",
     "statTotalSkills": "Total skills",
     "statCategories": "Categories",

@@ -52,7 +52,7 @@ export const api = {
     form.append('file', file)
     return requestForm('/skills/import-csv', form)
   },
-  getSkillTimeline: () => request('/skills/timeline'),
+  getSkillActionCounts: () => request('/skills/action-counts'),
   getSkill: (id) => request(`/skills/${id}`),
 
   getEvidence: (limit = 50, offset = 0, year = null, month = null) => {
@@ -205,4 +205,6 @@ export const api = {
   },
   deletePortfolioFile: (fileId) => request(`/portfolio/files/${fileId}`, { method: 'DELETE' }),
   downloadPortfolioFile: (fileId) => requestBlob(`/portfolio/files/${fileId}/download`),
+
+  search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
 }

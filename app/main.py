@@ -19,6 +19,7 @@ from app.routers import (
     portfolio,
     profile,
     resume_templates,
+    search,
     self_feedback,
     self_pr,
     settings,
@@ -66,6 +67,7 @@ app.include_router(consult.router)
 app.include_router(resume_templates.router)
 app.include_router(portfolio.router)
 app.include_router(self_feedback.router)
+app.include_router(search.router)
 
 
 @app.on_event("startup")

@@ -18,12 +18,16 @@
 - **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other activity source does.
-- **Skill growth timeline** — a step-line chart of cumulative skill count
-  over time, built from each skill's `first_observed_at`.
+- **Skill-improving actions per month** — a bar chart of how many pieces of
+  evidence (`SkillLink` rows — checkins, learning activities,
+  certifications, and anything else skill extraction ran against) were
+  linked to a skill each month. Replaces an earlier cumulative
+  skill-count timeline that reviewer feedback found less useful than
+  seeing ongoing skill-building activity.
 - **Category breakdown** — a bar chart of skill count per category.
 - **Stats row** — total skills, category count, and skills added in the
-  last 7 days. Placed at the bottom of the page by design — the growth
-  timeline and goals are the point, the counters are secondary.
+  last 7 days. Placed at the bottom of the page by design — the action
+  chart and goals are the point, the counters are secondary.
 
 Turning these goals into LLM-backed suggestions happens on a separate
 page — see **AI Integration** below — so the Dashboard itself never calls
@@ -383,6 +387,12 @@ point.
 
 ## Cross-cutting
 
+- **Global search** — a search box in the top bar, on every page, matching
+  keywords against Skills (name/category), Activity (title/notes), and
+  Portfolio (title/description) via SQLite FTS5. Results are grouped by
+  type with a short snippet; picking one navigates to that entity's page
+  (Skills/Activity/Portfolio) — there's no per-item deep link since none
+  of those pages have one yet.
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
   to an icon rail; the state is remembered per browser. Defaults to
   collapsed on a first visit from a phone-width screen (≤768px), since the

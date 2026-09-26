@@ -155,10 +155,25 @@ def delete_skill(skill_id: str, session: Session = Depends(get_session)):
     return {"ok": True}
 
 
-@router.get("/timeline")
-def skill_timeline(session: Session = Depends(get_session)):
-    skills = session.exec(select(Skill).order_by(Skill.first_observed_at.asc())).all()
-    return [{"date": s.first_observed_at, "name": s.name, "category": s.category} for s in skills]
+class SkillActionMonthCount(BaseModel):
+    year: int
+    month: int
+    count: int
+
+
+@router.get("/action-counts")
+def skill_action_counts(session: Session = Depends(get_session)) -> list[SkillActionMonthCount]:
+    bucket = func.strftime("%Y-%m", SkillLink.created_at)
+    rows = session.exec(
+        select(
+            func.strftime("%Y", SkillLink.created_at),
+            func.strftime("%m", SkillLink.created_at),
+            func.count(SkillLink.id),
+        )
+        .group_by(bucket)
+        .order_by(bucket.asc())
+    ).all()
+    return [SkillActionMonthCount(year=int(y), month=int(m), count=c) for y, m, c in rows]
 
 
 @router.get("/{skill_id}")

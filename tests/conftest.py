@@ -14,6 +14,9 @@ from app.models import ActivityType, Settings
 def engine():
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     SQLModel.metadata.create_all(engine)
+    # `client` monkeypatches init_db to a no-op (see below), so this is the
+    # only place search_index's FTS5 table/triggers get created for tests.
+    db_module._ensure_search_index(engine)
     return engine
 
 

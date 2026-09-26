@@ -319,3 +319,19 @@ def test_reset_all_wipes_everything_including_settings(client):
     # the 5 default activity types are re-seeded, same as a fresh install
     types = client.get("/api/learning/types").json()
     assert len(types) == 5
+
+
+def test_reset_all_leaves_search_index_working(client):
+    # drop_all/create_all inside reset-all drops the search_index triggers
+    # along with the tables they're attached to (SQLite auto-drops a
+    # table's triggers when the table is dropped) — reset-all must recreate
+    # them, or search silently stops updating after a reset.
+    client.post("/api/skills", json={"name": "StaleSkill", "category": "技術"})
+    client.post("/api/backup/reset-all")
+
+    assert client.get("/api/search", params={"q": "StaleSkill"}).json() == []
+
+    client.post("/api/skills", json={"name": "FreshSkill", "category": "技術"})
+    results = client.get("/api/search", params={"q": "FreshSkill"}).json()
+    assert len(results) == 1
+    assert results[0]["entity_type"] == "skill"

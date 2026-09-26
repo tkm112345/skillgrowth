@@ -39,6 +39,55 @@ def _ensure_index(target_engine, table: str, column: str) -> None:
         conn.commit()
 
 
+# (table, entity_type, title_column, body_column) for every table the global
+# search box (frontend GlobalSearch.vue, GET /api/search) covers.
+_SEARCH_SOURCES = [
+    ("skill", "skill", "name", "category"),
+    ("learningactivity", "learning_activity", "title", "notes"),
+    ("portfolioitem", "portfolio_item", "title", "description"),
+]
+
+
+def _ensure_search_index(target_engine) -> None:
+    # search_index is a SQLite FTS5 virtual table, not a SQLModel-mapped
+    # table, so create_all() never creates or touches it — and it holds a
+    # copy of Skill/LearningActivity/PortfolioItem text rather than joining
+    # to them live, so every write path (including app.backup_import's bulk
+    # restore) needs to be mirrored here via triggers rather than in each
+    # router. AFTER INSERT/UPDATE/DELETE triggers keep it in sync going
+    # forward; the DELETE+re-INSERT below is a one-time backfill for
+    # whatever already exists on disk (a no-op full rebuild on a fresh
+    # install, cheap at this app's single-user scale).
+    with target_engine.connect() as conn:
+        conn.exec_driver_sql(
+            "CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5("
+            "entity_type UNINDEXED, entity_id UNINDEXED, title, body)"
+        )
+        for table, entity_type, title_col, body_col in _SEARCH_SOURCES:
+            conn.exec_driver_sql(
+                f"CREATE TRIGGER IF NOT EXISTS search_{table}_ai AFTER INSERT ON {table} BEGIN "
+                f"INSERT INTO search_index(entity_type, entity_id, title, body) "
+                f"VALUES ('{entity_type}', new.id, new.{title_col}, new.{body_col}); END"
+            )
+            conn.exec_driver_sql(
+                f"CREATE TRIGGER IF NOT EXISTS search_{table}_au AFTER UPDATE ON {table} BEGIN "
+                f"DELETE FROM search_index WHERE entity_type='{entity_type}' AND entity_id=old.id; "
+                f"INSERT INTO search_index(entity_type, entity_id, title, body) "
+                f"VALUES ('{entity_type}', new.id, new.{title_col}, new.{body_col}); END"
+            )
+            conn.exec_driver_sql(
+                f"CREATE TRIGGER IF NOT EXISTS search_{table}_ad AFTER DELETE ON {table} BEGIN "
+                f"DELETE FROM search_index WHERE entity_type='{entity_type}' AND entity_id=old.id; END"
+            )
+        conn.exec_driver_sql("DELETE FROM search_index")
+        for table, entity_type, title_col, body_col in _SEARCH_SOURCES:
+            conn.exec_driver_sql(
+                f"INSERT INTO search_index(entity_type, entity_id, title, body) "
+                f"SELECT '{entity_type}', id, {title_col}, {body_col} FROM {table}"
+            )
+        conn.commit()
+
+
 def default_activity_types() -> list:
     from app.models import ActivityType  # noqa: PLC0415 (avoid circular import at module load)
 
@@ -75,6 +124,7 @@ def init_db() -> None:
     _ensure_index(engine, "portfoliofile", "portfolio_item_id")
     _ensure_index(engine, "learningactivity", "evidence_id")
     _ensure_index(engine, "consultmessage", "session_id")
+    _ensure_search_index(engine)
     with Session(engine) as session:
         if session.get(Settings, 1) is None:
             session.add(Settings(id=1))

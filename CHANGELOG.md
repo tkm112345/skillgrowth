@@ -10,6 +10,9 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A global search box in the top bar, matching keywords across Skills,
+  Activity, and Portfolio (SQLite FTS5), grouped by type with a snippet;
+  picking a result navigates to that entity's page.
 - A dedicated Certifications page (new sidebar entry), listing every
   certification with its acquisition date and an optional expiry date
   (flagged with a badge once past), and letting you edit or delete an
@@ -62,6 +65,11 @@ commit as the change, moved into a dated section when a release is cut).
   into a cramped column instead of letting it wrap normally.
 
 ### Changed
+- The Dashboard's skill growth timeline (a step-line chart of cumulative
+  skill count) is replaced with a bar chart of skill-improving actions
+  per month — reviewer feedback found the cumulative count less useful
+  than seeing ongoing skill-building activity. `GET /api/skills/timeline`
+  is replaced by `GET /api/skills/action-counts`.
 - A fresh install's LLM text/vision model fields now start empty instead
   of pre-filled with `gpt-4o-mini` — a hardcoded default reads as stale
   the moment a provider retires or renames it, and it wasn't going to age

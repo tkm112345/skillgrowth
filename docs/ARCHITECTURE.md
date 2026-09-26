@@ -234,6 +234,48 @@ column is added, which is exactly the "every skill you already have keeps
 showing on the resume" behavior an upgraded install needs, without a
 separate backfill step.
 
+## Full-text search
+
+`search_index` is a SQLite FTS5 virtual table, deliberately kept outside
+SQLModel entirely rather than becoming a `table=True` model — `create_all()`
+only knows how to create ordinary tables, and a `Skill`/`LearningActivity`/
+`PortfolioItem` row already has a real primary key elsewhere, so mapping
+FTS5's rowid-based virtual table onto SQLModel would fight the ORM for no
+benefit. It's created and kept in sync by `app/db.py::_ensure_search_index`,
+which every path that can create or reset the schema must call explicitly
+(`init_db()`, and `backup.py::reset_all_data` — see below) since nothing
+discovers it automatically the way `create_all()` discovers `table=True`
+classes.
+
+Sync is trigger-based rather than routed through each of
+`app/routers/skills.py`/`learning.py`/`portfolio.py`: nine SQL triggers
+(INSERT/UPDATE/DELETE × the three source tables) mirror `name`/`category`,
+`title`/`notes`, and `title`/`description` into `search_index` at the
+SQLite level, so every write path — including `app/backup_import.py`'s
+bulk restore, which none of those routers touch — stays in sync for free.
+`_ensure_search_index` also does a one-time `DELETE` + re-`INSERT` full
+rebuild from the three source tables every time it runs; on a fresh
+install this is a no-op, but it's what backfills an existing install's
+already-on-disk data the first time it upgrades to this feature (a
+different problem than "Schema changes with no migration tool" above,
+which is about columns on tables that already exist — this is a table
+that doesn't exist as far as SQLModel is concerned at all).
+
+`backup.py::reset_all_data`'s `drop_all`/`create_all` pair is why it needs
+its own `_ensure_search_index` call: dropping `skill`/`learningactivity`/
+`portfolioitem` also drops the triggers SQLite attached to them (dropping a
+table always drops its triggers), and since `search_index` and the
+triggers aren't SQLModel-mapped, `create_all()` never recreates them —
+without the extra call, search would silently stop updating after every
+"Reset all data."
+
+`GET /api/search` (`app/routers/search.py`) quotes and prefix-matches each
+whitespace-split token (`"term"*`) before handing the query to FTS5's
+`MATCH`, so raw user input containing FTS5 operator syntax (`-`, `"`,
+`NEAR`, ...) can't be misinterpreted as a query operator; a `MATCH` syntax
+error that slips through anyway degrades to an empty result list rather
+than a 500.
+
 ## Evidence → skill extraction flow
 
 Every entry point that accepts free text (the Dashboard's quick update box,

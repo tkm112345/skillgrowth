@@ -20,6 +20,8 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
+import GlobalSearch from './components/GlobalSearch.vue'
+
 const route = useRoute()
 const { t } = useI18n()
 
@@ -133,6 +135,7 @@ onMounted(async () => {
           :icon="collapsed ? Expand : Fold"
           :aria-label="t('app.toggleSidebar')"
         />
+        <GlobalSearch />
       </el-header>
       <el-main class="content">
         <router-view />

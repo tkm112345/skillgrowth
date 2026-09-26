@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session, SQLModel, select
 
 from app.backup_import import import_backup
-from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, default_activity_types, get_session
+from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, _ensure_search_index, default_activity_types, get_session
 from app.models import (
     ActivityType,
     CareerGoal,
@@ -213,11 +213,18 @@ def reset_all_data(session: Session = Depends(get_session)) -> dict:
 
     Deliberately drop_all/create_all rather than a per-table DELETE list
     (like RESET_TABLE_ORDER above): a table added to a future model would
-    silently be missed by a hand-maintained list, but never by this."""
+    silently be missed by a hand-maintained list, but never by this.
+
+    `_ensure_search_index` has to be re-run after create_all: dropping
+    skill/learningactivity/portfolioitem also drops the search triggers
+    SQLite attaches to them, and those tables aren't SQLModel-mapped, so
+    create_all() never recreates the triggers (or the search_index table
+    they feed) on its own."""
     bind = session.get_bind()
     session.close()
     SQLModel.metadata.drop_all(bind)
     SQLModel.metadata.create_all(bind)
+    _ensure_search_index(bind)
 
     with Session(bind) as fresh:
         fresh.add(Settings(id=1))

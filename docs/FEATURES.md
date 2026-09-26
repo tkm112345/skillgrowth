@@ -330,7 +330,11 @@ point.
 ## Cross-cutting
 
 - **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
-  to an icon rail; the state is remembered per browser.
+  to an icon rail; the state is remembered per browser. Defaults to
+  collapsed on a first visit from a phone-width screen (≤768px), since the
+  full sidebar otherwise eats roughly half the viewport there — once
+  toggled either way, that explicit choice is what's remembered from then
+  on, regardless of screen width.
 - **Category/type color coding** — skill categories and activity source
   types are each assigned one of 8 accent hues by a deterministic hash of
   their name, so the same category always gets the same color across the

@@ -28,6 +28,11 @@ commit as the change, moved into a dated section when a release is cut).
   actually for (PDFs, spreadsheets, photos) instead of any file type.
 
 ### Changed
+- The sidebar now defaults to collapsed on a first visit from a
+  phone-width screen (≤768px) instead of always starting expanded — it
+  was eating roughly half the viewport there. Once toggled either way,
+  that explicit choice is remembered regardless of screen width, same as
+  before.
 - Added indexes on every foreign-key column (`SkillLink.evidence_id`/
   `skill_id`, `Education`/`Employment`/`Project`/`LearningActivity`'s
   `evidence_id`, `Project.employment_id`, `PortfolioItem.project_id`,

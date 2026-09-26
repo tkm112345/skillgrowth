@@ -24,10 +24,24 @@ const { t } = useI18n()
 
 const contributeVisible = ref(false)
 
-const collapsed = ref(localStorage.getItem('skillgrowth-sidebar-collapsed') === '1')
+const SIDEBAR_STORAGE_KEY = 'skillgrowth-sidebar-collapsed'
+const MOBILE_BREAKPOINT_PX = 768
+
+function initialCollapsed() {
+  const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
+  if (stored !== null) return stored === '1'
+  // No stored preference yet (first visit): default to collapsed on a
+  // phone-width screen, since the always-expanded sidebar otherwise eats
+  // roughly half the viewport there. Once a preference is stored (the
+  // user ever toggles it, in either direction), it's respected regardless
+  // of screen width from then on.
+  return window.innerWidth <= MOBILE_BREAKPOINT_PX
+}
+
+const collapsed = ref(initialCollapsed())
 function toggleCollapsed() {
   collapsed.value = !collapsed.value
-  localStorage.setItem('skillgrowth-sidebar-collapsed', collapsed.value ? '1' : '0')
+  localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed.value ? '1' : '0')
 }
 
 const year = new Date().getFullYear()

@@ -30,6 +30,10 @@ commit as the change, moved into a dated section when a release is cut).
   types" dialog were both a fixed pixel width wider than a phone screen,
   cutting off their Save/Close buttons off-screen with no way to reach
   them. Both now cap at 92% of the viewport width.
+- The Dashboard's "Career path goals" three columns (this year / 5 years /
+  10 years) stayed side by side at any screen width, squeezing each
+  column's Edit/History buttons into overlapping, unreadable text on a
+  phone. Now stacks to one column below 768px; unchanged above it.
 
 ### Security
 - Portfolio file uploads now only accept the file types the page is

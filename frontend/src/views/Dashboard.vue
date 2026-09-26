@@ -218,7 +218,7 @@ const categoryOption = computed(() => {
     <p class="card-hint">{{ t('dashboard.goalsHint') }}</p>
     <router-link to="/vision" class="card-hint-link">{{ t('dashboard.goalsVisionLink') }} →</router-link>
     <el-row :gutter="16">
-      <el-col :span="8" v-for="goal in goals" :key="goal.horizon">
+      <el-col :span="8" :xs="24" v-for="goal in goals" :key="goal.horizon">
         <div class="goal-label">{{ t(horizonLabelKeys[goal.horizon]) }}</div>
 
         <template v-if="editingHorizon === goal.horizon">

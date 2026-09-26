@@ -46,8 +46,14 @@ class Settings(SQLModel, table=True):
     id: int = Field(default=1, primary_key=True)
     openai_base_url: str = "https://api.openai.com/v1"
     openai_api_key: str = ""
-    llm_model: str = "gpt-4o-mini"
-    llm_vision_model: str = "gpt-4o-mini"
+    # No hardcoded model name here on purpose — one picked today reads as
+    # stale in a year regardless of which model it is. The Settings page's
+    # input still shows "gpt-4o-mini" as a placeholder/example; an empty
+    # value here just means the user hasn't chosen yet, and the existing
+    # LLMRequestError -> 502 handling already surfaces the provider's own
+    # "model is required" error clearly if they try to use it unconfigured.
+    llm_model: str = ""
+    llm_vision_model: str = ""
     skill_extraction_enabled: bool = False
     # Appended to CONSULT_SYSTEM_PROMPT (app/llm.py) for Career Consult only —
     # the other two AI features parse a strict JSON contract out of the

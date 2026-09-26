@@ -314,7 +314,7 @@ def test_reset_all_wipes_everything_including_settings(client):
 
     settings = client.get("/api/settings").json()
     assert settings["openai_api_key"] == ""  # cleared, not the masked placeholder
-    assert settings["llm_model"] == "gpt-4o-mini"  # back to the model's fresh-install default
+    assert settings["llm_model"] == ""  # back to the model's fresh-install default (unconfigured)
 
     # the 5 default activity types are re-seeded, same as a fresh install
     types = client.get("/api/learning/types").json()

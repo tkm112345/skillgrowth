@@ -51,6 +51,15 @@ commit as the change, moved into a dated section when a release is cut).
   competes with two short buttons on every other row, squeezing the hint
   into a cramped column instead of letting it wrap normally.
 
+### Changed
+- A fresh install's LLM text/vision model fields now start empty instead
+  of pre-filled with `gpt-4o-mini` — a hardcoded default reads as stale
+  the moment a provider retires or renames it, and it wasn't going to age
+  any better than that one did. The Settings page still shows it as a
+  placeholder/example; leaving it unset surfaces the provider's own
+  "model is required" error clearly rather than silently trying a name
+  that may no longer exist.
+
 ## [0.2.6] - 2026-09-26
 
 ### Added

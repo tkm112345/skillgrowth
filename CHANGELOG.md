@@ -15,6 +15,8 @@ commit as the change, moved into a dated section when a release is cut).
   reflection on it, and what to carry forward. Past entries are listed
   the same way, fully editable and deletable (`GET/POST /api/self-feedback`,
   `PUT/DELETE /api/self-feedback/{id}`), included in backup/restore.
+- A demo GIF at the top of the README's Screenshots section, showing the
+  Quick update → skill extraction → Skills page loop end to end.
 
 ### Removed
 - The Dashboard's "Reflect" card (mark a timestamp, optional comment,

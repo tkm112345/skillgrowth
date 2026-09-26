@@ -116,8 +116,14 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 ## Screenshots
 
-Shown with the built-in sample data (Settings → "Try it with sample
-data"), not a real account.
+Quick update → skill extraction → the extracted skills showing up on the
+Skills page, the core evidence-to-skill loop the "Why" section above
+describes:
+
+![A quick update being typed in, submitted, and the two skills it extracted appearing on the Skills page](docs/images/demo-quick-update.gif)
+
+The rest of the screens below are shown with the built-in sample data
+(Settings → "Try it with sample data"), not a real account.
 
 | Dashboard | Skills |
 |---|---|

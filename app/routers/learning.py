@@ -37,7 +37,14 @@ def list_learning(session: Session = Depends(get_session)) -> list[LearningActiv
 def create_learning(payload: LearningActivityIn, session: Session = Depends(get_session)) -> LearningResult:
     settings = session.get(Settings, 1)
     text = services.text_block(種別=payload.activity_type, タイトル=payload.title, メモ=payload.notes)
-    entry, linked = services.record_evidence_and_extract(session, "learning_activity", text, settings)
+    # "certification" gets its own EvidenceEntry.source_type so the Activity
+    # feed tags it the same way as the separate certificate-image upload
+    # path (POST /api/evidence/image) does — every other activity_type
+    # (reading, talk given/attended, other, any custom type) keeps the
+    # generic "learning_activity" tag, which is the correct catch-all for
+    # those.
+    source_type = "certification" if payload.activity_type == "certification" else "learning_activity"
+    entry, linked = services.record_evidence_and_extract(session, source_type, text, settings)
     activity = LearningActivity(**payload.model_dump(), evidence_id=entry.id)
     session.add(activity)
     session.commit()

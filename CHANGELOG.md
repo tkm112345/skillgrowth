@@ -33,6 +33,13 @@ commit as the change, moved into a dated section when a release is cut).
   a fresh install. Irreversible, so it requires a warning dialog and
   then typing `RESET` to confirm.
 
+### Fixed
+- Adding a certification from the Activity page tagged its feed entry as
+  generic "Learning" rather than "Certification" — only the separate
+  certificate-image upload path got the right tag. Every other activity
+  type (reading, talk given/attended, other, custom types) already
+  showed the correct generic tag and is unaffected.
+
 ## [0.2.6] - 2026-09-26
 
 ### Added

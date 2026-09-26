@@ -12,6 +12,14 @@
   no background workers — every LLM call happens synchronously inside the
   request that triggered it.
 
+`GET /api/health` runs a trivial `SELECT 1` against that SQLite file and
+returns 200/503 accordingly — `GET /api/version` (just the `VERSION` file
+contents) can't stand in for it, since it never touches the DB. The
+`Dockerfile`'s `HEALTHCHECK` is the only place the check command lives
+(stdlib `urllib` against `localhost:8000/api/health`, avoiding a `curl`
+dependency); `docker-compose.yml` doesn't repeat it since Compose inherits
+an image's `HEALTHCHECK` automatically.
+
 ## Data model
 
 The activity log (the `EvidenceEntry` table — the name predates the

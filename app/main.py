@@ -3,8 +3,9 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session, text
 
-from app.db import init_db
+from app.db import engine, init_db
 from app.llm import LLMRequestError
 from app.logging_config import setup_logging
 from app.routers import (
@@ -38,6 +39,16 @@ def handle_llm_request_error(request: Request, exc: LLMRequestError) -> JSONResp
 @app.get("/api/version")
 def get_version() -> dict:
     return {"version": VERSION}
+
+
+@app.get("/api/health")
+def get_health() -> JSONResponse:
+    try:
+        with Session(engine) as session:
+            session.exec(text("SELECT 1"))
+    except Exception:
+        return JSONResponse(status_code=503, content={"status": "error"})
+    return JSONResponse(status_code=200, content={"status": "ok"})
 
 
 app.include_router(evidence.router)

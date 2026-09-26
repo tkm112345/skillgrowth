@@ -10,6 +10,10 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A `GET /api/health` endpoint (200 with a live DB connection, 503
+  otherwise) and a Docker `HEALTHCHECK` that polls it, so container
+  orchestrators, reverse proxies, and uptime monitors can check liveness
+  without hitting an unrelated endpoint.
 - A "Customize this consultant" field on the AI Integration page (Career
   Consult), appended to the base system prompt — tone, focus areas,
   anything to always keep in mind. Scoped to Career Consult only: the

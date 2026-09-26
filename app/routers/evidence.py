@@ -9,6 +9,7 @@ from sqlmodel import Session, func, select
 from app import llm, services
 from app.db import UPLOAD_DIR, get_session
 from app.models import EvidenceEntry, Settings, Skill
+from app.routers.backup import sample_record_ids
 
 router = APIRouter(prefix="/api/evidence", tags=["evidence"])
 
@@ -38,7 +39,7 @@ def list_evidence(
     year: int | None = None,
     month: int | None = None,
     session: Session = Depends(get_session),
-) -> list[EvidenceEntry]:
+) -> list[dict]:
     query = select(EvidenceEntry)
     if year is not None and month is not None:
         start = datetime(year, month, 1, tzinfo=timezone.utc)
@@ -48,7 +49,9 @@ def list_evidence(
             else datetime(year, month + 1, 1, tzinfo=timezone.utc)
         )
         query = query.where(EvidenceEntry.created_at >= start, EvidenceEntry.created_at < end)
-    return session.exec(query.order_by(EvidenceEntry.created_at.desc()).offset(offset).limit(limit)).all()
+    rows = session.exec(query.order_by(EvidenceEntry.created_at.desc()).offset(offset).limit(limit)).all()
+    sample_ids = sample_record_ids(session, "evidence")
+    return [{**row.model_dump(mode="json"), "is_sample": row.id in sample_ids} for row in rows]
 
 
 @router.get("/months")

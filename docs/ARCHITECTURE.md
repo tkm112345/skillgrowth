@@ -47,6 +47,7 @@ erDiagram
     string category "LLM-assigned, loose"
     datetime first_observed_at
     datetime last_observed_at
+    int proficiency "nullable, 1-5, set manually on the Skills page"
   }
   SkillLink {
     string evidence_id
@@ -182,6 +183,17 @@ erDiagram
     datetime uploaded_at
   }
 ```
+
+`Skill.proficiency` is the one field on this diagram that isn't derived
+from activity — the Concept page states "activity-based, not
+self-assessment" as a design principle, and a manually-set 1-5 rating is
+exactly a self-assessment. It's a deliberate, scoped exception rather
+than an oversight: reviewers asked for a way to see skill level at a
+glance, and nothing in the activity log (evidence count, first/last
+observed date) reliably stands in for it. Left `null` until the user
+sets it on the Skills page; an automatic re-match of an existing skill
+(CSV import, activity extraction) never touches it, the same as it
+already leaves `category` alone on that path.
 
 ## Schema changes with no migration tool
 
@@ -328,6 +340,15 @@ so `reset-sample` always undoes everything sample data has ever added, not
 just the most recent load. The plain `POST /api/backup/import` path never
 writes to `SampleDataRecord`, so restoring a real backup is never
 reset-able this way — only sample data is.
+
+`app/routers/backup.py::sample_record_ids(session, table_name)` exposes
+the same `SampleDataRecord` lookup for read paths, not just
+`reset-sample`: `GET /api/skills` and `GET /api/evidence` each call it
+once per request and add `"is_sample": bool` to every row, so the
+frontend (Skills list, Activity feed) can tag sample-sourced rows while
+they're still visible, not just discover they existed once
+`reset-sample` removes them. Scoped to these two screens for now — the
+same helper can cover more list endpoints later if wanted.
 
 ## LLM error handling
 

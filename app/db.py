@@ -61,6 +61,7 @@ def init_db() -> None:
     _ensure_column(engine, "settings", "skill_extraction_enabled", "BOOLEAN DEFAULT 0")
     _ensure_column(engine, "settings", "consult_custom_instructions", "TEXT DEFAULT ''")
     _ensure_column(engine, "reflectionlog", "note", "TEXT DEFAULT ''")
+    _ensure_column(engine, "skill", "proficiency", "INTEGER")
     _ensure_index(engine, "skilllink", "evidence_id")
     _ensure_index(engine, "skilllink", "skill_id")
     _ensure_index(engine, "education", "evidence_id")

@@ -122,6 +122,16 @@ entries, so they can be shown to someone without those entries' baggage.
   for work in, a soft skill that doesn't read well as a bare list item,
   etc.). Turning it off doesn't delete or hide the skill anywhere else in
   the app — only the resume template respects it.
+- **Proficiency** — an optional 1-5 rating, set manually in the add/edit
+  form (a 5-star picker that shows what each level means as you hover:
+  aware / can do with guidance / can do independently / can apply and
+  teach / go-to expert). Unlike everything else on this page, this one
+  is a self-assessment rather than derived from activity — left unset
+  (no stars shown) until you rate it yourself.
+- Sample-data skills (see Settings' "Try it with sample data" below) are
+  marked with a small "Sample" tag next to the skill name, so it's clear
+  which rows came from the bundled sample data versus your own, even
+  before you reset it.
 
 ## Activity
 
@@ -168,6 +178,8 @@ Log page, and a read-only feed that already showed the same entries):
   first if an older certification isn't visible yet. Any entry with a
   recorded date (most visibly certifications) shows it under its text in
   the feed.
+- Sample-data entries carry a small "Sample" tag next to their source-type
+  label, same as on the Skills page.
 
 ## Resume
 

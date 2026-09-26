@@ -25,7 +25,8 @@
     "none": "なし",
     "close": "閉じる",
     "loading": "読み込み中...",
-    "loadError": "読み込みに失敗しました。接続を確認してページを再読み込みしてください。"
+    "loadError": "読み込みに失敗しました。接続を確認してページを再読み込みしてください。",
+    "sampleBadge": "サンプル"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -171,6 +172,15 @@
     "subtitle": "アクティビティから導出された、現在のスキル像です。",
     "columnSkill": "スキル",
     "columnCategory": "カテゴリ",
+    "columnProficiency": "習熟度",
+    "clearProficiency": "未設定に戻す",
+    "proficiencyLevels": [
+      "知識として知っている（実践経験なし）",
+      "補助があれば実践できる",
+      "一人で一通り実践できる",
+      "応用・改善ができ、人に教えられる",
+      "その分野の第一人者として頼られる"
+    ],
     "columnEvidence": "アクティビティ数",
     "columnFirstSeen": "初出",
     "columnLastSeen": "最終確認",

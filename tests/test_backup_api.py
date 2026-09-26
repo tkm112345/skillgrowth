@@ -270,3 +270,22 @@ def test_reset_sample_is_idempotent(client):
     resp = client.post("/api/backup/reset-sample")
     assert resp.status_code == 200
     assert client.get("/api/skills").json() == []
+
+
+def test_sample_skills_and_evidence_are_flagged_is_sample(client):
+    client.post("/api/skills", json={"name": "MyRealSkill", "category": "技術"})
+    client.post("/api/backup/load-sample")
+
+    skills = client.get("/api/skills").json()
+    by_name = {s["name"]: s["is_sample"] for s in skills}
+    assert by_name["MyRealSkill"] is False
+    assert by_name["Python"] is True
+
+    evidence = client.get("/api/evidence").json()
+    assert evidence  # sample data always adds at least one evidence row
+    assert all(e["is_sample"] for e in evidence)
+
+    client.post("/api/backup/reset-sample")
+    skills = client.get("/api/skills").json()
+    assert [s["name"] for s in skills] == ["MyRealSkill"]
+    assert skills[0]["is_sample"] is False

@@ -25,7 +25,8 @@
     "none": "None",
     "close": "Close",
     "loading": "Loading...",
-    "loadError": "Failed to load. Check your connection and try reloading the page."
+    "loadError": "Failed to load. Check your connection and try reloading the page.",
+    "sampleBadge": "Sample"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -171,6 +172,15 @@
     "subtitle": "Your current skill picture, derived from your activity log.",
     "columnSkill": "Skill",
     "columnCategory": "Category",
+    "columnProficiency": "Proficiency",
+    "clearProficiency": "Clear",
+    "proficiencyLevels": [
+      "Aware — no hands-on experience yet",
+      "Can do it with guidance",
+      "Can do it independently",
+      "Can apply it and teach others",
+      "Go-to expert in this area"
+    ],
     "columnEvidence": "Activity",
     "columnFirstSeen": "First seen",
     "columnLastSeen": "Last seen",

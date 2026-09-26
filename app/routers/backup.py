@@ -38,6 +38,17 @@ router = APIRouter(prefix="/api/backup", tags=["backup"])
 
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent.parent / "sample_data.json"
 
+
+def sample_record_ids(session: Session, table_name: str) -> set[str]:
+    """The ids of every row `load-sample` tagged for the given table, so a
+    list endpoint can mark which of its rows are sample-sourced (same
+    `table_name` values `reset-sample` below already keys off of)."""
+    return {
+        r.record_id
+        for r in session.exec(select(SampleDataRecord).where(SampleDataRecord.table_name == table_name)).all()
+    }
+
+
 # Deletion order matters: children before the rows they reference.
 RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("skill_link", SkillLink),

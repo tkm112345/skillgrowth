@@ -22,6 +22,12 @@ commit as the change, moved into a dated section when a release is cut).
 - Backend logging to a rotating file at `data/logs/app.log` (5MB per
   file, 5 backups kept), so unhandled-exception tracebacks survive past
   the container's live console output.
+- An optional 1-5 proficiency rating on each skill, set manually from the
+  Skills page's add/edit form (a star picker that shows what each level
+  means as you rate it). Left unset until rated.
+- A "Sample" tag on skills and Activity feed entries that came from
+  "Try it with sample data," so they're distinguishable from your own
+  data before you reset it.
 
 ## [0.2.6] - 2026-09-26
 

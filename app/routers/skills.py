@@ -3,11 +3,12 @@ import io
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlmodel import Session, func, select
 
 from app.db import get_session
 from app.models import Skill, SkillLink
+from app.routers.backup import sample_record_ids
 
 router = APIRouter(prefix="/api/skills", tags=["skills"])
 
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/api/skills", tags=["skills"])
 class SkillIn(BaseModel):
     name: str
     category: str = "未分類"
+    proficiency: int | None = Field(default=None, ge=1, le=5)
 
 
 class SkillResumeInclusionIn(BaseModel):
@@ -36,20 +38,24 @@ class CsvImportResult(BaseModel):
     skipped_rows: int
 
 
-def _upsert_skill(session: Session, name: str, category: str) -> Skill | None:
+def _upsert_skill(session: Session, name: str, category: str, proficiency: int | None = None) -> Skill | None:
     name = name.strip()
     if not name:
         return None
 
     existing = session.exec(select(Skill).where(func.lower(Skill.name) == name.lower())).first()
     if existing:
+        # Unlike name/category, proficiency is a deliberate manual judgment —
+        # an automatic re-match here (CSV import, activity-extraction) must
+        # never overwrite it, the same reasoning that already keeps this
+        # branch from touching category.
         existing.last_observed_at = datetime.now(timezone.utc)
         session.add(existing)
         session.commit()
         session.refresh(existing)
         return existing
 
-    skill = Skill(name=name, category=category.strip() or "未分類")
+    skill = Skill(name=name, category=category.strip() or "未分類", proficiency=proficiency)
     session.add(skill)
     session.commit()
     session.refresh(skill)
@@ -60,6 +66,7 @@ def _upsert_skill(session: Session, name: str, category: str) -> Skill | None:
 def list_skills(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc())).all()
     counts = dict(session.exec(select(SkillLink.skill_id, func.count(SkillLink.id)).group_by(SkillLink.skill_id)).all())
+    sample_ids = sample_record_ids(session, "skill")
     return [
         {
             "id": s.id,
@@ -69,6 +76,8 @@ def list_skills(session: Session = Depends(get_session)):
             "last_observed_at": s.last_observed_at,
             "evidence_count": counts.get(s.id, 0),
             "include_in_resume": s.include_in_resume,
+            "proficiency": s.proficiency,
+            "is_sample": s.id in sample_ids,
         }
         for s in skills
     ]
@@ -76,7 +85,7 @@ def list_skills(session: Session = Depends(get_session)):
 
 @router.post("")
 def add_skill(payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
-    return _upsert_skill(session, payload.name, payload.category)
+    return _upsert_skill(session, payload.name, payload.category, payload.proficiency)
 
 
 @router.put("/{skill_id}")
@@ -95,6 +104,7 @@ def update_skill(skill_id: str, payload: SkillIn, session: Session = Depends(get
 
     skill.name = name
     skill.category = payload.category.strip() or "未分類"
+    skill.proficiency = payload.proficiency
     session.add(skill)
     session.commit()
     session.refresh(skill)

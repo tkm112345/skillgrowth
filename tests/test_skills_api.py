@@ -43,6 +43,47 @@ def test_update_skill_missing_id_returns_404(client):
     assert resp.status_code == 404
 
 
+def test_new_skill_has_no_proficiency_by_default(client):
+    resp = client.post("/api/skills", json={"name": "Python", "category": "技術"})
+    assert resp.json()["proficiency"] is None
+
+    resp = client.get("/api/skills")
+    assert resp.json()[0]["proficiency"] is None
+
+
+def test_set_proficiency_on_create_and_update(client):
+    created = client.post("/api/skills", json={"name": "Python", "category": "技術", "proficiency": 3}).json()
+    assert created["proficiency"] == 3
+
+    resp = client.put(f"/api/skills/{created['id']}", json={"name": "Python", "category": "技術", "proficiency": 5})
+    assert resp.json()["proficiency"] == 5
+
+    resp = client.get("/api/skills")
+    assert resp.json()[0]["proficiency"] == 5
+
+
+def test_proficiency_out_of_range_is_rejected(client):
+    resp = client.post("/api/skills", json={"name": "Python", "category": "技術", "proficiency": 6})
+    assert resp.status_code == 422
+
+    resp = client.post("/api/skills", json={"name": "Go", "category": "技術", "proficiency": 0})
+    assert resp.status_code == 422
+
+
+def test_re_upserting_existing_skill_does_not_touch_proficiency(client):
+    created = client.post("/api/skills", json={"name": "Python", "category": "技術", "proficiency": 4}).json()
+
+    # Re-adding the same (case-insensitive) name matches the existing skill
+    # and only bumps last_observed_at, the same as it already leaves
+    # category untouched — proficiency must survive an unrelated auto-upsert.
+    client.post("/api/skills", json={"name": "python", "category": "技術", "proficiency": 1})
+
+    resp = client.get("/api/skills")
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["proficiency"] == 4
+    assert resp.json()[0]["id"] == created["id"]
+
+
 def test_delete_skill(client):
     created = client.post("/api/skills", json={"name": "Python", "category": "技術"}).json()
 

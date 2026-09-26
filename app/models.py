@@ -21,6 +21,10 @@ class Skill(SQLModel, table=True):
     first_observed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_observed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     include_in_resume: bool = True
+    # 1-5, user-set manually (not derived from activity — see Skills.vue and
+    # the Concept page's "activity-based, not self-assessment" principle,
+    # a deliberate exception made for this one field). None = not yet set.
+    proficiency: Optional[int] = None
 
 
 class SkillLink(SQLModel, table=True):

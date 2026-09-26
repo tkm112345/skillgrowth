@@ -1,20 +1,22 @@
 <script setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
 import { tagStyle } from '../hue'
 
-const { t, locale } = useI18n()
+const { t, tm, locale } = useI18n()
 const skills = ref([])
 const loading = ref(true)
 const dialog = ref(false)
-const form = reactive({ name: '', category: '' })
+const form = reactive({ name: '', category: '', proficiency: 0 })
 const editingSkillId = ref(null)
 const csvDialog = ref(false)
 const csvFile = ref(null)
 const importingCsv = ref(false)
+
+const proficiencyTexts = computed(() => tm('skills.proficiencyLevels'))
 
 async function reload() {
   skills.value = await api.getSkills()
@@ -36,23 +38,28 @@ function formatDate(iso) {
 
 function openAddDialog() {
   editingSkillId.value = null
-  Object.assign(form, { name: '', category: '' })
+  Object.assign(form, { name: '', category: '', proficiency: 0 })
   dialog.value = true
 }
 
 function openEditDialog(row) {
   editingSkillId.value = row.id
-  Object.assign(form, { name: row.name, category: row.category })
+  Object.assign(form, { name: row.name, category: row.category, proficiency: row.proficiency || 0 })
   dialog.value = true
+}
+
+function clearProficiency() {
+  form.proficiency = 0
 }
 
 async function submit() {
   if (!form.name.trim()) return
+  const proficiency = form.proficiency || null
   if (editingSkillId.value) {
-    await api.updateSkill(editingSkillId.value, form.name, form.category)
+    await api.updateSkill(editingSkillId.value, form.name, form.category, proficiency)
     ElMessage.success(t('skills.updated'))
   } else {
-    await api.addSkill(form.name, form.category)
+    await api.addSkill(form.name, form.category, proficiency)
     ElMessage.success(t('skills.added'))
   }
   dialog.value = false
@@ -108,9 +115,21 @@ async function submitCsvImport() {
   </div>
 
   <el-table :data="skills" v-loading="loading" style="width: 100%">
-    <el-table-column prop="name" :label="t('skills.columnSkill')" min-width="200" />
+    <el-table-column :label="t('skills.columnSkill')" min-width="200">
+      <template #default="{ row }">
+        {{ row.name }}
+        <el-tag v-if="row.is_sample" size="small" type="info" plain class="sample-tag">
+          {{ t('common.sampleBadge') }}
+        </el-tag>
+      </template>
+    </el-table-column>
     <el-table-column :label="t('skills.columnCategory')" width="140">
       <template #default="{ row }"><el-tag :style="tagStyle(row.category)" plain>{{ row.category }}</el-tag></template>
+    </el-table-column>
+    <el-table-column :label="t('skills.columnProficiency')" width="140">
+      <template #default="{ row }">
+        <el-rate :model-value="row.proficiency || 0" disabled :texts="proficiencyTexts" show-text />
+      </template>
     </el-table-column>
     <el-table-column :label="t('skills.columnEvidence')" width="90">
       <template #default="{ row }">{{ row.evidence_count }}</template>
@@ -144,6 +163,12 @@ async function submitCsvImport() {
       </el-form-item>
       <el-form-item :label="t('skills.columnCategory')">
         <el-input v-model="form.category" :placeholder="t('skills.categoryPlaceholder')" />
+      </el-form-item>
+      <el-form-item :label="t('skills.columnProficiency')">
+        <el-rate v-model="form.proficiency" :texts="proficiencyTexts" show-text />
+        <el-button v-if="form.proficiency" size="small" text @click="clearProficiency">
+          {{ t('skills.clearProficiency') }}
+        </el-button>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -185,5 +210,9 @@ async function submitCsvImport() {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin-top: 0;
+}
+
+.sample-tag {
+  margin-left: 0.4rem;
 }
 </style>

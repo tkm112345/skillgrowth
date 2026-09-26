@@ -37,10 +37,10 @@ async function requestBlob(path, options = {}) {
 
 export const api = {
   getSkills: () => request('/skills'),
-  addSkill: (name, category) =>
-    request('/skills', { method: 'POST', body: JSON.stringify({ name, category }) }),
-  updateSkill: (id, name, category) =>
-    request(`/skills/${id}`, { method: 'PUT', body: JSON.stringify({ name, category }) }),
+  addSkill: (name, category, proficiency) =>
+    request('/skills', { method: 'POST', body: JSON.stringify({ name, category, proficiency }) }),
+  updateSkill: (id, name, category, proficiency) =>
+    request(`/skills/${id}`, { method: 'PUT', body: JSON.stringify({ name, category, proficiency }) }),
   setSkillResumeInclusion: (id, includeInResume) =>
     request(`/skills/${id}/resume-inclusion`, {
       method: 'PUT',

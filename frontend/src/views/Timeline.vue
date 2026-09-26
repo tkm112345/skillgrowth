@@ -302,7 +302,10 @@ const monthGroups = computed(() => {
         >
           <el-card shadow="never">
             <div class="entry-header">
-              <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
+              <div class="entry-header-tags">
+                <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
+                <el-tag v-if="entry.is_sample" size="small" type="info" plain>{{ t('common.sampleBadge') }}</el-tag>
+              </div>
               <el-button
                 v-if="learningByEvidenceId[entry.id]"
                 size="small"
@@ -427,6 +430,12 @@ const monthGroups = computed(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.25rem;
+}
+
+.entry-header-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .load-more-btn {

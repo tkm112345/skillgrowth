@@ -24,7 +24,7 @@ rather than "probably fine, hasn't broken yet."
 - [ ] **Self-hosting operational basics are in place.** Health check
   (`GET /api/health`, done), an optional access gate for internet-facing
   instances (`SKILLGROWTH_BASIC_AUTH_*`, done), PWA installability
-  (in progress) — the baseline for "I can run this on my own server and
+  (done) — the baseline for "I can run this on my own server and
   trust it to behave."
 - [ ] **Schema migrations stay additive-only.** `app/db.py`'s
   `_ensure_column`/`_ensure_index` approach (see

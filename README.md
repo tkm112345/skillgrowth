@@ -66,8 +66,8 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 - **Dashboard** — career path goals (this year / 5 years / 10 years,
   optional, editable with a full — paginated — history of past edits), a
-  skill growth timeline chart, a category breakdown chart, and a quick
-  update box.
+  monthly bar chart of skill-improving actions, a category breakdown
+  chart, and a quick update box.
 - **Vision** — one free-form text box for a rough sketch of the kind of
   career you're aiming for, with no time horizon or structure — a looser
   complement to the Dashboard's three specific goals.
@@ -89,6 +89,16 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Activity** — add a reading/talk/certification entry (with optional
   certificate image upload for OCR extraction) and browse a chronological
   feed of everything that's been added, in one page.
+- **Certifications** — a dedicated page listing every certification with
+  its acquisition date and an optional expiry date (flagged once past),
+  separate from Activity's own "Certifications only" filter — this is
+  also the only place a certification's structured fields can be edited
+  after the fact.
+- **Connections** — a force-directed graph showing how skills connect to
+  the certifications, education, employment, projects, and portfolio
+  pieces that back them. Deliberately excludes day-to-day activity
+  entries (reading, talks, quick updates), so the graph stays readable no
+  matter how long you've used the app.
 - **Resume** — a Self PR field (kept as paginated history, most recent
   used) plus a resume generator that fills a fixed Markdown template from
   your current data — **no LLM involved**, rendered and downloadable, with

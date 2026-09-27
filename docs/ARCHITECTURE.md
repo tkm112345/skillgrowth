@@ -382,8 +382,9 @@ decision than a simple rename and isn't something this endpoint does.
 `PUT /api/skills/{id}/resume-inclusion` flips it without touching
 name/category, and `build_resume_markdown`'s Skills-section query is the
 only place that filters on it. Turning it off doesn't remove the skill
-from anywhere else — the current-skill view, the growth timeline, gap
-checks against it — it only means the resume template skips it, since
+from anywhere else — the current-skill view, the Dashboard's action
+chart, gap checks against it — it only means the resume template skips
+it, since
 "I want to track this" and "I want a stranger reading my resume to see
 this" are different decisions.
 

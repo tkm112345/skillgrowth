@@ -28,8 +28,11 @@ are read and acknowledged as soon as possible.
 skillgrowth is meant to be run as a single-user, self-hosted instance
 (see "Design choices" in `README.md`). Reports about the app's behavior
 when deliberately exposed to multiple untrusted users, or about the
-absence of authentication/multi-tenancy, are expected and out of scope
-— that's a documented design choice, not a vulnerability. Reports about
+absence of authentication/multi-tenancy when the optional HTTP Basic
+Auth gate (`SKILLGROWTH_BASIC_AUTH_*`, off by default — see README's
+"Optional access gate") is left unset, are expected and out of scope —
+that's a documented design choice, not a vulnerability. Reports about
 things that go wrong even for the single trusted owner of an instance
 (e.g. data exposure to that instance's own frontend, injection, path
-traversal, unsafe file handling) are in scope.
+traversal, unsafe file handling, or a way to bypass the Basic Auth gate
+when it *is* configured) are in scope.

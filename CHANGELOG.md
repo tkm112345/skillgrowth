@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-27
+
 ### Added
 - Rirekisho (履歴書) generation, on the Resume page: a "Personal info" form
   (name, date of birth, address, phone, email, a photo) plus your own

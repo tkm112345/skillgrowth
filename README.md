@@ -263,7 +263,8 @@ A typical first session looks like this:
 
 See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for reporting bugs, opening
 pull requests, and running the backend and frontend separately with hot
-reload.
+reload. See [docs/ROADMAP.md](docs/ROADMAP.md) for what's left before this
+project calls itself `v1.0.0`.
 
 ## Known limitations
 

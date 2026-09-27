@@ -8,10 +8,13 @@ description: Cut a new skillgrowth release — move CHANGELOG.md's Unreleased se
 Prerequisite context (see `CLAUDE.md`'s "Versioning and releases" for the
 parts that apply year-round, not just at cut time): `VERSION` already
 holds the version being released by the time you get here — it was bumped
-to it right after the *previous* tag was pushed. Only adjust `VERSION` by
-hand first if what actually shipped needs a bigger bump than the
-placeholder chosen back then (e.g. it turned out to be a minor change,
-not a patch).
+to it right after the *previous* tag was pushed. Before step 1, re-check
+`VERSION` against what's actually in `Unreleased` using CLAUDE.md's
+patch-vs-minor rule (only `### Fixed`/`### Changed`/`### Security`/docs →
+patch; a small `### Added` → still patch; a new page/nav item, standalone
+capability, or default-experience change → minor) — the placeholder
+chosen after the last tag assumed patch by default, so bump it up by hand
+now if `Unreleased` turned out to contain a minor-worthy `### Added`.
 
 ## Steps
 
@@ -57,7 +60,11 @@ not a patch).
    ```
 4. **Immediately after**, in its own commit, bump `VERSION` to the next
    version (e.g. "Bump version to 0.2.5") — every commit from this point
-   on is already working toward the next release.
+   on is already working toward the next release. Default to the next
+   **patch** number as this placeholder (per CLAUDE.md's rule, most
+   individual changes are patch-sized); it gets bumped up to a minor by
+   hand later if something minor-worthy lands in `Unreleased` before the
+   next cut (see the prerequisite note above).
 
 ## Notes
 
@@ -65,3 +72,6 @@ not a patch).
   itself, step 4's is the start of the next cycle.
 - `VERSION` is bumped by hand, never inferred from git tags or commit
   count.
+- Never bump the major digit as part of this routine cut flow — that's a
+  deliberate, separate decision gated on `docs/ROADMAP.md`'s checklist,
+  not something to infer from what's in `Unreleased`.

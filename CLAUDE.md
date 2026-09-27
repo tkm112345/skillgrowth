@@ -77,9 +77,26 @@ the moment the column is first written to.
   Add entries under `## [Unreleased]` as changes are made, not batched up
   right before a release. English only (see "Language" above), even in
   an otherwise-Japanese session.
+- **Which digit to bump** (pre-1.0, so this decides patch vs. minor —
+  major is reserved for the 1.0.0 graduation itself, see
+  `docs/ROADMAP.md`):
+  - Only `### Fixed`/`### Changed`/`### Security`/dependency bumps/docs
+    in `Unreleased`, no `### Added` → **patch**.
+  - An `### Added` entry is present → **patch** if it's small enough
+    that a typical self-hoster wouldn't notice without reading the
+    changelog (a field/toggle/filter on an existing page, an opt-in
+    default-off backend capability); **minor** if it adds a new
+    top-level page/nav item, or a standalone new capability, or
+    otherwise changes the *default* experience of a fresh install.
+  - When in doubt, patch — this repo's schema migrations
+    (`_ensure_column`, see below) are additive-only by design, so a
+    wrong call here is cheap to live with either way.
 - This repo pushes directly to `main` (no PR workflow) and branch
   protection is bypassed by the repo owner — that's expected, not an
   error to work around.
 - To cut a release (move `Unreleased` into a dated section, tag, publish
   the GitHub release, bump `VERSION` for the next cycle), use the
   `release-cutting` skill.
+- `docs/ROADMAP.md` holds the checklist for when this project is ready
+  to graduate from 0.x to `v1.0.0` — check it before ever bumping the
+  major digit.

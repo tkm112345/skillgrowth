@@ -136,7 +136,10 @@ The rest of the screens below are shown with the built-in sample data
 ## Design choices
 
 - **Single user, self-hosted.** No auth, no multi-tenancy. Run your own
-  instance the way you'd self-host a personal finance tool.
+  instance the way you'd self-host a personal finance tool. If you expose
+  it to the internet rather than keeping it on a local network or VPN,
+  put something in front of it — see "Optional access gate" below, or
+  your reverse proxy's own auth.
 - **Free-text skills.** No fixed taxonomy. Skills are stored as the natural
   language the LLM extracts from your activity (or that you type directly),
   not normalized IDs.
@@ -189,6 +192,27 @@ None of these let you authenticate with a consumer subscription login
 key — neither Anthropic nor OpenAI allow that for third-party
 applications, so a metered API key is the only option regardless of
 provider.
+
+### Optional access gate
+
+skillgrowth still has no user accounts — this is a single shared password,
+not a login system. When both `SKILLGROWTH_BASIC_AUTH_USER` and
+`SKILLGROWTH_BASIC_AUTH_PASS` environment variables are set, every request
+(except `/api/health`, so the Docker `HEALTHCHECK` keeps working) requires
+that username/password over HTTP Basic Auth. Unset (the default), the app
+is fully unauthenticated, unchanged from before:
+
+```bash
+docker run -d -p 8000:8000 -v $(pwd)/data:/app/data \
+  -e SKILLGROWTH_BASIC_AUTH_USER=youruser \
+  -e SKILLGROWTH_BASIC_AUTH_PASS=yourpassword \
+  ghcr.io/tkm112345/skillgrowth:latest
+```
+
+This is a coarse, single-password gate, not a real auth system — fine for
+"keep casual visitors and bots out of an internet-facing instance," not a
+substitute for a reverse proxy's own auth (or a VPN/local network) if you
+need anything stronger.
 
 ## Usage
 

@@ -20,6 +20,17 @@ contents) can't stand in for it, since it never touches the DB. The
 dependency); `docker-compose.yml` doesn't repeat it since Compose inherits
 an image's `HEALTHCHECK` automatically.
 
+`app/basic_auth.py::setup_basic_auth(app)` registers an HTTP Basic Auth
+middleware only when both `SKILLGROWTH_BASIC_AUTH_USER` and
+`SKILLGROWTH_BASIC_AUTH_PASS` are set in the environment (see README's
+"Optional access gate") — unset, it's a no-op and every request is
+unauthenticated, same as before this existed. Credentials are compared
+with `secrets.compare_digest`, not `==`, to avoid a timing side-channel.
+`/api/health` is explicitly exempted from the gate: it has no way to know
+user-chosen credentials, and gating it would make the `Dockerfile`'s
+`HEALTHCHECK` above start failing the moment this env-var gate is turned
+on, even though the app itself is healthy.
+
 ## Data model
 
 The activity log (the `EvidenceEntry` table — the name predates the

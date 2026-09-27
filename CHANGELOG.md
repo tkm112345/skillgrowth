@@ -10,6 +10,13 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- An optional HTTP Basic Auth gate, off by default: set
+  `SKILLGROWTH_BASIC_AUTH_USER` and `SKILLGROWTH_BASIC_AUTH_PASS` to
+  require that username/password on every request except `/api/health`
+  (kept open so the Docker `HEALTHCHECK` doesn't start failing). Leaves
+  the app fully unauthenticated when unset, as before — for anyone
+  exposing their instance to the internet rather than a local
+  network/VPN and wanting a minimal gate without a reverse proxy.
 - PWA support (`vite-plugin-pwa`): an installable web app manifest and a
   service worker that precaches static assets only, so a mobile browser
   can "Add to Home Screen" and launch skillgrowth without browser UI. API

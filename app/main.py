@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, text
 
+from app.basic_auth import setup_basic_auth
 from app.db import engine, init_db
 from app.llm import LLMRequestError
 from app.logging_config import setup_logging
@@ -30,6 +31,7 @@ from app.routers import (
 VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
 
 app = FastAPI(title="skillgrowth", version=VERSION)
+setup_basic_auth(app)
 
 
 @app.exception_handler(LLMRequestError)

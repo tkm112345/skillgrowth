@@ -173,116 +173,132 @@ async function resetAllData() {
   <h1 class="page-title">{{ t('settings.title') }}</h1>
   <p class="page-subtitle">{{ t('settings.subtitle') }}</p>
 
-  <el-card shadow="never" class="backup-card accent-blue">
-    <template #header>{{ t('settings.appearanceHeader') }}</template>
+  <el-tabs class="settings-tabs">
+    <el-tab-pane :label="t('settings.tabAppearance')">
+      <el-card shadow="never" class="backup-card accent-blue">
+        <template #header>{{ t('settings.appearanceHeader') }}</template>
 
-    <div class="appearance-row">
-      <div class="appearance-label">{{ t('settings.languageHeader') }}</div>
-      <el-select :model-value="locale" @update:model-value="setLocale" size="small" class="lang-select">
-        <el-option value="en" label="English" />
-        <el-option value="ja" label="日本語" />
-      </el-select>
-    </div>
+        <div class="appearance-row">
+          <div class="appearance-label">{{ t('settings.languageHeader') }}</div>
+          <el-select :model-value="locale" @update:model-value="setLocale" size="small" class="lang-select">
+            <el-option value="en" label="English" />
+            <el-option value="ja" label="日本語" />
+          </el-select>
+        </div>
 
-    <div class="appearance-row">
-      <div class="appearance-label">{{ t('settings.themeMode') }}</div>
-      <el-radio-group :model-value="themeMode" @update:model-value="setThemeMode" size="small">
-        <el-radio-button value="system">{{ t('settings.themeSystem') }}</el-radio-button>
-        <el-radio-button value="light">{{ t('settings.themeLight') }}</el-radio-button>
-        <el-radio-button value="dark">{{ t('settings.themeDark') }}</el-radio-button>
-      </el-radio-group>
-    </div>
+        <div class="appearance-row">
+          <div class="appearance-label">{{ t('settings.themeMode') }}</div>
+          <el-radio-group :model-value="themeMode" @update:model-value="setThemeMode" size="small">
+            <el-radio-button value="system">{{ t('settings.themeSystem') }}</el-radio-button>
+            <el-radio-button value="light">{{ t('settings.themeLight') }}</el-radio-button>
+            <el-radio-button value="dark">{{ t('settings.themeDark') }}</el-radio-button>
+          </el-radio-group>
+        </div>
 
-    <div class="appearance-row">
-      <div class="appearance-label">{{ t('settings.themeColor') }}</div>
-      <div class="accent-swatches">
-        <button
-          v-for="hue in ACCENT_HUES"
-          :key="hue"
-          type="button"
-          class="accent-swatch"
-          :class="{ 'accent-swatch-active': (accentHue || 'blue') === hue }"
-          :style="{ background: `var(--hue-${hue})` }"
-          :aria-label="hue"
-          @click="setAccentHue(hue)"
-        />
-      </div>
-    </div>
-  </el-card>
+        <div class="appearance-row">
+          <div class="appearance-label">{{ t('settings.themeColor') }}</div>
+          <div class="accent-swatches">
+            <button
+              v-for="hue in ACCENT_HUES"
+              :key="hue"
+              type="button"
+              class="accent-swatch"
+              :class="{ 'accent-swatch-active': (accentHue || 'blue') === hue }"
+              :style="{ background: `var(--hue-${hue})` }"
+              :aria-label="hue"
+              @click="setAccentHue(hue)"
+            />
+          </div>
+        </div>
+      </el-card>
+    </el-tab-pane>
 
-  <el-card shadow="never" class="backup-card accent-yellow">
-    <template #header>{{ t('settings.llmHeader') }}</template>
-    <el-form :model="form" label-width="160px" v-loading="loading">
-      <el-form-item :label="t('settings.baseUrl')">
-        <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
-      </el-form-item>
-      <el-form-item :label="t('settings.apiKey')">
-        <el-input v-model="form.openai_api_key" type="password" show-password />
-      </el-form-item>
-      <el-form-item :label="t('settings.textModel')">
-        <el-input v-model="form.llm_model" placeholder="gpt-4o-mini" />
-      </el-form-item>
-      <el-form-item :label="t('settings.visionModel')">
-        <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
-      </el-form-item>
-      <el-form-item :label="t('settings.skillExtraction')">
-        <el-switch v-model="form.skill_extraction_enabled" />
-        <p class="field-hint">{{ t('settings.skillExtractionHint') }}</p>
-      </el-form-item>
-      <div class="form-actions">
-        <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
-        <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
-      </div>
+    <el-tab-pane :label="t('settings.tabLlm')">
+      <el-card shadow="never" class="backup-card accent-yellow">
+        <template #header>{{ t('settings.llmHeader') }}</template>
+        <el-form :model="form" label-width="160px" v-loading="loading">
+          <el-form-item :label="t('settings.baseUrl')">
+            <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />
+          </el-form-item>
+          <el-form-item :label="t('settings.apiKey')">
+            <el-input v-model="form.openai_api_key" type="password" show-password />
+          </el-form-item>
+          <el-form-item :label="t('settings.textModel')">
+            <el-input v-model="form.llm_model" placeholder="gpt-4o-mini" />
+          </el-form-item>
+          <el-form-item :label="t('settings.visionModel')">
+            <el-input v-model="form.llm_vision_model" placeholder="gpt-4o-mini" />
+          </el-form-item>
+          <el-form-item :label="t('settings.skillExtraction')">
+            <el-switch v-model="form.skill_extraction_enabled" />
+            <p class="field-hint">{{ t('settings.skillExtractionHint') }}</p>
+          </el-form-item>
+          <div class="form-actions">
+            <el-button @click="testConnection" :loading="testing">{{ t('settings.testConnection') }}</el-button>
+            <el-button type="primary" :loading="saving" @click="save">{{ t('settings.save') }}</el-button>
+          </div>
 
-      <el-alert
-        v-if="testResult"
-        class="test-result"
-        :type="testResult.ok ? 'success' : 'error'"
-        :title="testResult.ok ? t('settings.testSuccess') : t('settings.testFailure', { error: testResult.message })"
-        :closable="false"
-        show-icon
-      />
-    </el-form>
-  </el-card>
+          <el-alert
+            v-if="testResult"
+            class="test-result"
+            :type="testResult.ok ? 'success' : 'error'"
+            :title="testResult.ok ? t('settings.testSuccess') : t('settings.testFailure', { error: testResult.message })"
+            :closable="false"
+            show-icon
+          />
+        </el-form>
+      </el-card>
+    </el-tab-pane>
 
-  <el-card shadow="never" class="backup-card">
-    <template #header>{{ t('settings.backupHeader') }}</template>
-    <p class="backup-hint">{{ t('settings.backupHint') }}</p>
-    <el-button :loading="downloadingBackup" @click="downloadBackup">{{ t('settings.backupDownload') }}</el-button>
-  </el-card>
+    <el-tab-pane :label="t('settings.tabData')">
+      <el-card shadow="never" class="backup-card">
+        <template #header>{{ t('settings.backupHeader') }}</template>
+        <p class="backup-hint">{{ t('settings.backupHint') }}</p>
+        <el-button :loading="downloadingBackup" @click="downloadBackup">{{ t('settings.backupDownload') }}</el-button>
+      </el-card>
 
-  <el-card shadow="never" class="backup-card">
-    <template #header>{{ t('settings.importHeader') }}</template>
-    <p class="backup-hint">{{ t('settings.importHint') }}</p>
-    <el-upload :auto-upload="false" :show-file-list="true" :limit="1" accept=".json" :on-change="handleImportFileChange">
-      <el-button size="small">{{ t('common.add') }}</el-button>
-    </el-upload>
-    <el-button :loading="importing" @click="submitImport" class="import-btn">{{ t('settings.importSubmit') }}</el-button>
-  </el-card>
+      <el-card shadow="never" class="backup-card">
+        <template #header>{{ t('settings.importHeader') }}</template>
+        <p class="backup-hint">{{ t('settings.importHint') }}</p>
+        <el-upload
+          :auto-upload="false"
+          :show-file-list="true"
+          :limit="1"
+          accept=".json"
+          :on-change="handleImportFileChange"
+        >
+          <el-button size="small">{{ t('common.add') }}</el-button>
+        </el-upload>
+        <el-button :loading="importing" @click="submitImport" class="import-btn">{{ t('settings.importSubmit') }}</el-button>
+      </el-card>
 
-  <el-card shadow="never" class="backup-card">
-    <template #header>{{ t('settings.sampleHeader') }}</template>
-    <p class="backup-hint">{{ t('settings.sampleHint') }}</p>
-    <div class="form-actions">
-      <el-button :loading="loadingSample" @click="loadSample">{{ t('settings.sampleLoad') }}</el-button>
-      <el-button :loading="resettingSample" type="danger" plain @click="resetSample">
-        {{ t('settings.sampleReset') }}
-      </el-button>
-    </div>
-  </el-card>
+      <el-card shadow="never" class="backup-card">
+        <template #header>{{ t('settings.sampleHeader') }}</template>
+        <p class="backup-hint">{{ t('settings.sampleHint') }}</p>
+        <div class="form-actions">
+          <el-button :loading="loadingSample" @click="loadSample">{{ t('settings.sampleLoad') }}</el-button>
+          <el-button :loading="resettingSample" type="danger" plain @click="resetSample">
+            {{ t('settings.sampleReset') }}
+          </el-button>
+        </div>
+      </el-card>
 
-  <el-card shadow="never" class="backup-card accent-red">
-    <template #header>{{ t('settings.resetAllHeader') }}</template>
-    <p class="backup-hint">{{ t('settings.resetAllHint') }}</p>
-    <el-button :loading="resettingAll" type="danger" @click="resetAllData">
-      {{ t('settings.resetAllButton') }}
-    </el-button>
-  </el-card>
+      <el-card shadow="never" class="backup-card accent-red">
+        <template #header>{{ t('settings.resetAllHeader') }}</template>
+        <p class="backup-hint">{{ t('settings.resetAllHint') }}</p>
+        <el-button :loading="resettingAll" type="danger" @click="resetAllData">
+          {{ t('settings.resetAllButton') }}
+        </el-button>
+      </el-card>
+    </el-tab-pane>
 
-  <el-card shadow="never" class="backup-card">
-    <template #header>{{ t('settings.aboutHeader') }}</template>
-    <el-button @click="aboutVisible = true">{{ t('settings.aboutOpen') }}</el-button>
-  </el-card>
+    <el-tab-pane :label="t('settings.tabAbout')">
+      <el-card shadow="never" class="backup-card">
+        <template #header>{{ t('settings.aboutHeader') }}</template>
+        <el-button @click="aboutVisible = true">{{ t('settings.aboutOpen') }}</el-button>
+      </el-card>
+    </el-tab-pane>
+  </el-tabs>
 
   <el-dialog v-model="aboutVisible" :title="t('settings.aboutHeader')" width="420px">
     <p class="about-line">
@@ -297,6 +313,9 @@ async function resetAllData() {
 </template>
 
 <style scoped>
+.settings-tabs {
+  margin-top: 0.5rem;
+}
 
 .form-actions {
   display: flex;

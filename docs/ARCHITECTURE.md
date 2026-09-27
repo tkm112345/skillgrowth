@@ -237,12 +237,13 @@ sets it on the Skills page; an automatic re-match of an existing skill
 (CSV import, activity extraction) never touches it, the same as it
 already leaves `category` alone on that path.
 
-## Connections graph
+## Skill Network graph
 
 The ER diagram above already documents which entities relate to which —
 `GET /api/graph` (`app/routers/graph.py`) is what actually surfaces those
 relationships to the user, as a node/edge graph rendered on the
-Connections page (`frontend/src/views/Connections.vue`, ECharts'
+Skill Network page (`frontend/src/views/Connections.vue` — the
+user-facing name changed, the component file didn't — using ECharts'
 `GraphChart` with `layout: 'force'`).
 
 Deliberately **not every entity is a node**: `EvidenceEntry` is this app's
@@ -540,7 +541,7 @@ it, since nothing asked for one — if that changes, the shape would mirror
 `CareerVision(id=1)` (never persisted) when no row exists yet, so the
 frontend never has to special-case "no vision set."
 
-## AI Integration page (the only LLM-optional features)
+## AI Career Support page (the only LLM-optional features)
 
 Every other advisory feature in the app happens without calling an LLM at
 request time (extraction still uses one, at evidence-add time). These
@@ -598,7 +599,7 @@ migration was needed for them.
    session start, so the AI's picture of the user is never stale even
    mid-conversation.
 4. Saves the assistant's reply, bumps `ConsultSession.updated_at` (so the
-   session list on the AI Integration page sorts by recency), and sets
+   session list on the AI Career Support page sorts by recency), and sets
    `title` from the first ~40 characters of the first user message if it
    wasn't already set.
 
@@ -611,7 +612,7 @@ with `ConsultMessage.session_id` remapped through a fresh id map on
 import — the same pattern used for every other foreign-keyed table.
 
 `Settings.consult_custom_instructions` (edited from a collapsed
-"Customize this consultant" field on the AI Integration page) is appended
+"Customize this consultant" field on the AI Career Support page) is appended
 to `CONSULT_SYSTEM_PROMPT` via a `__CUSTOM_INSTRUCTIONS__` placeholder,
 read directly off the `settings` object `career_consult_reply` already
 receives — no signature change, no new call site. When the field is
@@ -937,14 +938,14 @@ visible in `docker compose logs` at the time.
 ## Frontend routing
 
 The SPA has one route per top-level concern (Concept, Dashboard, Vision,
-Self Feedback, Skills, Activity, Profile, Portfolio, Resume, AI Integration,
-Settings), listed in
+Self Feedback, Skills, Activity, Certifications, Profile, Portfolio, Skill
+Network, Resume, AI Career Support, Settings), listed in
 `frontend/src/router/index.js`. Activity (`Timeline.vue`) doubles as what
 used to be a separate Learning Log page — see "Activity ⨯ Learning Log
 merge" below. `/consult/:id` (`Consult.vue`) is the one exception to
 "one route per concern" and the first parameterized route in the app —
 each saved conversation gets its own URL, reached from the Career Consult
-card on the AI Integration page rather than from the sidebar. There's no
+card on the AI Career Support page rather than from the sidebar. There's no
 server-side rendering; the FastAPI catch-all route in
 `app/main.py::spa_fallback` returns `index.html` for any non-`/api` path
 so client-side routing (`vue-router`'s history mode) works on a hard

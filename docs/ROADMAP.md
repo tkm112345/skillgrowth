@@ -18,7 +18,8 @@ rather than "probably fine, hasn't broken yet."
   Concept page's five-step loop (Vision → track skills/activity →
   record education/work/projects → reflect against Vision → prepare for
   the next career move — Dashboard, Vision, Self Feedback, Profile,
-  Skills, Activity, Certifications, Portfolio, Export, AI Integration)
+  Skills, Activity, Certifications, Portfolio, Skill Network, Export,
+  AI Career Support)
   are all in place, and recent releases have stopped adding *new
   pages/nav items* — only refinements to what's already there.
 - [ ] **Self-hosting operational basics are in place.** Health check

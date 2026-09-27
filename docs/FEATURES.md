@@ -30,7 +30,7 @@
   chart and goals are the point, the counters are secondary.
 
 Turning these goals into LLM-backed suggestions happens on a separate
-page — see **AI Integration** below — so the Dashboard itself never calls
+page — see **AI Career Support** below — so the Dashboard itself never calls
 an LLM.
 
 ## Vision
@@ -209,7 +209,7 @@ filter above, for managing certification entries one at a time:
   type/title/date; the underlying activity log entry stays in the feed as
   plain text.
 
-## Connections
+## Skill Network
 
 A force-directed node/edge graph showing how your skills connect to the
 career milestones that back them — which certifications, jobs, projects,
@@ -281,7 +281,7 @@ skillgrowth.
   enough that a portable career record shouldn't hold it, so the uploaded
   template is expected to leave those for you to fill in by hand.
 
-## AI Integration
+## AI Career Support
 
 The only features in the app that call an LLM at your request (activity
 extraction also uses one, but that happens automatically as you add
@@ -347,24 +347,33 @@ separate branch for the fifth:
    still missing.
 
 Step 4 flows straight back into step 1 — that's the main loop, and it's
-the path drawn as a closed circle. Step 5 (**Prepare** — resume
+the path drawn as a closed circle. Step 5 (**Prepare** — resume/rirekisho
 generation, a job-posting gap check, growth guidance toward your goals,
-and now a Career Consult conversation) is deliberately *not* part of that
+and a Career Consult conversation) is deliberately *not* part of that
 circle: it's an occasional detour off of step 4, drawn as a separate
-branch, not a step every pass through the loop takes. Its note that the
-LLM-backed features here "haven't been thoroughly vetted yet" isn't about
-them being unbuilt — all of them exist and work — it's a reliability
-caveat: this app hasn't accumulated enough real-world use yet to vouch
-for how good the LLM's suggestions actually are.
+branch, not a step every pass through the loop takes. Of those, only the
+job-posting gap check, growth guidance, and Career Consult call an LLM;
+resume and rirekisho generation are deterministic and don't. The in-app
+note that the LLM-backed features here "haven't been thoroughly vetted
+yet" isn't about them being unbuilt — all of them exist and work — it's a
+reliability caveat: this app hasn't accumulated enough real-world use yet
+to vouch for how good the LLM's suggestions actually are.
 
-Many of this app's screens — Dashboard, Profile, Activity, Skills — are
-different views onto that same append-only activity log, added to a
-little at a time rather than reset each time around. Vision, career path
-goals, Self Feedback, Self PR, and resume generation itself all sit
-outside that log, though, and never go through LLM extraction at any
-point.
+Many of this app's screens — Dashboard, Profile, Activity, Skills,
+Certifications — are different views onto that same append-only activity
+log, added to a little at a time rather than reset each time around.
+Vision, career path goals, Self Feedback, Self PR, and resume/rirekisho
+generation itself all sit outside that log, though, and never go through
+LLM extraction at any point. Portfolio sits outside it too — its
+description is deliberately excluded from skill extraction. Skill
+Network isn't a view onto the log either — it visualizes how skills
+relate to the other entities that back them.
 
 ## Settings
+
+Split into four tabs — Appearance, LLM Connection, Data Management, and
+About — since the flat list of cards this used to be had grown long
+enough to be hard to scan.
 
 - **Appearance** — language (English/Japanese), theme (System/Light/Dark),
   and an accent color picked from the app's 8-hue palette. All three are
@@ -412,7 +421,7 @@ point.
   needs one. A matching **reset** button removes exactly what
   sample-loading added (tracked by id across every load, however many
   times you've run it) — anything you've entered yourself is left alone.
-  Only the AI Integration page's three features still need a working LLM
+  Only the AI Career Support page's three features still need a working LLM
   connection.
 - **Reset all data** — unlike the sample-data reset above, this wipes
   literally everything: your own data as well as sample data, and the LLM

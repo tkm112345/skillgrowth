@@ -104,6 +104,24 @@ commit as the change, moved into a dated section when a release is cut).
   into a cramped column instead of letting it wrap normally.
 
 ### Changed
+- The sidebar's 13 flat nav items are now grouped into 5 collapsible
+  categories (Overview, Direction, Activity & Skills, Background,
+  Output), plus a standalone Settings entry — it had grown hard to scan.
+  "Connections" is renamed "Skill Network" and "AI Integration" is
+  renamed "AI Career Support," both purely cosmetic (no route/behavior
+  change).
+- The Settings page is split into four tabs (Appearance, LLM Connection,
+  Data Management, About) instead of a long flat stack of cards, for the
+  same reason.
+- The Concept page's loop and design-principle text is corrected to
+  match the app as it exists now: the "LLM features aren't thoroughly
+  vetted yet" caveat no longer reads as if it covers resume/rirekisho
+  generation (both are LLM-free); step 5 and the loop note now mention
+  rirekisho generation and Certifications; the note clarifies Portfolio
+  and Skill Network sit outside the append-only activity log rather than
+  being another view onto it; the self-hosted principle now mentions the
+  optional Basic Auth gate; the activity-over-self-assessment principle
+  now notes skill proficiency as its one deliberate exception.
 - The Dashboard's skill growth timeline (a step-line chart of cumulative
   skill count) is replaced with a bar chart of skill-improving actions
   per month — reviewer feedback found the cumulative count less useful

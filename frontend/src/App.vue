@@ -3,16 +3,21 @@ import {
   Compass,
   Connection,
   DataAnalysis,
+  DataLine,
   EditPen,
   Expand,
   Files,
   Fold,
+  Grid,
+  Guide,
   List,
   MagicStick,
   Medal,
   Notebook,
+  Postcard,
   Promotion,
   Setting,
+  Share,
   Suitcase,
   Sunrise,
   TrendCharts,
@@ -68,54 +73,89 @@ onMounted(async () => {
         <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
       </div>
       <el-menu :default-active="route.path" :collapse="collapsed" router class="nav">
-        <el-menu-item index="/concept">
-          <el-icon style="color: var(--hue-blue)"><Compass /></el-icon>
-          <template #title>{{ t('nav.concept') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/">
-          <el-icon style="color: var(--hue-blue)"><DataAnalysis /></el-icon>
-          <template #title>{{ t('nav.dashboard') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/vision">
-          <el-icon style="color: var(--hue-aqua)"><Sunrise /></el-icon>
-          <template #title>{{ t('nav.vision') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/self-feedback">
-          <el-icon style="color: var(--hue-yellow)"><EditPen /></el-icon>
-          <template #title>{{ t('nav.selfFeedback') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/skills">
-          <el-icon style="color: var(--hue-orange)"><List /></el-icon>
-          <template #title>{{ t('nav.skills') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/timeline">
-          <el-icon style="color: var(--hue-magenta)"><TrendCharts /></el-icon>
-          <template #title>{{ t('nav.timeline') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/certifications">
-          <el-icon style="color: var(--hue-aqua)"><Medal /></el-icon>
-          <template #title>{{ t('nav.certifications') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/profile">
-          <el-icon style="color: var(--hue-violet)"><Notebook /></el-icon>
-          <template #title>{{ t('nav.profile') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/portfolio">
-          <el-icon style="color: var(--hue-red)"><Suitcase /></el-icon>
-          <template #title>{{ t('nav.portfolio') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/connections">
-          <el-icon style="color: var(--hue-blue)"><Connection /></el-icon>
-          <template #title>{{ t('nav.connections') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/export">
-          <el-icon style="color: var(--hue-green)"><Files /></el-icon>
-          <template #title>{{ t('nav.export') }}</template>
-        </el-menu-item>
-        <el-menu-item index="/ai">
-          <el-icon style="color: var(--hue-yellow)"><MagicStick /></el-icon>
-          <template #title>{{ t('nav.ai') }}</template>
-        </el-menu-item>
+        <el-sub-menu index="group-overview">
+          <template #title>
+            <el-icon><Grid /></el-icon>
+            <span>{{ t('nav.groupOverview') }}</span>
+          </template>
+          <el-menu-item index="/concept">
+            <el-icon style="color: var(--hue-blue)"><Compass /></el-icon>
+            <template #title>{{ t('nav.concept') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/">
+            <el-icon style="color: var(--hue-blue)"><DataAnalysis /></el-icon>
+            <template #title>{{ t('nav.dashboard') }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="group-direction">
+          <template #title>
+            <el-icon><Guide /></el-icon>
+            <span>{{ t('nav.groupDirection') }}</span>
+          </template>
+          <el-menu-item index="/vision">
+            <el-icon style="color: var(--hue-aqua)"><Sunrise /></el-icon>
+            <template #title>{{ t('nav.vision') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/self-feedback">
+            <el-icon style="color: var(--hue-yellow)"><EditPen /></el-icon>
+            <template #title>{{ t('nav.selfFeedback') }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="group-skills">
+          <template #title>
+            <el-icon><DataLine /></el-icon>
+            <span>{{ t('nav.groupSkills') }}</span>
+          </template>
+          <el-menu-item index="/skills">
+            <el-icon style="color: var(--hue-orange)"><List /></el-icon>
+            <template #title>{{ t('nav.skills') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/timeline">
+            <el-icon style="color: var(--hue-magenta)"><TrendCharts /></el-icon>
+            <template #title>{{ t('nav.timeline') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/certifications">
+            <el-icon style="color: var(--hue-aqua)"><Medal /></el-icon>
+            <template #title>{{ t('nav.certifications') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/connections">
+            <el-icon style="color: var(--hue-blue)"><Connection /></el-icon>
+            <template #title>{{ t('nav.connections') }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="group-background">
+          <template #title>
+            <el-icon><Postcard /></el-icon>
+            <span>{{ t('nav.groupBackground') }}</span>
+          </template>
+          <el-menu-item index="/profile">
+            <el-icon style="color: var(--hue-violet)"><Notebook /></el-icon>
+            <template #title>{{ t('nav.profile') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/portfolio">
+            <el-icon style="color: var(--hue-red)"><Suitcase /></el-icon>
+            <template #title>{{ t('nav.portfolio') }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="group-output">
+          <template #title>
+            <el-icon><Share /></el-icon>
+            <span>{{ t('nav.groupOutput') }}</span>
+          </template>
+          <el-menu-item index="/export">
+            <el-icon style="color: var(--hue-green)"><Files /></el-icon>
+            <template #title>{{ t('nav.export') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/ai">
+            <el-icon style="color: var(--hue-yellow)"><MagicStick /></el-icon>
+            <template #title>{{ t('nav.ai') }}</template>
+          </el-menu-item>
+        </el-sub-menu>
+
         <el-menu-item index="/settings">
           <el-icon><Setting /></el-icon>
           <template #title>{{ t('nav.settings') }}</template>
@@ -224,7 +264,8 @@ onMounted(async () => {
   overflow-x: hidden;
 }
 
-.nav :deep(.el-menu-item) {
+.nav :deep(.el-menu-item),
+.nav :deep(.el-sub-menu__title) {
   border-radius: 6px;
   margin: 1px 8px;
   height: 32px;
@@ -239,8 +280,15 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-.nav :deep(.el-menu-item:hover) {
+.nav :deep(.el-menu-item:hover),
+.nav :deep(.el-sub-menu__title:hover) {
   background: var(--hover-wash);
+}
+
+.nav :deep(.el-sub-menu .el-menu-item) {
+  height: 30px;
+  line-height: 30px;
+  min-width: 0;
 }
 
 .sidebar-footer {

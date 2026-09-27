@@ -54,7 +54,7 @@ flowchart LR
   L --> S
   S --> V[Current skill view]
   S --> X[Resume export - no LLM]
-  S --> G[AI Integration: career consult / job gap check / growth guidance]
+  S --> G[AI Career Support: career consult / job gap check / growth guidance]
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full data model and
@@ -94,7 +94,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   separate from Activity's own "Certifications only" filter — this is
   also the only place a certification's structured fields can be edited
   after the fact.
-- **Connections** — a force-directed graph showing how skills connect to
+- **Skill Network** — a force-directed graph showing how skills connect to
   the certifications, education, employment, projects, and portfolio
   pieces that back them. Deliberately excludes day-to-day activity
   entries (reading, talks, quick updates), so the graph stays readable no
@@ -107,7 +107,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   template with tags like `{{p self_pr }}` and generate a filled copy of
   it — also no LLM involved, with per-section bullet-list/table layout
   chosen from the UI.
-- **AI Integration** — the only features that call an LLM on demand:
+- **AI Career Support** — the only features that call an LLM on demand:
   Career Consult (a saved, multi-turn chat with an AI career consultant,
   grounded in your actual skills/activity/history/goals on every
   message), growth guidance toward each Dashboard goal, and a
@@ -154,7 +154,7 @@ The rest of the screens below are shown with the built-in sample data
   language the LLM extracts from your activity (or that you type directly),
   not normalized IDs.
 - **LLM-optional, not LLM-required.** Extracting skills from free text and
-  the AI Integration features are the only things that call an LLM.
+  the AI Career Support features are the only things that call an LLM.
   Adding/editing skills by hand, career path goals, Vision, Self PR,
   resume generation, and backup/restore all work with none configured.
   Extraction itself is also **off by default** even once an LLM is
@@ -260,7 +260,7 @@ A typical first session looks like this:
    your data poured into a fixed template — so this works even before
    step 1. Every generation is kept, so you can always go back to an
    earlier version.
-7. **AI Integration**, only if you configured an LLM in step 1: start a
+7. **AI Career Support**, only if you configured an LLM in step 1: start a
    Career Consult conversation, paste a job posting for a gap check
    against your current skills, or ask for growth guidance toward the
    goals you wrote in step 5.

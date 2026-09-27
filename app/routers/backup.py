@@ -21,12 +21,14 @@ from app.models import (
     ExportSnapshot,
     ExternalLink,
     LearningActivity,
+    PersonalInfo,
     PortfolioFile,
     PortfolioItem,
     PortfolioLink,
     Project,
     ReflectionLog,
     ResumeTemplate,
+    RirekishoTemplate,
     SampleDataRecord,
     SelfFeedback,
     SelfPR,
@@ -104,6 +106,35 @@ def _dump_portfolio_files(session: Session) -> list[dict]:
     return rows
 
 
+def _dump_rirekisho_templates(session: Session) -> list[dict]:
+    # Same reasoning as _dump_resume_templates.
+    rows = []
+    for row in session.exec(select(RirekishoTemplate)).all():
+        data = row.model_dump(mode="json")
+        try:
+            data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
+        except FileNotFoundError:
+            data["file_content_base64"] = None
+        rows.append(data)
+    return rows
+
+
+def _dump_personal_info(session: Session) -> list[dict]:
+    # Singleton, same shape as career_vision's dump — a list of 0 or 1 rows
+    # so import_backup's per-row loop pattern still applies. The photo is
+    # embedded as base64 for the same reason a resume template's file is.
+    row = session.get(PersonalInfo, 1)
+    if row is None:
+        return []
+    data = row.model_dump(mode="json")
+    if row.photo_path:
+        try:
+            data["photo_content_base64"] = base64.b64encode(Path(row.photo_path).read_bytes()).decode("ascii")
+        except FileNotFoundError:
+            data["photo_content_base64"] = None
+    return [data]
+
+
 @router.get("/export")
 def export_backup(session: Session = Depends(get_session)) -> dict:
     def dump(model):
@@ -133,6 +164,8 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "self_feedback": dump(SelfFeedback),
         "consult_sessions": dump(ConsultSession),
         "consult_messages": dump(ConsultMessage),
+        "personal_info": _dump_personal_info(session),
+        "rirekisho_templates": _dump_rirekisho_templates(session),
     }
 
 

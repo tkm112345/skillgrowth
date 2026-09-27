@@ -231,6 +231,38 @@ class ResumeTemplate(SQLModel, table=True):
     uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class PersonalInfo(SQLModel, table=True):
+    # Singleton row, id=1 — same shape as CareerVision/Settings. Only the
+    # static personal facts a rirekisho needs (name, contact, address,
+    # photo). Deliberately excludes gender, dependents, commute time, the
+    # "requests" column, and motivation for applying — those are either
+    # sensitive with little value in a portable career record, or vary per
+    # application, so they're left for the uploaded template to leave blank
+    # for hand-filling instead.
+    id: int = Field(default=1, primary_key=True)
+    name: str = ""
+    name_kana: str = ""
+    birthdate: Optional[date] = None
+    postal_code: str = ""
+    address: str = ""
+    address_kana: str = ""
+    phone: str = ""
+    email: str = ""
+    photo_path: Optional[str] = None
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class RirekishoTemplate(SQLModel, table=True):
+    # Same shape as ResumeTemplate, minus section_formats — a rirekisho's
+    # tag set (see app/rirekisho_docx.py) has no user-configurable
+    # bullet/table choice.
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    name: str
+    file_path: str
+    is_selected: bool = False
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 class SampleDataRecord(SQLModel, table=True):
     """Tracks exactly which rows a `load-sample` call created, so
     `reset-sample` can remove precisely those rows (and only those) even if

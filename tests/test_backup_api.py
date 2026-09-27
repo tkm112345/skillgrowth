@@ -25,6 +25,8 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "self_feedback",
         "consult_sessions",
         "consult_messages",
+        "personal_info",
+        "rirekisho_templates",
     ]:
         assert body[key] == []
 
@@ -162,6 +164,8 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "self_feedback": 0,
         "consult_sessions": 0,
         "consult_messages": 0,
+        "personal_info": 0,
+        "rirekisho_templates": 0,
     }
 
     employment = client.get("/api/profile/employment").json()

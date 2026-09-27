@@ -69,3 +69,35 @@ def sample_docx_bytes():
         return buf.getvalue()
 
     return build
+
+
+@pytest.fixture
+def sample_rirekisho_docx_bytes():
+    """Same idea as sample_docx_bytes, tagged for the rirekisho renderer.
+    Plain-string fields use ordinary {{ tag }} jinja substitution; only the
+    subdoc-returning fields (self_pr/history/certifications) use docxtpl's
+    {{p tag }} paragraph-replace syntax, same distinction render_rirekisho_docx
+    itself relies on."""
+
+    def build() -> bytes:
+        doc = Document()
+        for tag in (
+            "name",
+            "name_kana",
+            "birthdate",
+            "age",
+            "postal_code",
+            "address",
+            "address_kana",
+            "phone",
+            "email",
+        ):
+            doc.add_paragraph("{{ " + tag + " }}")
+        for tag in ("self_pr", "history", "certifications"):
+            doc.add_paragraph("{{p " + tag + " }}")
+        doc.add_paragraph("{{ photo }}")
+        buf = BytesIO()
+        doc.save(buf)
+        return buf.getvalue()
+
+    return build

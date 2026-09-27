@@ -10,6 +10,18 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- Rirekisho (履歴書) generation, on the Resume page: a "Personal info" form
+  (name, date of birth, address, phone, email, a photo) plus your own
+  rirekisho-formatted `.docx` template upload, filled in with that info
+  and your existing education/work history, certifications, and Self PR —
+  the same deterministic, no-LLM approach as the existing Word template
+  export, but for the standardized Japanese personal-history form, which
+  is a distinct document from this app's existing resume
+  (shokumu-keirekisho) generator. Gender, dependents, commute time, the
+  "requests" column, and motivation for applying are deliberately not
+  stored, since each varies per application or is sensitive with little
+  value in a portable career record — left for the template to leave
+  blank for hand-filling.
 - A "Connections" page: a force-directed node/edge graph of how skills
   connect to the certifications, education, employment, projects, and
   portfolio pieces that back them. Deliberately excludes day-to-day
@@ -74,6 +86,10 @@ commit as the change, moved into a dated section when a release is cut).
   Certifications section now respects it.
 
 ### Fixed
+- A Career Consult session's "Target industry" was exported in a data
+  backup but silently dropped on restore — the field existed on the
+  model but the backup importer's `ConsultSession` construction never
+  read it back out.
 - Adding a certification from the Activity page tagged its feed entry as
   generic "Learning" rather than "Certification" — only the separate
   certificate-image upload path got the right tag. Every other activity

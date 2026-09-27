@@ -91,6 +91,28 @@ export const api = {
   deleteResumeTemplate: (id) => request(`/resume-templates/${id}`, { method: 'DELETE' }),
   generateResumeDocx: (id) => requestBlob(`/resume-templates/${id}/generate`, { method: 'POST' }),
 
+  getPersonalInfo: () => request('/personal-info'),
+  updatePersonalInfo: (payload) =>
+    request('/personal-info', { method: 'PUT', body: JSON.stringify(payload) }),
+  uploadPersonalInfoPhoto: (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return requestForm('/personal-info/photo', form)
+  },
+  deletePersonalInfoPhoto: () => request('/personal-info/photo', { method: 'DELETE' }),
+
+  getRirekishoTemplates: () => request('/rirekisho-templates'),
+  uploadRirekishoTemplate: (name, file) => {
+    const form = new FormData()
+    form.append('name', name)
+    form.append('file', file)
+    return requestForm('/rirekisho-templates', form)
+  },
+  updateRirekishoTemplate: (id, payload) =>
+    request(`/rirekisho-templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteRirekishoTemplate: (id) => request(`/rirekisho-templates/${id}`, { method: 'DELETE' }),
+  generateRirekishoDocx: (id) => requestBlob(`/rirekisho-templates/${id}/generate`, { method: 'POST' }),
+
   getSelfPRs: (limit = 20, offset = 0) => request(`/self-pr?limit=${limit}&offset=${offset}`),
   addSelfPR: (content) => request('/self-pr', { method: 'POST', body: JSON.stringify({ content }) }),
   updateSelfPR: (id, content) =>

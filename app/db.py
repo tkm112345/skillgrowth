@@ -10,6 +10,10 @@ RESUME_TEMPLATE_DIR = UPLOAD_DIR / "resume_templates"
 RESUME_TEMPLATE_DIR.mkdir(exist_ok=True)
 PORTFOLIO_DIR = UPLOAD_DIR / "portfolio"
 PORTFOLIO_DIR.mkdir(exist_ok=True)
+PERSONAL_INFO_DIR = UPLOAD_DIR / "personal_info"
+PERSONAL_INFO_DIR.mkdir(exist_ok=True)
+RIREKISHO_TEMPLATE_DIR = UPLOAD_DIR / "rirekisho_templates"
+RIREKISHO_TEMPLATE_DIR.mkdir(exist_ok=True)
 
 engine = create_engine(f"sqlite:///{DATA_DIR / 'skillgrowth.db'}")
 

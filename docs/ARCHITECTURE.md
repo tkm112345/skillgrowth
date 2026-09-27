@@ -164,6 +164,26 @@ erDiagram
     bool is_selected
     datetime uploaded_at
   }
+  PersonalInfo {
+    int id "singleton row, id=1"
+    string name
+    string name_kana
+    date birthdate "nullable"
+    string postal_code
+    string address
+    string address_kana
+    string phone
+    string email
+    string photo_path "nullable, uploaded image on disk"
+    datetime updated_at
+  }
+  RirekishoTemplate {
+    string id
+    string name
+    string file_path "uploaded .docx, on disk"
+    bool is_selected
+    datetime uploaded_at
+  }
   Settings {
     int id "singleton row, id=1"
     string openai_base_url
@@ -732,6 +752,74 @@ rather than creating a template with no backing file. `is_selected` is
 never imported, the same reasoning `SelfPR` uses (see "Resume export
 (no LLM)" above) — an import must never silently change which template
 generation defaults to.
+
+## Rirekisho export
+
+A rirekisho (履歴書) is a distinct document from the resume above — a
+standardized Japanese personal-history form (name, contact details, a
+combined education/work-history table, a photo), as opposed to a
+shokumu-keirekisho (職務経歴書, what this app calls "Resume": a free-form
+work-experience summary). Added because the two are genuinely different
+artifacts in Japanese job hunting, not because the existing resume needed
+a different output format.
+
+`PersonalInfo` (`app/models.py`) is a singleton row (`id=1`, same pattern
+as `CareerVision`/`Settings`) holding `name`, `name_kana`, `birthdate`,
+`postal_code`, `address`, `address_kana`, `phone`, `email`, and
+`photo_path` (a file under `data/uploads/personal_info/`,
+`PERSONAL_INFO_DIR` in `app/db.py`). `app/routers/personal_info.py`
+exposes it with the same lazy-create-on-write pattern
+`app/routers/vision.py` uses — `GET` returns defaults without creating a
+row, `PUT` creates the row on first write. The photo has its own
+`POST`/`GET`/`DELETE /api/personal-info/photo` endpoints (upload,
+download for the Export page's `<img>` preview, and removal), mirroring
+how `PortfolioFile` downloads work
+(`app/routers/portfolio.py::download_portfolio_file`).
+
+Deliberately **not** modeled: gender, number of dependents, commute time,
+the "requests" column (本人希望記入欄), and motivation for applying (志望動機).
+Each either varies per job application (so it isn't "career data" worth
+keeping portable across employers, the same reasoning that keeps
+`PortfolioItem.description` out of skill extraction) or is sensitive with
+little value in a long-lived record. The uploaded template is expected to
+leave these blank for hand-filling per application.
+
+`RirekishoTemplate` mirrors `ResumeTemplate` (same `id`/`name`/`file_path`/
+`is_selected`/`uploaded_at` shape, same `_select_only()` single-selected
+pattern, same `.docx`-only upload validation) but has no
+`section_formats` — a rirekisho's tag set has no user-configurable
+bullet/table choice. `app/rirekisho_docx.py::render_rirekisho_docx` fills:
+`name`, `name_kana`, `birthdate`, `age` (computed from `birthdate` against
+`date.today()` at generation time, not stored), `postal_code`, `address`,
+`address_kana`, `phone`, `email` as plain string tags (`{{ tag }}`);
+`photo` as a `docxtpl.InlineImage` (30mm wide, matching a JIS-style photo
+box) when `photo_path` is set, or an empty string tag when it isn't;
+`history`, `certifications`, and `self_pr` as subdocs (`{{p tag }}` —
+same paragraph-substitution requirement as the resume's subdoc tags
+above, and the same failure mode if written as plain `{{ tag }}` instead).
+
+`history` is built by `app/rirekisho_builder.py::_history_rows`, not
+`gather_resume_context`'s `education`/`employment` — those are
+pre-formatted into period strings for the resume's prose sections, but a
+rirekisho table needs separate year/month/label rows so it can render the
+conventional alternating 入学/卒業 (enrolled/graduated) and 入社/退社
+(joined/left) lines, each row's date used only to sort the merged table,
+with a trailing "現在に至る" (present) row appended once anything has been
+listed. `certifications` and `self_pr` are reused as-is from
+`gather_resume_context(session)` rather than re-queried, so the resume
+and rirekisho never drift on what those two sections contain.
+
+`PersonalInfo` and `RirekishoTemplate` are brand-new tables, so no
+`_ensure_column` migration step was needed (see "Schema changes with no
+migration tool" above) — only a table *added to* an existing model needs
+that. Both are included in backup export/import
+(`app/routers/backup.py::_dump_personal_info`/`_dump_rirekisho_templates`),
+the photo and template file embedded as base64 the same way a resume
+template's file is. Unlike every other imported table, `personal_info`
+import is all-or-nothing and only fires when no `PersonalInfo` row exists
+yet on the target instance — merging one person's name with another's
+address field-by-field (the way `career_vision`'s "only if still blank"
+check works) wouldn't make sense for a single person's identity.
 
 ## Portfolio (deliverables, kept separate from Profile)
 

@@ -264,6 +264,22 @@ skillgrowth.
   the UI, not by editing the template file's own logic — so the same
   `.docx` design can show a table one way and a list another without
   keeping two separate template files.
+- **Rirekisho** — a distinct document from the resume above: in Japanese
+  job hunting, a rirekisho (履歴書) is a standardized personal-history form
+  (name, contact details, a combined education/work-history table, a
+  photo) separate from a shokumu-keirekisho (職務経歴書, what this app calls
+  "Resume"). On the same page, a "Personal info" form holds name
+  (+furigana), date of birth, postal code, address (+furigana), phone,
+  email, and a photo upload. Below it, upload your own rirekisho-formatted
+  `.docx` file with tags for that info plus education/work history (built
+  from the same Education/Employment records as the resume, merged into
+  one chronological table the way a rirekisho conventionally lists it),
+  certifications, and Self PR — filled in on demand, same deterministic,
+  no-LLM approach as the Word template export above. Deliberately **not**
+  stored: gender, dependents, commute time, the "requests" column, and
+  motivation for applying — each varies per application or is sensitive
+  enough that a portable career record shouldn't hold it, so the uploaded
+  template is expected to leave those for you to fill in by hand.
 
 ## AI Integration
 

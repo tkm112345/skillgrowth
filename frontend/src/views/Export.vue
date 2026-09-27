@@ -2,7 +2,7 @@
 import DOMPurify from 'dompurify'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { marked } from 'marked'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
@@ -61,6 +61,51 @@ const draftSelfPR = ref('')
 const savingSelfPR = ref(false)
 const selectingSelfPRId = ref(null)
 
+const RIREKISHO_TAGS = [
+  { tag: 'name', syntax: '{{ name }}', labelKey: 'rirekisho.tagName' },
+  { tag: 'name_kana', syntax: '{{ name_kana }}', labelKey: 'rirekisho.tagNameKana' },
+  { tag: 'birthdate', syntax: '{{ birthdate }}', labelKey: 'rirekisho.tagBirthdate' },
+  { tag: 'age', syntax: '{{ age }}', labelKey: 'rirekisho.tagAge' },
+  { tag: 'postal_code', syntax: '{{ postal_code }}', labelKey: 'rirekisho.tagPostalCode' },
+  { tag: 'address', syntax: '{{ address }}', labelKey: 'rirekisho.tagAddress' },
+  { tag: 'address_kana', syntax: '{{ address_kana }}', labelKey: 'rirekisho.tagAddressKana' },
+  { tag: 'phone', syntax: '{{ phone }}', labelKey: 'rirekisho.tagPhone' },
+  { tag: 'email', syntax: '{{ email }}', labelKey: 'rirekisho.tagEmail' },
+  { tag: 'photo', syntax: '{{ photo }}', labelKey: 'rirekisho.tagPhoto' },
+  { tag: 'history', syntax: '{{p history }}', labelKey: 'rirekisho.tagHistory' },
+  { tag: 'certifications', syntax: '{{p certifications }}', labelKey: 'rirekisho.tagCertifications' },
+  { tag: 'self_pr', syntax: '{{p self_pr }}', labelKey: 'rirekisho.tagSelfPr' },
+]
+
+const personalInfo = ref({
+  name: '',
+  name_kana: '',
+  birthdate: '',
+  postal_code: '',
+  address: '',
+  address_kana: '',
+  phone: '',
+  email: '',
+  photo_path: null,
+  updated_at: null,
+})
+const loadingPersonalInfo = ref(true)
+const savingPersonalInfo = ref(false)
+const uploadingPhoto = ref(false)
+
+const photoUrl = computed(() =>
+  personalInfo.value.photo_path
+    ? `/api/personal-info/photo?v=${encodeURIComponent(personalInfo.value.updated_at)}`
+    : null,
+)
+
+const rirekishoTemplates = ref([])
+const loadingRirekishoTemplates = ref(true)
+const newRirekishoTemplateName = ref('')
+const newRirekishoTemplateFile = ref(null)
+const uploadingRirekishoTemplate = ref(false)
+const generatingRirekishoTemplateId = ref(null)
+
 onMounted(async () => {
   try {
     const [page, prs, templates] = await Promise.all([
@@ -80,7 +125,100 @@ onMounted(async () => {
     loadingSelfPR.value = false
     loadingResumeTemplates.value = false
   }
+
+  try {
+    const [info, rirekishoTpls] = await Promise.all([api.getPersonalInfo(), api.getRirekishoTemplates()])
+    personalInfo.value = info
+    rirekishoTemplates.value = rirekishoTpls
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingPersonalInfo.value = false
+    loadingRirekishoTemplates.value = false
+  }
 })
+
+async function savePersonalInfo() {
+  savingPersonalInfo.value = true
+  try {
+    const { name, name_kana, birthdate, postal_code, address, address_kana, phone, email } = personalInfo.value
+    personalInfo.value = await api.updatePersonalInfo({
+      name,
+      name_kana,
+      birthdate,
+      postal_code,
+      address,
+      address_kana,
+      phone,
+      email,
+    })
+    ElMessage.success(t('rirekisho.personalInfoSaved'))
+  } finally {
+    savingPersonalInfo.value = false
+  }
+}
+
+async function handlePhotoChange(uploadFile) {
+  uploadingPhoto.value = true
+  try {
+    personalInfo.value = await api.uploadPersonalInfoPhoto(uploadFile.raw)
+  } finally {
+    uploadingPhoto.value = false
+  }
+}
+
+async function removePhoto() {
+  personalInfo.value = await api.deletePersonalInfoPhoto()
+}
+
+function handleRirekishoTemplateFileChange(uploadFile) {
+  newRirekishoTemplateFile.value = uploadFile.raw
+}
+
+async function uploadRirekishoTemplate() {
+  if (!newRirekishoTemplateName.value.trim() || !newRirekishoTemplateFile.value) return
+  uploadingRirekishoTemplate.value = true
+  try {
+    const template = await api.uploadRirekishoTemplate(newRirekishoTemplateName.value, newRirekishoTemplateFile.value)
+    rirekishoTemplates.value.unshift(template)
+    newRirekishoTemplateName.value = ''
+    newRirekishoTemplateFile.value = null
+    ElMessage.success(t('export.resumeTemplateUploaded'))
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateUploadError', { error: e.message }))
+  } finally {
+    uploadingRirekishoTemplate.value = false
+  }
+}
+
+async function setDefaultRirekishoTemplate(tpl) {
+  const updated = await api.updateRirekishoTemplate(tpl.id, { is_selected: true })
+  for (const other of rirekishoTemplates.value) other.is_selected = other.id === updated.id
+  ElMessage.success(t('export.resumeTemplateSelected'))
+}
+
+async function generateFromRirekishoTemplate(tpl) {
+  generatingRirekishoTemplateId.value = tpl.id
+  try {
+    const blob = await api.generateRirekishoDocx(tpl.id)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${tpl.name}.docx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateGenerateError', { error: e.message }))
+  } finally {
+    generatingRirekishoTemplateId.value = null
+  }
+}
+
+async function removeRirekishoTemplate(id) {
+  await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
+  await api.deleteRirekishoTemplate(id)
+  rirekishoTemplates.value = rirekishoTemplates.value.filter((tpl) => tpl.id !== id)
+}
 
 function parseSectionFormats(tpl) {
   try {
@@ -492,6 +630,133 @@ async function selectSelfPR(pr) {
   </el-button>
 
   <el-empty v-if="!loading && exports.length === 0" :description="t('export.noEntries')" />
+
+  <el-card shadow="never" class="export-card accent-orange" v-loading="loadingPersonalInfo">
+    <template #header>{{ t('rirekisho.personalInfoHeader') }}</template>
+    <p class="self-pr-hint">{{ t('rirekisho.personalInfoHint') }}</p>
+
+    <el-form :model="personalInfo" label-position="top">
+      <div class="personal-info-grid">
+        <el-form-item :label="t('rirekisho.name')">
+          <el-input v-model="personalInfo.name" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.nameKana')">
+          <el-input v-model="personalInfo.name_kana" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.birthdate')">
+          <el-date-picker v-model="personalInfo.birthdate" value-format="YYYY-MM-DD" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.postalCode')">
+          <el-input v-model="personalInfo.postal_code" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.address')">
+          <el-input v-model="personalInfo.address" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.addressKana')">
+          <el-input v-model="personalInfo.address_kana" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.phone')">
+          <el-input v-model="personalInfo.phone" />
+        </el-form-item>
+        <el-form-item :label="t('rirekisho.email')">
+          <el-input v-model="personalInfo.email" />
+        </el-form-item>
+      </div>
+
+      <el-form-item :label="t('rirekisho.photo')">
+        <div class="personal-info-photo-row">
+          <img v-if="photoUrl" :src="photoUrl" class="personal-info-photo" alt="" />
+          <el-upload
+            :auto-upload="false"
+            :show-file-list="false"
+            accept="image/*"
+            :on-change="handlePhotoChange"
+          >
+            <el-button size="small" :loading="uploadingPhoto">{{ t('rirekisho.photoUpload') }}</el-button>
+          </el-upload>
+          <el-button v-if="photoUrl" size="small" text type="danger" @click="removePhoto">
+            {{ t('rirekisho.photoRemove') }}
+          </el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+
+    <el-button type="primary" :loading="savingPersonalInfo" @click="savePersonalInfo">
+      {{ t('common.save') }}
+    </el-button>
+  </el-card>
+
+  <el-card shadow="never" class="export-card accent-yellow" v-loading="loadingRirekishoTemplates">
+    <template #header>{{ t('rirekisho.templateHeader') }}</template>
+    <p class="self-pr-hint">{{ t('rirekisho.templateHint') }}</p>
+
+    <div class="template-upload-row">
+      <el-input v-model="newRirekishoTemplateName" :placeholder="t('export.resumeTemplateNamePlaceholder')" />
+      <el-upload
+        :auto-upload="false"
+        :show-file-list="true"
+        :limit="1"
+        accept=".docx"
+        :on-change="handleRirekishoTemplateFileChange"
+      >
+        <el-button size="small">{{ t('export.resumeTemplateChooseFile') }}</el-button>
+      </el-upload>
+      <el-button
+        type="primary"
+        :loading="uploadingRirekishoTemplate"
+        :disabled="!newRirekishoTemplateName.trim() || !newRirekishoTemplateFile"
+        @click="uploadRirekishoTemplate"
+      >
+        {{ t('export.resumeTemplateUpload') }}
+      </el-button>
+    </div>
+
+    <el-empty
+      v-if="!loadingRirekishoTemplates && rirekishoTemplates.length === 0"
+      :description="t('export.resumeTemplateEmpty')"
+    />
+
+    <el-card v-for="tpl in rirekishoTemplates" :key="tpl.id" shadow="never" class="template-card">
+      <template #header>
+        <div class="export-header">
+          <span>
+            {{ tpl.name }}
+            <el-tag v-if="tpl.is_selected" size="small" type="success" class="self-pr-selected-tag">
+              {{ t('export.resumeTemplateDefault') }}
+            </el-tag>
+          </span>
+          <div class="export-header-actions">
+            <el-button v-if="!tpl.is_selected" size="small" text @click="setDefaultRirekishoTemplate(tpl)">
+              {{ t('export.resumeTemplateUseAsDefault') }}
+            </el-button>
+            <el-button
+              size="small"
+              text
+              type="primary"
+              :loading="generatingRirekishoTemplateId === tpl.id"
+              @click="generateFromRirekishoTemplate(tpl)"
+            >
+              {{ t('export.resumeTemplateGenerate') }}
+            </el-button>
+            <el-button size="small" text type="danger" @click="removeRirekishoTemplate(tpl.id)">
+              {{ t('common.delete') }}
+            </el-button>
+          </div>
+        </div>
+      </template>
+    </el-card>
+
+    <el-collapse class="resume-tags-collapse">
+      <el-collapse-item :title="t('export.resumeTemplateTagsHeader')">
+        <p class="self-pr-hint">{{ t('rirekisho.tagsHint') }}</p>
+        <ul class="resume-tags-list">
+          <li v-for="item in RIREKISHO_TAGS" :key="item.tag">
+            <code>{{ item.syntax }}</code> — {{ t(item.labelKey) }}
+          </li>
+        </ul>
+      </el-collapse-item>
+    </el-collapse>
+  </el-card>
 </template>
 
 <style scoped>
@@ -617,5 +882,25 @@ async function selectSelfPR(pr) {
   background: rgba(128, 128, 128, 0.12);
   padding: 0.05rem 0.3rem;
   border-radius: 3px;
+}
+
+.personal-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1rem;
+}
+
+.personal-info-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.personal-info-photo {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--el-border-color);
 }
 </style>

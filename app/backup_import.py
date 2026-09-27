@@ -5,7 +5,7 @@ from pathlib import Path
 
 from sqlmodel import Session, func, select
 
-from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR
+from app.db import PERSONAL_INFO_DIR, PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, RIREKISHO_TEMPLATE_DIR
 from app.models import (
     ActivityType,
     CareerGoal,
@@ -19,12 +19,14 @@ from app.models import (
     ExportSnapshot,
     ExternalLink,
     LearningActivity,
+    PersonalInfo,
     PortfolioFile,
     PortfolioItem,
     PortfolioLink,
     Project,
     ReflectionLog,
     ResumeTemplate,
+    RirekishoTemplate,
     SelfFeedback,
     SelfPR,
     Skill,
@@ -362,6 +364,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
     for row in data.get("consult_sessions", []):
         consult_session = ConsultSession(
             title=row.get("title", ""),
+            target_industry=row.get("target_industry"),
             created_at=_dt(row.get("created_at")),
             updated_at=_dt(row.get("updated_at")),
         )
@@ -386,6 +389,55 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("consult_message", message.id)
         counts["consult_messages"] += 1
+
+    counts["personal_info"] = 0
+    for row in data.get("personal_info", []):
+        # Only imported if no PersonalInfo row exists yet on this instance —
+        # unlike career_vision's per-field "only if still blank" merge, this
+        # is all-or-nothing, since partially merging one person's name with
+        # another's address makes no sense.
+        if session.get(PersonalInfo, 1) is not None:
+            break
+        photo_path = None
+        photo_content_b64 = row.get("photo_content_base64")
+        if photo_content_b64:
+            photo_path = str(PERSONAL_INFO_DIR / f"{uuid.uuid4()}.jpg")
+            Path(photo_path).write_bytes(base64.b64decode(photo_content_b64))
+        info = PersonalInfo(
+            id=1,
+            name=row.get("name", ""),
+            name_kana=row.get("name_kana", ""),
+            birthdate=_d(row.get("birthdate")),
+            postal_code=row.get("postal_code", ""),
+            address=row.get("address", ""),
+            address_kana=row.get("address_kana", ""),
+            phone=row.get("phone", ""),
+            email=row.get("email", ""),
+            photo_path=photo_path,
+            updated_at=_dt(row.get("updated_at")),
+        )
+        session.add(info)
+        note("personal_info", "1")
+        counts["personal_info"] += 1
+
+    counts["rirekisho_templates"] = 0
+    for row in data.get("rirekisho_templates", []):
+        file_content_b64 = row.get("file_content_base64")
+        if not file_content_b64:
+            continue  # backup captured only the path, or the file was missing when exported
+        dest = RIREKISHO_TEMPLATE_DIR / f"{uuid.uuid4()}.docx"
+        dest.write_bytes(base64.b64decode(file_content_b64))
+        # is_selected is deliberately never imported — same reasoning as
+        # resume_templates above.
+        template = RirekishoTemplate(
+            name=row.get("name", "Untitled"),
+            file_path=str(dest),
+            uploaded_at=_dt(row.get("uploaded_at")),
+        )
+        session.add(template)
+        session.flush()
+        note("rirekisho_template", template.id)
+        counts["rirekisho_templates"] += 1
 
     session.commit()
     return counts

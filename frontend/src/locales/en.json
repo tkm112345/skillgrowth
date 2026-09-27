@@ -16,6 +16,7 @@
     "skills": "Skills",
     "timeline": "Activity",
     "certifications": "Certifications",
+    "connections": "Connections",
     "export": "Resume",
     "ai": "AI Integration",
     "concept": "Concept",
@@ -238,6 +239,17 @@
     "updated": "Certification updated",
     "expiryLabel": "Expiry date (optional)",
     "confirmDelete": "Delete this certification?"
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "How your skills connect to the certifications, work history, projects, and portfolio pieces that back them. Day-to-day activity entries (reading, talks, quick updates) aren't shown here — this stays a map of career milestones, not the ever-growing activity log.",
+    "typeSkill": "Skill",
+    "typeLearningActivity": "Certification",
+    "typeEducation": "Education",
+    "typeEmployment": "Work history",
+    "typeProject": "Project",
+    "typePortfolioItem": "Portfolio",
+    "empty": "Nothing to show yet — add some skills and activity first."
   },
   "export": {
     "title": "Resume",

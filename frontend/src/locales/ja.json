@@ -16,6 +16,7 @@
     "skills": "スキル一覧",
     "timeline": "アクティビティ",
     "certifications": "資格一覧",
+    "connections": "つながり",
     "export": "職務経歴書",
     "ai": "AI連携",
     "concept": "コンセプト",
@@ -238,6 +239,17 @@
     "updated": "資格を更新しました",
     "expiryLabel": "有効期限（任意）",
     "confirmDelete": "この資格を削除しますか？"
+  },
+  "connections": {
+    "title": "つながり",
+    "subtitle": "スキルが、それを裏付ける資格・職歴・プロジェクト・ポートフォリオとどうつながっているかを表示します。読書・登壇・近況メモなど日々のアクティビティ記録はここには表示されません——増え続けるアクティビティログではなく、キャリアの節目だけを地図として示すためです。",
+    "typeSkill": "スキル",
+    "typeLearningActivity": "資格",
+    "typeEducation": "学歴",
+    "typeEmployment": "職歴",
+    "typeProject": "プロジェクト",
+    "typePortfolioItem": "ポートフォリオ",
+    "empty": "まだ表示できるデータがありません。まずはスキルやアクティビティを追加してください。"
   },
   "export": {
     "title": "職務経歴書",

@@ -16,6 +16,7 @@ from app.routers import (
     evidence,
     export,
     goals,
+    graph,
     learning,
     portfolio,
     profile,
@@ -70,6 +71,7 @@ app.include_router(resume_templates.router)
 app.include_router(portfolio.router)
 app.include_router(self_feedback.router)
 app.include_router(search.router)
+app.include_router(graph.router)
 
 
 @app.on_event("startup")

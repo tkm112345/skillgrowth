@@ -211,4 +211,6 @@ export const api = {
   downloadPortfolioFile: (fileId) => requestBlob(`/portfolio/files/${fileId}/download`),
 
   search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
+
+  getGraph: () => request('/graph'),
 }

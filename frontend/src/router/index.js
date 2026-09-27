@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AiIntegration from '../views/AiIntegration.vue'
 import Certifications from '../views/Certifications.vue'
 import Concept from '../views/Concept.vue'
+import Connections from '../views/Connections.vue'
 import Consult from '../views/Consult.vue'
 import Dashboard from '../views/Dashboard.vue'
 import ExportView from '../views/Export.vue'
@@ -25,6 +26,7 @@ export default createRouter({
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },
     { path: '/certifications', name: 'certifications', component: Certifications },
+    { path: '/connections', name: 'connections', component: Connections },
     { path: '/export', name: 'export', component: ExportView },
     { path: '/ai', name: 'ai', component: AiIntegration },
     { path: '/consult/:id', name: 'consult', component: Consult },

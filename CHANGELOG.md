@@ -10,6 +10,12 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- A "Connections" page: a force-directed node/edge graph of how skills
+  connect to the certifications, education, employment, projects, and
+  portfolio pieces that back them. Deliberately excludes day-to-day
+  activity entries (reading, talks, quick updates) — the activity log
+  grows without bound, and including it would turn the graph into an
+  unreadable tangle over time.
 - An optional HTTP Basic Auth gate, off by default: set
   `SKILLGROWTH_BASIC_AUTH_USER` and `SKILLGROWTH_BASIC_AUTH_PASS` to
   require that username/password on every request except `/api/health`

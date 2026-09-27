@@ -209,6 +209,24 @@ filter above, for managing certification entries one at a time:
   type/title/date; the underlying activity log entry stays in the feed as
   plain text.
 
+## Connections
+
+A force-directed node/edge graph showing how your skills connect to the
+career milestones that back them — which certifications, jobs, projects,
+and education gave rise to which skills, and which projects belong to
+which job or portfolio piece. Node size grows with how many connections a
+node has. Clicking a node navigates to that entity's page (Skills,
+Certifications, Profile, or Portfolio — there's no per-item deep link
+since none of those pages have one yet).
+
+Deliberately **not every activity is shown**: day-to-day entries (reading,
+talks, quick updates) are excluded, since the activity log grows without
+bound the longer you use the app and would turn the graph into an
+unreadable tangle over time. Only inherently bounded milestones appear —
+skills, certifications, education, employment, projects, and portfolio
+pieces — so the graph stays legible no matter how long you've been using
+skillgrowth.
+
 ## Resume
 
 - **Self PR** — a free-text pitch about yourself, included at the top of

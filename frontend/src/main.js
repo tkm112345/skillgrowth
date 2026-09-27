@@ -1,6 +1,6 @@
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, LineChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent } from 'echarts/components'
+import { BarChart, GraphChart, LineChart } from 'echarts/charts'
+import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -14,7 +14,7 @@ import router from './router'
 import './style.css'
 import './theme'
 
-echarts.use([LineChart, BarChart, GridComponent, TooltipComponent, CanvasRenderer])
+echarts.use([LineChart, BarChart, GraphChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 const app = createApp(App)
 app.component('VChart', VChart)

@@ -1,6 +1,7 @@
 <script setup>
 import {
   Compass,
+  Connection,
   DataAnalysis,
   EditPen,
   Expand,
@@ -102,6 +103,10 @@ onMounted(async () => {
         <el-menu-item index="/portfolio">
           <el-icon style="color: var(--hue-red)"><Suitcase /></el-icon>
           <template #title>{{ t('nav.portfolio') }}</template>
+        </el-menu-item>
+        <el-menu-item index="/connections">
+          <el-icon style="color: var(--hue-blue)"><Connection /></el-icon>
+          <template #title>{{ t('nav.connections') }}</template>
         </el-menu-item>
         <el-menu-item index="/export">
           <el-icon style="color: var(--hue-green)"><Files /></el-icon>

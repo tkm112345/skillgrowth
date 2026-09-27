@@ -217,6 +217,41 @@ sets it on the Skills page; an automatic re-match of an existing skill
 (CSV import, activity extraction) never touches it, the same as it
 already leaves `category` alone on that path.
 
+## Connections graph
+
+The ER diagram above already documents which entities relate to which —
+`GET /api/graph` (`app/routers/graph.py`) is what actually surfaces those
+relationships to the user, as a node/edge graph rendered on the
+Connections page (`frontend/src/views/Connections.vue`, ECharts'
+`GraphChart` with `layout: 'force'`).
+
+Deliberately **not every entity is a node**: `EvidenceEntry` is this app's
+one append-only, unbounded-growth table (see "Activity ⨯ Learning Log
+merge" below and the Activity page's own docs) — the same property that
+made the old cumulative skill-growth timeline a bad chart (replaced with
+a monthly bar chart; see the Changelog). A graph that put every checkin
+and every non-certification `LearningActivity` on screen would grow into
+an unreadable tangle the longer someone used the app, which defeats the
+point of a feature meant to make connections *clearer*. So the graph only
+includes entities that are inherently bounded — a career has a finite
+number of jobs, degrees, projects, portfolio pieces, and certifications,
+even after years of use:
+
+- `Skill` (all)
+- `LearningActivity` where `activity_type == "certification"` only —
+  reading/talks/other activity types are excluded
+- `Education`, `Employment`, `Project` (all)
+- `PortfolioItem` (all)
+
+Edges come from existing foreign keys with no new schema: `Project.
+employment_id` and `PortfolioItem.project_id` give the structural edges;
+`SkillLink.evidence_id` gives the skill edges, but only when that
+`evidence_id` resolves to one of the node types above (a `SkillLink` whose
+evidence is a checkin or a non-certification activity simply produces no
+edge — there's no separate filter needed, since building the
+`evidence_id → node id` map before the `SkillLink` pass naturally excludes
+anything without a matching node).
+
 ## Schema changes with no migration tool
 
 There's no Alembic (or any other migration framework) — `app/db.py::init_db()`

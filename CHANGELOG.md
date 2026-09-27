@@ -10,6 +10,10 @@ commit as the change, moved into a dated section when a release is cut).
 ## [Unreleased]
 
 ### Added
+- PWA support (`vite-plugin-pwa`): an installable web app manifest and a
+  service worker that precaches static assets only, so a mobile browser
+  can "Add to Home Screen" and launch skillgrowth without browser UI. API
+  requests stay network-only.
 - An optional "Target industry" field when starting a Career Consult
   conversation, asking the consultant to specialize its advice for that
   industry using its own knowledge (no web search or tool use involved).

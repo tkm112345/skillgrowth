@@ -393,6 +393,12 @@ point.
 
 ## Cross-cutting
 
+- **Installable (PWA)** — a web app manifest and service worker (via
+  `vite-plugin-pwa`) let a mobile browser (Chrome/Safari) "Add to Home
+  Screen," launching in its own standalone window with no browser UI.
+  Only static assets (JS/CSS/HTML/icons) are precached — API requests
+  stay network-only, since some features (LLM calls) are inherently
+  online-only and there's nothing meaningful to serve offline for them.
 - **Global search** — a search box in the top bar, on every page, matching
   keywords against Skills (name/category), Activity (title/notes), and
   Portfolio (title/description) via SQLite FTS5. Results are grouped by

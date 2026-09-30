@@ -1,11 +1,13 @@
 <script setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import { api } from '../api'
 
 const { t } = useI18n()
+const route = useRoute()
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
@@ -13,6 +15,7 @@ const items = ref([])
 const projects = ref([])
 const details = reactive({}) // itemId -> { links, files }
 const loading = ref(true)
+const highlightId = ref(route.query.highlight || null)
 
 const standaloneProjects = computed(() => projects.value.filter((p) => !p.employment_id))
 
@@ -30,15 +33,32 @@ async function reload() {
   })
 }
 
+async function scrollToHighlighted() {
+  await nextTick()
+  document.getElementById(`portfolio-item-${highlightId.value}`)?.scrollIntoView({ block: 'center' })
+  setTimeout(() => (highlightId.value = null), 2000)
+}
+
 onMounted(async () => {
   try {
     await reload()
+    if (highlightId.value) await scrollToHighlighted()
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
   }
 })
+
+watch(
+  () => route.query.highlight,
+  (value) => {
+    if (value) {
+      highlightId.value = value
+      scrollToHighlighted()
+    }
+  }
+)
 
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`
@@ -160,7 +180,14 @@ async function downloadFile(file) {
       <el-button size="small" @click="newItemDialog = true">{{ t('common.add') }}</el-button>
     </div>
 
-    <el-card v-for="item in items" :key="item.id" shadow="never" class="item-card">
+    <el-card
+      v-for="item in items"
+      :id="`portfolio-item-${item.id}`"
+      :key="item.id"
+      shadow="never"
+      class="item-card"
+      :class="{ 'item-highlight': item.id === highlightId }"
+    >
       <div class="item-title">
         {{ item.title }}
         <el-tag v-if="item.project_id" size="small" type="info">{{ projectTitle(item.project_id) }}</el-tag>
@@ -278,6 +305,11 @@ async function downloadFile(file) {
 
 .item-card {
   margin-bottom: 0.75rem;
+}
+
+.item-highlight {
+  background-color: var(--hover-wash);
+  transition: background-color 2s ease;
 }
 
 .item-title {

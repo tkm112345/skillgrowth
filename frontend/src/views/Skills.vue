@@ -1,14 +1,17 @@
 <script setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import { api } from '../api'
 import { tagStyle } from '../hue'
 
 const { t, tm, locale } = useI18n()
+const route = useRoute()
 const skills = ref([])
 const loading = ref(true)
+const highlightId = ref(route.query.highlight || null)
 const dialog = ref(false)
 const form = reactive({ name: '', category: '', proficiency: 0 })
 const editingSkillId = ref(null)
@@ -22,15 +25,36 @@ async function reload() {
   skills.value = await api.getSkills()
 }
 
+async function scrollToHighlighted() {
+  await nextTick()
+  document.querySelector('.row-highlight')?.scrollIntoView({ block: 'center' })
+  setTimeout(() => (highlightId.value = null), 2000)
+}
+
 onMounted(async () => {
   try {
     await reload()
+    if (highlightId.value) await scrollToHighlighted()
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
   }
 })
+
+watch(
+  () => route.query.highlight,
+  (value) => {
+    if (value) {
+      highlightId.value = value
+      scrollToHighlighted()
+    }
+  }
+)
+
+function rowClassName({ row }) {
+  return row.id === highlightId.value ? 'row-highlight' : ''
+}
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
@@ -122,7 +146,7 @@ async function submitCsvImport() {
     </div>
   </div>
 
-  <el-table :data="skills" v-loading="loading" style="width: 100%">
+  <el-table :data="skills" v-loading="loading" row-key="id" :row-class-name="rowClassName" style="width: 100%">
     <el-table-column :label="t('skills.columnSkill')" min-width="200">
       <template #default="{ row }">
         {{ row.name }}
@@ -222,5 +246,10 @@ async function submitCsvImport() {
 
 .sample-tag {
   margin-left: 0.4rem;
+}
+
+:deep(.row-highlight td) {
+  background-color: var(--hover-wash);
+  transition: background-color 2s ease;
 }
 </style>

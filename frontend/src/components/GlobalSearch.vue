@@ -52,7 +52,7 @@ function goTo(result) {
   popoverVisible.value = false
   query.value = ''
   results.value = []
-  router.push(ENTITY_ROUTES[result.entity_type])
+  router.push({ path: ENTITY_ROUTES[result.entity_type], query: { highlight: result.entity_id } })
 }
 </script>
 

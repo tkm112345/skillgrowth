@@ -1,14 +1,17 @@
 <script setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import { api } from '../api'
 import { tagStyle } from '../hue'
 
 const PAGE_SIZE = 50
+const MAX_HIGHLIGHT_SEARCH_PAGES = 10
 
 const { t, locale } = useI18n()
+const route = useRoute()
 const entries = ref([])
 const loading = ref(true)
 const loadingMore = ref(false)
@@ -17,6 +20,7 @@ const learningByEvidenceId = ref({})
 const selectedMonth = ref(null)
 const monthBuckets = ref([])
 const certificationsOnly = ref(false)
+const highlightId = ref(route.query.highlight || null)
 
 const submitting = ref(false)
 const form = reactive({ activity_type: '', title: '', activity_date: '', notes: '' })
@@ -122,15 +126,46 @@ async function loadMonths() {
   monthBuckets.value = await api.getEvidenceMonths()
 }
 
+function findHighlightedEntry() {
+  return entries.value.find((entry) => learningByEvidenceId.value[entry.id]?.id === highlightId.value)
+}
+
+async function scrollToHighlightedEntry() {
+  if (!highlightId.value) return
+  for (let page = 0; !findHighlightedEntry() && hasMore.value && page < MAX_HIGHLIGHT_SEARCH_PAGES; page++) {
+    await loadMore()
+  }
+  const target = findHighlightedEntry()
+  if (!target) return
+  await nextTick()
+  document.getElementById(`evidence-entry-${target.id}`)?.scrollIntoView({ block: 'center' })
+  setTimeout(() => (highlightId.value = null), 2000)
+}
+
 onMounted(async () => {
   try {
     await Promise.all([reload(), loadMonths(), loadActivityTypes()])
+    await scrollToHighlightedEntry()
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
   }
 })
+
+watch(
+  () => route.query.highlight,
+  async (value) => {
+    if (!value) return
+    highlightId.value = value
+    certificationsOnly.value = false
+    if (selectedMonth.value) {
+      selectedMonth.value = null
+      await reload()
+    }
+    await scrollToHighlightedEntry()
+  }
+)
 
 async function loadMore() {
   loadingMore.value = true
@@ -317,7 +352,11 @@ const monthGroups = computed(() => {
           :key="entry.id"
           :timestamp="formatDateTime(entry.created_at)"
         >
-          <el-card shadow="never">
+          <el-card
+            :id="`evidence-entry-${entry.id}`"
+            shadow="never"
+            :class="{ 'entry-highlight': entry.id === highlightId }"
+          >
             <div class="entry-header">
               <div class="entry-header-tags">
                 <el-tag size="small" :style="tagStyle(entry.source_type)" plain>{{ sourceLabel(entry.source_type) }}</el-tag>
@@ -491,5 +530,10 @@ const monthGroups = computed(() => {
 .load-more-btn {
   display: block;
   margin: 0.5rem auto 0;
+}
+
+.entry-highlight {
+  background-color: var(--hover-wash);
+  transition: background-color 2s ease;
 }
 </style>

@@ -29,6 +29,10 @@ commit as the change, moved into a dated section when a release is cut).
   show an error message when a save, delete, or download request fails,
   instead of failing silently (the dialog/form just sat there with no
   feedback and only a console error).
+- Picking a result from the top-bar search now scrolls to and briefly
+  highlights the matching skill/portfolio item/activity entry, instead
+  of only opening its list page (which could leave you to hunt for it
+  yourself, especially on Activity's paginated feed).
 
 ## [0.3.0] - 2026-09-27
 

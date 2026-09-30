@@ -51,32 +51,48 @@ function formatPeriod(start, end) {
 const eduDialog = ref(false)
 const eduForm = reactive({ school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' })
 async function submitEducation() {
-  await api.addEducation(eduForm)
-  Object.assign(eduForm, { school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' })
-  eduDialog.value = false
-  await reload()
-  ElMessage.success(t('profile.addedEducation'))
+  try {
+    await api.addEducation(eduForm)
+    Object.assign(eduForm, { school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' })
+    eduDialog.value = false
+    await reload()
+    ElMessage.success(t('profile.addedEducation'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 async function removeEducation(id) {
   await ElMessageBox.confirm(t('profile.confirmDeleteEducation'), t('profile.confirm'))
-  await api.deleteEducation(id)
-  await reload()
+  try {
+    await api.deleteEducation(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 // -- employment form --
 const empDialog = ref(false)
 const empForm = reactive({ company: '', department: '', role: '', start_date: '', end_date: '' })
 async function submitEmployment() {
-  await api.addEmployment(empForm)
-  Object.assign(empForm, { company: '', department: '', role: '', start_date: '', end_date: '' })
-  empDialog.value = false
-  await reload()
-  ElMessage.success(t('profile.addedEmployment'))
+  try {
+    await api.addEmployment(empForm)
+    Object.assign(empForm, { company: '', department: '', role: '', start_date: '', end_date: '' })
+    empDialog.value = false
+    await reload()
+    ElMessage.success(t('profile.addedEmployment'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 async function removeEmployment(id) {
   await ElMessageBox.confirm(t('profile.confirmDeleteEmployment'), t('profile.confirm'))
-  await api.deleteEmployment(id)
-  await reload()
+  try {
+    await api.deleteEmployment(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 // -- project form --
@@ -87,15 +103,23 @@ function openProjectDialog(employmentId = null) {
   projDialog.value = true
 }
 async function submitProject() {
-  await api.addProject(projForm)
-  projDialog.value = false
-  await reload()
-  ElMessage.success(t('profile.addedProject'))
+  try {
+    await api.addProject(projForm)
+    projDialog.value = false
+    await reload()
+    ElMessage.success(t('profile.addedProject'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 async function removeProject(id) {
   await ElMessageBox.confirm(t('profile.confirmDeleteProject'), t('profile.confirm'))
-  await api.deleteProject(id)
-  await reload()
+  try {
+    await api.deleteProject(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 // -- external links --
@@ -103,16 +127,24 @@ const linkDialog = ref(false)
 const linkForm = reactive({ label: '', url: '' })
 async function submitLink() {
   if (!linkForm.label.trim() || !linkForm.url.trim()) return
-  await api.addLink(linkForm.label, linkForm.url)
-  Object.assign(linkForm, { label: '', url: '' })
-  linkDialog.value = false
-  await reload()
-  ElMessage.success(t('profile.addedLink'))
+  try {
+    await api.addLink(linkForm.label, linkForm.url)
+    Object.assign(linkForm, { label: '', url: '' })
+    linkDialog.value = false
+    await reload()
+    ElMessage.success(t('profile.addedLink'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 async function removeLink(id) {
   await ElMessageBox.confirm(t('profile.confirmDeleteLink'), t('profile.confirm'))
-  await api.deleteLink(id)
-  await reload()
+  try {
+    await api.deleteLink(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 </script>
 

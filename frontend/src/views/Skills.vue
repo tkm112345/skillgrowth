@@ -55,21 +55,29 @@ function clearProficiency() {
 async function submit() {
   if (!form.name.trim()) return
   const proficiency = form.proficiency || null
-  if (editingSkillId.value) {
-    await api.updateSkill(editingSkillId.value, form.name, form.category, proficiency)
-    ElMessage.success(t('skills.updated'))
-  } else {
-    await api.addSkill(form.name, form.category, proficiency)
-    ElMessage.success(t('skills.added'))
+  try {
+    if (editingSkillId.value) {
+      await api.updateSkill(editingSkillId.value, form.name, form.category, proficiency)
+      ElMessage.success(t('skills.updated'))
+    } else {
+      await api.addSkill(form.name, form.category, proficiency)
+      ElMessage.success(t('skills.added'))
+    }
+    dialog.value = false
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   }
-  dialog.value = false
-  await reload()
 }
 
 async function remove(id) {
   await ElMessageBox.confirm(t('skills.confirmDelete'), t('profile.confirm'))
-  await api.deleteSkill(id)
-  await reload()
+  try {
+    await api.deleteSkill(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 async function toggleResumeInclusion(row) {

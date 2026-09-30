@@ -37,6 +37,8 @@
     "close": "Close",
     "loading": "Loading...",
     "loadError": "Failed to load. Check your connection and try reloading the page.",
+    "saveError": "Failed to save — please try again.",
+    "deleteError": "Failed to delete — please try again.",
     "sampleBadge": "Sample"
   },
   "dashboard": {

@@ -63,21 +63,29 @@ async function submit() {
     expiry_date: form.expiry_date || null,
     notes: form.notes,
   }
-  if (editingId.value) {
-    await api.updateLearning(editingId.value, payload)
-    ElMessage.success(t('certifications.updated'))
-  } else {
-    await api.addLearning(payload)
-    ElMessage.success(t('certifications.added'))
+  try {
+    if (editingId.value) {
+      await api.updateLearning(editingId.value, payload)
+      ElMessage.success(t('certifications.updated'))
+    } else {
+      await api.addLearning(payload)
+      ElMessage.success(t('certifications.added'))
+    }
+    dialog.value = false
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   }
-  dialog.value = false
-  await reload()
 }
 
 async function remove(id) {
   await ElMessageBox.confirm(t('certifications.confirmDelete'), t('profile.confirm'))
-  await api.deleteLearning(id)
-  await reload()
+  try {
+    await api.deleteLearning(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 async function toggleResumeInclusion(row) {

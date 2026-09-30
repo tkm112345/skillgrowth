@@ -94,6 +94,8 @@ async function saveGoal(goal) {
       await loadHistoryPage(goal.horizon)
     }
     ElMessage.success(t('dashboard.goalSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     savingGoal.value = ''
   }
@@ -107,6 +109,8 @@ async function submitCheckin() {
     ElMessage.success(t('dashboard.checkinSuccess', { count: result.linked_skills.length }))
     checkinText.value = ''
     await reloadSkillData()
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     submittingCheckin.value = false
   }

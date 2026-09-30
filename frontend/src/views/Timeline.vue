@@ -166,6 +166,8 @@ async function submit() {
     certFile.value = null
     await Promise.all([reload(), loadMonths()])
     ElMessage.success(t('timeline.added'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     submitting.value = false
   }
@@ -173,8 +175,12 @@ async function submit() {
 
 async function removeLearning(learningActivityId) {
   await ElMessageBox.confirm(t('timeline.confirmDeleteLearning'), t('profile.confirm'))
-  await api.deleteLearning(learningActivityId)
-  await reload()
+  try {
+    await api.deleteLearning(learningActivityId)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 async function toggleLearningResumeInclusion(learningActivity) {

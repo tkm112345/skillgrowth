@@ -16,6 +16,13 @@ commit as the change, moved into a dated section when a release is cut).
   rendered inline by the browser instead of as a plain image. The
   evidence-image Vision LLM call also now maps `.gif`/`.webp` to their
   correct MIME type instead of mislabeling every non-PNG upload as JPEG.
+- `GET /api/skills/{id}` for an unknown id now returns 404 instead of a
+  raw 500 (a response-model validation error, since every other Skill
+  endpoint already 404s on a missing id but this one didn't check).
+- "Reset all data" now also deletes personal-info photo, evidence image,
+  and rirekisho-template files from disk — it previously only cleared
+  Portfolio and resume-template uploads, leaving the rest behind despite
+  the DB rows for them being gone.
 
 ## [0.3.0] - 2026-09-27
 

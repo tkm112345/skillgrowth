@@ -48,6 +48,11 @@ def test_update_skill_missing_id_returns_404(client):
     assert resp.status_code == 404
 
 
+def test_skill_detail_missing_id_returns_404(client):
+    resp = client.get("/api/skills/does-not-exist")
+    assert resp.status_code == 404
+
+
 def test_new_skill_has_no_proficiency_by_default(client):
     resp = client.post("/api/skills", json={"name": "Python", "category": "技術"})
     assert resp.json()["proficiency"] is None

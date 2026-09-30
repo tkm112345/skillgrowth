@@ -179,6 +179,8 @@ def skill_action_counts(session: Session = Depends(get_session)) -> list[SkillAc
 @router.get("/{skill_id}")
 def skill_detail(skill_id: str, session: Session = Depends(get_session)) -> SkillDetail:
     skill = session.get(Skill, skill_id)
+    if skill is None:
+        raise HTTPException(status_code=404, detail="Skill not found")
     links = session.exec(select(SkillLink).where(SkillLink.skill_id == skill_id)).all()
     return SkillDetail(
         skill=skill,

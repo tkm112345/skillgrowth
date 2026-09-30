@@ -7,7 +7,16 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session, SQLModel, select
 
 from app.backup_import import import_backup
-from app.db import PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, _ensure_search_index, default_activity_types, get_session
+from app.db import (
+    PERSONAL_INFO_DIR,
+    PORTFOLIO_DIR,
+    RESUME_TEMPLATE_DIR,
+    RIREKISHO_TEMPLATE_DIR,
+    UPLOAD_DIR,
+    _ensure_search_index,
+    default_activity_types,
+    get_session,
+)
 from app.models import (
     ActivityType,
     CareerGoal,
@@ -264,9 +273,9 @@ def reset_all_data(session: Session = Depends(get_session)) -> dict:
         fresh.add_all(default_activity_types())
         fresh.commit()
 
-    for directory in (PORTFOLIO_DIR, RESUME_TEMPLATE_DIR):
+    for directory in (PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, PERSONAL_INFO_DIR, RIREKISHO_TEMPLATE_DIR, UPLOAD_DIR):
         for f in directory.iterdir():
-            if f.is_file():
+            if f.is_file() and not f.name.startswith("."):
                 f.unlink()
 
     return {"ok": True}

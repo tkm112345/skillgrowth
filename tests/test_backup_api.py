@@ -325,6 +325,22 @@ def test_reset_all_wipes_everything_including_settings(client):
     assert len(types) == 5
 
 
+def test_reset_all_removes_personal_info_photo_and_evidence_image_files(client):
+    from app.db import PERSONAL_INFO_DIR, UPLOAD_DIR
+
+    client.post("/api/personal-info/photo", files={"file": ("photo.jpg", b"fake-image-bytes", "image/jpeg")})
+    client.post(
+        "/api/evidence/image",
+        files={"file": ("cert.png", b"fake-image-bytes", "image/png")},
+        data={"source_type": "certification"},
+    )
+
+    client.post("/api/backup/reset-all")
+
+    assert [f for f in PERSONAL_INFO_DIR.iterdir() if f.is_file()] == []
+    assert [f for f in UPLOAD_DIR.iterdir() if f.is_file() and not f.name.startswith(".")] == []
+
+
 def test_reset_all_leaves_search_index_working(client):
     # drop_all/create_all inside reset-all drops the search_index triggers
     # along with the tables they're attached to (SQLite auto-drops a

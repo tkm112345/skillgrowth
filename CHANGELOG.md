@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-30
+
 ### Added
 - The sidebar can now be resized by dragging its right edge (the width
   is remembered across sessions). The default width is also wider than

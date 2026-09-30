@@ -153,6 +153,8 @@ async function savePersonalInfo() {
       email,
     })
     ElMessage.success(t('rirekisho.personalInfoSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     savingPersonalInfo.value = false
   }
@@ -162,13 +164,19 @@ async function handlePhotoChange(uploadFile) {
   uploadingPhoto.value = true
   try {
     personalInfo.value = await api.uploadPersonalInfoPhoto(uploadFile.raw)
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     uploadingPhoto.value = false
   }
 }
 
 async function removePhoto() {
-  personalInfo.value = await api.deletePersonalInfoPhoto()
+  try {
+    personalInfo.value = await api.deletePersonalInfoPhoto()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 function handleRirekishoTemplateFileChange(uploadFile) {
@@ -192,9 +200,13 @@ async function uploadRirekishoTemplate() {
 }
 
 async function setDefaultRirekishoTemplate(tpl) {
-  const updated = await api.updateRirekishoTemplate(tpl.id, { is_selected: true })
-  for (const other of rirekishoTemplates.value) other.is_selected = other.id === updated.id
-  ElMessage.success(t('export.resumeTemplateSelected'))
+  try {
+    const updated = await api.updateRirekishoTemplate(tpl.id, { is_selected: true })
+    for (const other of rirekishoTemplates.value) other.is_selected = other.id === updated.id
+    ElMessage.success(t('export.resumeTemplateSelected'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 
 async function generateFromRirekishoTemplate(tpl) {
@@ -216,8 +228,12 @@ async function generateFromRirekishoTemplate(tpl) {
 
 async function removeRirekishoTemplate(id) {
   await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
-  await api.deleteRirekishoTemplate(id)
-  rirekishoTemplates.value = rirekishoTemplates.value.filter((tpl) => tpl.id !== id)
+  try {
+    await api.deleteRirekishoTemplate(id)
+    rirekishoTemplates.value = rirekishoTemplates.value.filter((tpl) => tpl.id !== id)
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 function parseSectionFormats(tpl) {
@@ -249,9 +265,13 @@ async function uploadTemplate() {
 }
 
 async function setDefaultTemplate(tpl) {
-  const updated = await api.updateResumeTemplate(tpl.id, { is_selected: true })
-  for (const other of resumeTemplates.value) other.is_selected = other.id === updated.id
-  ElMessage.success(t('export.resumeTemplateSelected'))
+  try {
+    const updated = await api.updateResumeTemplate(tpl.id, { is_selected: true })
+    for (const other of resumeTemplates.value) other.is_selected = other.id === updated.id
+    ElMessage.success(t('export.resumeTemplateSelected'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
 }
 
 async function updateSectionFormat(tpl, key, value) {
@@ -261,6 +281,8 @@ async function updateSectionFormat(tpl, key, value) {
     const updated = await api.updateResumeTemplate(tpl.id, { section_formats: formats })
     tpl.section_formats = updated.section_formats
     ElMessage.success(t('export.resumeTemplateFormatSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     savingFormatId.value = null
   }
@@ -289,8 +311,12 @@ function tagSyntax(tag) {
 
 async function removeTemplate(id) {
   await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
-  await api.deleteResumeTemplate(id)
-  resumeTemplates.value = resumeTemplates.value.filter((tpl) => tpl.id !== id)
+  try {
+    await api.deleteResumeTemplate(id)
+    resumeTemplates.value = resumeTemplates.value.filter((tpl) => tpl.id !== id)
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 async function loadMoreSelfPR() {
@@ -353,6 +379,8 @@ async function saveExport(snap) {
     snap.edited_at = updated.edited_at
     editingExportId.value = null
     ElMessage.success(t('export.editSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     savingExport.value = false
   }
@@ -381,6 +409,8 @@ async function submitSelfPR() {
     selfPRs.value.unshift(entry)
     newSelfPR.value = ''
     ElMessage.success(t('export.selfPrAdded'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     submittingSelfPR.value = false
   }
@@ -388,8 +418,12 @@ async function submitSelfPR() {
 
 async function removeSelfPR(id) {
   await ElMessageBox.confirm(t('export.confirmDeleteSelfPr'), t('profile.confirm'))
-  await api.deleteSelfPR(id)
-  selfPRs.value = selfPRs.value.filter((e) => e.id !== id)
+  try {
+    await api.deleteSelfPR(id)
+    selfPRs.value = selfPRs.value.filter((e) => e.id !== id)
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 function isEffectivelySelected(pr) {
@@ -413,6 +447,8 @@ async function saveSelfPREdit(pr) {
     pr.content = updated.content
     editingSelfPRId.value = null
     ElMessage.success(t('export.selfPrEditSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     savingSelfPR.value = false
   }
@@ -424,6 +460,8 @@ async function selectSelfPR(pr) {
     await api.selectSelfPR(pr.id)
     for (const p of selfPRs.value) p.is_selected = p.id === pr.id
     ElMessage.success(t('export.selfPrSelected'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
   } finally {
     selectingSelfPRId.value = null
   }

@@ -158,6 +158,7 @@
     "uploadError": "Failed to upload: {error}",
     "fileTooLarge": "{filename} exceeds the 10MB limit",
     "download": "Download",
+    "downloadError": "Failed to download: {error}",
     "confirmDeleteFile": "Delete this file?",
     "noEntries": "Nothing here yet",
     "confirmDeleteItem": "Delete this deliverable and all its links and files?"

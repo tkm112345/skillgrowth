@@ -24,10 +24,11 @@ commit as the change, moved into a dated section when a release is cut).
   Portfolio and resume-template uploads, leaving the rest behind despite
   the DB rows for them being gone.
 - Skills, Certifications, Profile (education/employment/project/link),
-  Dashboard (goal/quick-update), and Activity forms now show an error
-  message when a save or delete request fails, instead of failing
-  silently (the dialog/form just sat there with no feedback and only a
-  console error).
+  Dashboard (goal/quick-update), Activity, Resume/Rirekisho (personal
+  info, photo, templates, exports, Self PR), and Portfolio forms now
+  show an error message when a save, delete, or download request fails,
+  instead of failing silently (the dialog/form just sat there with no
+  feedback and only a console error).
 
 ## [0.3.0] - 2026-09-27
 

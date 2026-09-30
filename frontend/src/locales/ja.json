@@ -158,6 +158,7 @@
     "uploadError": "アップロードに失敗しました: {error}",
     "fileTooLarge": "{filename} は10MBの上限を超えています",
     "download": "ダウンロード",
+    "downloadError": "ダウンロードに失敗しました: {error}",
     "confirmDeleteFile": "このファイルを削除しますか？",
     "noEntries": "まだ登録がありません",
     "confirmDeleteItem": "この成果物とすべてのリンク・ファイルを削除しますか？"

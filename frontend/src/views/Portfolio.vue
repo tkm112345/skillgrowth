@@ -64,8 +64,12 @@ async function submitNewItem() {
 
 async function removeItem(id) {
   await ElMessageBox.confirm(t('portfolio.confirmDeleteItem'), t('profile.confirm'))
-  await api.deletePortfolioItem(id)
-  await reload()
+  try {
+    await api.deletePortfolioItem(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 // -- links --
@@ -87,8 +91,12 @@ async function submitLink(itemId) {
 }
 async function removeLink(id) {
   await ElMessageBox.confirm(t('portfolio.confirmDeleteLink'), t('profile.confirm'))
-  await api.deletePortfolioLink(id)
-  await reload()
+  try {
+    await api.deletePortfolioLink(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 
 // -- files --
@@ -120,17 +128,25 @@ async function submitFiles(itemId) {
 }
 async function removeFile(id) {
   await ElMessageBox.confirm(t('portfolio.confirmDeleteFile'), t('profile.confirm'))
-  await api.deletePortfolioFile(id)
-  await reload()
+  try {
+    await api.deletePortfolioFile(id)
+    await reload()
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
 }
 async function downloadFile(file) {
-  const blob = await api.downloadPortfolioFile(file.id)
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = file.original_filename
-  a.click()
-  URL.revokeObjectURL(url)
+  try {
+    const blob = await api.downloadPortfolioFile(file.id)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.original_filename
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error(t('portfolio.downloadError', { error: e.message }))
+  }
 }
 </script>
 

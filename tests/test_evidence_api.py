@@ -104,6 +104,16 @@ def test_add_image_evidence_over_limit_is_rejected(client):
     assert client.get("/api/evidence").json() == []
 
 
+def test_add_image_evidence_rejects_unsupported_extension(client):
+    resp = client.post(
+        "/api/evidence/image",
+        files={"file": ("cert.svg", b"<svg onload=alert(1)></svg>", "image/svg+xml")},
+        data={"source_type": "certification"},
+    )
+    assert resp.status_code == 400
+    assert client.get("/api/evidence").json() == []
+
+
 def test_llm_failure_surfaces_as_502_with_clear_detail(client, monkeypatch):
     _enable_skill_extraction(client)
 

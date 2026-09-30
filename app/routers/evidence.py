@@ -15,6 +15,8 @@ router = APIRouter(prefix="/api/evidence", tags=["evidence"])
 
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB, matches the portfolio upload limit
 
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
 
 class TextEvidenceIn(BaseModel):
     source_type: str
@@ -86,7 +88,9 @@ def add_image_evidence(
     if len(data) > MAX_FILE_SIZE_BYTES:
         raise HTTPException(status_code=400, detail=f"{file.filename}: file exceeds 10MB limit")
 
-    ext = Path(file.filename or "upload.png").suffix or ".png"
+    ext = Path(file.filename or "upload.png").suffix.lower() or ".png"
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"Unsupported image type: {ext}")
     dest = UPLOAD_DIR / f"{uuid.uuid4()}{ext}"
     dest.write_bytes(data)
 

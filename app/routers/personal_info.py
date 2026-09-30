@@ -13,6 +13,11 @@ from app.models import PersonalInfo
 
 router = APIRouter(prefix="/api/personal-info", tags=["personal_info"])
 
+# Served back via FileResponse without forcing a download (see
+# get_personal_info_photo), so this doubles as an XSS control: an SVG would
+# be inline-rendered by the browser and can carry a script.
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
 
 class PersonalInfoIn(BaseModel):
     name: str = ""
@@ -53,7 +58,9 @@ def upload_personal_info_photo(file: UploadFile = File(...), session: Session = 
     if info.photo_path:
         Path(info.photo_path).unlink(missing_ok=True)
 
-    ext = Path(file.filename or "").suffix or ".jpg"
+    ext = Path(file.filename or "").suffix.lower() or ".jpg"
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"Unsupported image type: {ext}")
     dest = PERSONAL_INFO_DIR / f"{uuid.uuid4()}{ext}"
     dest.write_bytes(file.file.read())
 

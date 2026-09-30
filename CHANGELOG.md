@@ -9,6 +9,14 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Fixed
+- Personal info photo upload and evidence image upload now reject
+  extensions outside an image allowlist (matching the existing Portfolio
+  upload check), closing a gap where an uploaded `.svg` could be
+  rendered inline by the browser instead of as a plain image. The
+  evidence-image Vision LLM call also now maps `.gif`/`.webp` to their
+  correct MIME type instead of mislabeling every non-PNG upload as JPEG.
+
 ## [0.3.0] - 2026-09-27
 
 ### Added

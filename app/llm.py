@@ -116,7 +116,13 @@ def extract_and_match_image(image_path: str, existing_skills: list[dict], settin
     with open(image_path, "rb") as f:
         b64 = base64.b64encode(f.read()).decode()
     ext = image_path.rsplit(".", 1)[-1].lower()
-    mime = "image/png" if ext == "png" else "image/jpeg"
+    mime = {
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "png": "image/png",
+        "gif": "image/gif",
+        "webp": "image/webp",
+    }.get(ext, "image/jpeg")
 
     system_prompt = MATCH_PROMPT.replace("__EXISTING_SKILLS__", _existing_skills_block(existing_skills))
     resp = _complete(

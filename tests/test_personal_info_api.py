@@ -46,6 +46,13 @@ def test_upload_and_delete_photo(client):
     assert client.get("/api/personal-info/photo").status_code == 404
 
 
+def test_upload_photo_rejects_unsupported_extension(client):
+    files = {"file": ("photo.svg", b"<svg onload=alert(1)></svg>", "image/svg+xml")}
+    resp = client.post("/api/personal-info/photo", files=files)
+    assert resp.status_code == 400
+    assert client.get("/api/personal-info").json()["photo_path"] is None
+
+
 def test_get_photo_missing_returns_404(client):
     resp = client.get("/api/personal-info/photo")
     assert resp.status_code == 404

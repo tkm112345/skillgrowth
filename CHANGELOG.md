@@ -15,6 +15,10 @@ commit as the change, moved into a dated section when a release is cut).
   before, so labels like "Self Feedback" (セルフフィードバック) aren't
   clipped by the fixed-width ellipsis.
 
+### Changed
+- The sidebar's brand title is a bit larger (0.95rem → 1.1rem, with the
+  logo mark scaled up to match) for better legibility.
+
 ### Fixed
 - Settings' page-level description ("Configure the LLM connection...")
   was shown under every tab (Appearance, Data Management, About), not

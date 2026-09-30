@@ -305,13 +305,13 @@ onMounted(async () => {
 
 .brand-mark {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .brand-text {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   letter-spacing: -0.01em;
 }
 

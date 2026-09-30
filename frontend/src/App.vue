@@ -34,7 +34,13 @@ const { t } = useI18n()
 const contributeVisible = ref(false)
 
 const SIDEBAR_STORAGE_KEY = 'skillgrowth-sidebar-collapsed'
+const SIDEBAR_WIDTH_STORAGE_KEY = 'skillgrowth-sidebar-width'
 const MOBILE_BREAKPOINT_PX = 768
+// Widest nav label (self-feedback, ja) needs ~249px of content width at
+// default font size; this default gives it room without truncating.
+const DEFAULT_SIDEBAR_WIDTH_PX = 280
+const MIN_SIDEBAR_WIDTH_PX = 200
+const MAX_SIDEBAR_WIDTH_PX = 420
 
 function initialCollapsed() {
   const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
@@ -53,6 +59,34 @@ function toggleCollapsed() {
   localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed.value ? '1' : '0')
 }
 
+function initialSidebarWidth() {
+  const stored = Number(localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY))
+  if (stored >= MIN_SIDEBAR_WIDTH_PX && stored <= MAX_SIDEBAR_WIDTH_PX) return stored
+  return DEFAULT_SIDEBAR_WIDTH_PX
+}
+
+const sidebarWidth = ref(initialSidebarWidth())
+const resizing = ref(false)
+
+function startResize(event) {
+  resizing.value = true
+  const startX = event.clientX
+  const startWidth = sidebarWidth.value
+
+  function onMove(moveEvent) {
+    const next = startWidth + (moveEvent.clientX - startX)
+    sidebarWidth.value = Math.min(MAX_SIDEBAR_WIDTH_PX, Math.max(MIN_SIDEBAR_WIDTH_PX, next))
+  }
+  function onUp() {
+    resizing.value = false
+    localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(sidebarWidth.value))
+    window.removeEventListener('mousemove', onMove)
+    window.removeEventListener('mouseup', onUp)
+  }
+  window.addEventListener('mousemove', onMove)
+  window.addEventListener('mouseup', onUp)
+}
+
 const year = new Date().getFullYear()
 const version = ref('')
 onMounted(async () => {
@@ -66,8 +100,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <el-container class="shell">
-    <el-aside :width="collapsed ? '60px' : '236px'" class="sidebar">
+  <el-container class="shell" :class="{ 'no-select': resizing }">
+    <el-aside :width="collapsed ? '60px' : `${sidebarWidth}px`" class="sidebar" :class="{ 'sidebar-resizing': resizing }">
       <div class="brand">
         <img src="/favicon.svg" alt="" class="brand-mark" />
         <span class="brand-text" v-show="!collapsed">{{ t('app.brand') }}</span>
@@ -171,6 +205,7 @@ onMounted(async () => {
         <span v-if="!collapsed">© {{ year }} {{ t('app.brand') }}<span v-if="version"> · v{{ version }}</span></span>
         <span v-else>©</span>
       </div>
+      <div v-if="!collapsed" class="sidebar-resize-handle" @mousedown="startResize"></div>
     </el-aside>
     <el-container class="main-area">
       <el-header class="topbar">
@@ -218,6 +253,10 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+.shell.no-select {
+  user-select: none;
+}
+
 .main-area {
   height: 100%;
   min-width: 0;
@@ -228,12 +267,32 @@ onMounted(async () => {
 .sidebar {
   --el-menu-active-color: var(--ink-primary);
   --el-menu-text-color: var(--ink-secondary);
+  position: relative;
   border-right: 1px solid var(--el-border-color);
   background: var(--page-bg);
   transition: width 0.15s ease;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-resizing {
+  transition: none;
+}
+
+.sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  z-index: 1;
+}
+
+.sidebar-resize-handle:hover {
+  background: var(--accent);
+  opacity: 0.5;
 }
 
 .brand {

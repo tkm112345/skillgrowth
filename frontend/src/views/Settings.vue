@@ -216,6 +216,7 @@ async function resetAllData() {
     <el-tab-pane :label="t('settings.tabLlm')">
       <el-card shadow="never" class="backup-card accent-yellow">
         <template #header>{{ t('settings.llmHeader') }}</template>
+        <p class="backup-hint">{{ t('settings.llmSubtitle') }}</p>
         <el-form :model="form" label-width="160px" v-loading="loading">
           <el-form-item :label="t('settings.baseUrl')">
             <el-input v-model="form.openai_base_url" placeholder="https://api.openai.com/v1" />

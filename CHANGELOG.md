@@ -9,7 +9,16 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- The sidebar can now be resized by dragging its right edge (the width
+  is remembered across sessions). The default width is also wider than
+  before, so labels like "Self Feedback" (セルフフィードバック) aren't
+  clipped by the fixed-width ellipsis.
+
 ### Fixed
+- Settings' page-level description ("Configure the LLM connection...")
+  was shown under every tab (Appearance, Data Management, About), not
+  just LLM Connection; moved it under that tab's own card instead.
 - Personal info photo upload and evidence image upload now reject
   extensions outside an image allowlist (matching the existing Portfolio
   upload check), closing a gap where an uploaded `.svg` could be

@@ -403,7 +403,8 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Configure the LLM connection. Any OpenAI-compatible Chat Completions endpoint works — cloud API or local Ollama.",
+    "subtitle": "Appearance, LLM connection, data management, and about this app.",
+    "llmSubtitle": "Configure the LLM connection. Any OpenAI-compatible Chat Completions endpoint works — cloud API or local Ollama.",
     "tabAppearance": "Appearance",
     "tabLlm": "LLM Connection",
     "tabData": "Data Management",

@@ -403,7 +403,8 @@
   },
   "settings": {
     "title": "設定",
-    "subtitle": "LLM接続先を設定します。OpenAI互換のChat Completions APIであれば、クラウドAPIでもローカルのOllamaでも利用できます。",
+    "subtitle": "表示・LLM接続・データ管理・このアプリについて、をまとめて設定します。",
+    "llmSubtitle": "LLM接続先を設定します。OpenAI互換のChat Completions APIであれば、クラウドAPIでもローカルのOllamaでも利用できます。",
     "tabAppearance": "表示",
     "tabLlm": "LLM接続",
     "tabData": "データ管理",

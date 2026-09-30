@@ -446,14 +446,19 @@ enough to be hard to scan.
   keywords against Skills (name/category), Activity (title/notes), and
   Portfolio (title/description) via SQLite FTS5. Results are grouped by
   type with a short snippet; picking one navigates to that entity's page
-  (Skills/Activity/Portfolio) — there's no per-item deep link since none
-  of those pages have one yet.
-- **Collapsible sidebar** — the top bar's toggle button shrinks the sidebar
-  to an icon rail; the state is remembered per browser. Defaults to
-  collapsed on a first visit from a phone-width screen (≤768px), since the
-  full sidebar otherwise eats roughly half the viewport there — once
-  toggled either way, that explicit choice is what's remembered from then
-  on, regardless of screen width.
+  (Skills/Activity/Portfolio) and scrolls to/briefly highlights the
+  matching row or card — on Activity's paginated, month-filterable feed,
+  the month/certification filters are cleared and further pages are
+  loaded (bounded) if the entry isn't already visible.
+- **Collapsible, resizable sidebar** — the top bar's toggle button shrinks
+  the sidebar to an icon rail; the state is remembered per browser.
+  Defaults to collapsed on a first visit from a phone-width screen
+  (≤768px), since the full sidebar otherwise eats roughly half the
+  viewport there — once toggled either way, that explicit choice is
+  what's remembered from then on, regardless of screen width. When
+  expanded, its width can also be dragged from its right edge (remembered
+  per browser too); the default width is wide enough that every nav label
+  fits without truncating.
 - **Category/type color coding** — skill categories and activity source
   types are each assigned one of 8 accent hues by a deterministic hash of
   their name, so the same category always gets the same color across the

@@ -3,8 +3,9 @@ import uuid
 from datetime import date, datetime
 from pathlib import Path
 
-from sqlmodel import Session, func, select
+from sqlmodel import Session
 
+from app import services
 from app.db import PERSONAL_INFO_DIR, PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, RIREKISHO_TEMPLATE_DIR
 from app.models import (
     ActivityType,
@@ -173,7 +174,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         label = (row.get("label") or "").strip()
         if not label:
             continue
-        existing = session.exec(select(ActivityType).where(func.lower(ActivityType.label) == label.lower())).first()
+        existing = services.find_activity_type_by_label(session, label)
         if existing:
             continue
         activity_type = ActivityType(label=label)

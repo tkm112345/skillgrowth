@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlmodel import Session, func, select
+from sqlmodel import Session, select
 
 from app import services
 from app.db import get_session
@@ -108,7 +108,7 @@ def create_activity_type(payload: ActivityTypeIn, session: Session = Depends(get
     label = payload.label.strip()
     if not label:
         raise HTTPException(status_code=400, detail="Label cannot be empty")
-    if session.exec(select(ActivityType).where(func.lower(ActivityType.label) == label.lower())).first():
+    if services.find_activity_type_by_label(session, label):
         raise HTTPException(status_code=400, detail="A type with this name already exists")
     activity_type = ActivityType(label=label)
     session.add(activity_type)
@@ -129,7 +129,7 @@ def update_activity_type(
     label = payload.label.strip()
     if not label:
         raise HTTPException(status_code=400, detail="Label cannot be empty")
-    duplicate = session.exec(select(ActivityType).where(func.lower(ActivityType.label) == label.lower())).first()
+    duplicate = services.find_activity_type_by_label(session, label)
     if duplicate and duplicate.id != type_id:
         raise HTTPException(status_code=400, detail="A type with this name already exists")
     activity_type.label = label

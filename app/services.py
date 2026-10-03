@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from sqlmodel import Session, func, select
 
 from app import llm
-from app.models import EvidenceEntry, Settings, Skill, SkillLink
+from app.models import ActivityType, EvidenceEntry, Settings, Skill, SkillLink
 
 # Sent into the LLM prompt on every extraction/consult call, so it needs a
 # cap: an unbounded list grows the prompt (latency, cost) linearly with the
@@ -95,6 +95,15 @@ def record_evidence_and_extract(
     matches = llm.extract_and_match_text(text, existing_skills_payload(session), settings)
     linked = apply_matches(session, entry.id, matches)
     return entry, linked
+
+
+def find_activity_type_by_label(session: Session, label: str) -> ActivityType | None:
+    """The case-insensitive lookup behind ActivityType's "label is unique
+    regardless of case" invariant — shared by create/update in
+    app/routers/learning.py and the activity_types loop in
+    app/backup_import.py, each of which applies its own handling (reject
+    vs. skip) around the same underlying check."""
+    return session.exec(select(ActivityType).where(func.lower(ActivityType.label) == label.lower())).first()
 
 
 def select_only(session: Session, entry) -> None:

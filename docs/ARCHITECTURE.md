@@ -369,8 +369,8 @@ sequenceDiagram
   loop each match
     alt skill_id present
       Svc->>DB: update Skill.last_observed_at
-    else new skill
-      Svc->>DB: insert Skill
+    else no skill_id
+      Svc->>Svc: upsert_skill(name): reuse by name (case-insensitive), else insert
     end
     Svc->>DB: insert SkillLink
   end
@@ -385,16 +385,30 @@ to a vision-capable model instead of plain text.
 Manually adding a skill from the Skills page (`POST /api/skills`), or
 importing a `name,category` CSV (`POST /api/skills/import-csv`), bypasses
 this pipeline entirely — both write `Skill` rows directly (through the same
-`_upsert_skill` dedup helper in `app/routers/skills.py`), since there's no
+`upsert_skill` dedup helper in `app/services.py`), since there's no
 free text to extract from. Resume parsing was deliberately not built: a
 personal resume's layout varies too much for reliable LLM extraction, so
 structured skill import goes through CSV instead.
+
+`upsert_skill` is the single place that enforces "`Skill.name` is unique
+case-insensitively": it's shared by the LLM-extraction path above, manual
+add, and CSV import, all of which create a `Skill` on a user's behalf. The
+LLM is only given existing skill names (not guaranteed to echo back the
+matching `skill_id`), so the no-`skill_id` branch above must look the name
+up case-insensitively rather than insert unconditionally — otherwise an LLM
+response like `{"skill_id": null, "name": "python"}` would silently create a
+case-duplicate of an existing `"Python"`. This is deliberately *not* a
+DB-level constraint, since a SQL `UNIQUE` index would apply to every writer
+with no way to exempt one: `app/backup_import.py` restores `Skill` rows
+verbatim from a snapshot and is meant to stay exempt — re-importing a
+backup that overlaps with current data is expected to produce duplicate
+rows, not merge them (see `tests/test_backup_api.py`'s round-trip test).
 
 `PUT /api/skills/{id}` edits an existing `Skill`'s `name`/`category` in
 place (404 if the id doesn't exist) — for fixing an LLM extraction mistake
 without losing the skill's accumulated `SkillLink`s, first/last-observed
 dates, or evidence count, which a delete-and-re-add would reset. It runs
-the same case-insensitive collision check as `_upsert_skill`, but rejects
+the same case-insensitive collision check as `upsert_skill`, but rejects
 (400) rather than merges if the new name matches a *different* existing
 skill, since silently merging two skills' evidence together is a bigger
 decision than a simple rename and isn't something this endpoint does.

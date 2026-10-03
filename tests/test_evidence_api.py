@@ -59,6 +59,32 @@ def test_second_checkin_reuses_matched_skill(client, monkeypatch):
     assert skills[0]["evidence_count"] == 2
 
 
+def test_differently_cased_match_without_skill_id_reuses_existing_skill(client, monkeypatch):
+    """The LLM isn't guaranteed to return skill_id for an existing skill —
+    it's only given existing names (see services.existing_skills_payload).
+    A differently-cased name match (skill_id: None, name: "python" when
+    "Python" already exists) must still reuse the existing skill rather than
+    creating a case-insensitive duplicate (the invariant services.upsert_skill
+    and the DB's ux_skill_name_nocase index both exist to protect)."""
+    _enable_skill_extraction(client)
+
+    def fake_extract(text, existing_skills, settings):
+        return [{"mention_text": text, "skill_id": None, "name": "Python", "category": "技術"}]
+
+    monkeypatch.setattr(llm, "extract_and_match_text", fake_extract)
+    client.post("/api/evidence/text", json={"source_type": "checkin", "text": "did some Python work"})
+
+    def fake_extract_lowercase(text, existing_skills, settings):
+        return [{"mention_text": text, "skill_id": None, "name": "python", "category": "技術"}]
+
+    monkeypatch.setattr(llm, "extract_and_match_text", fake_extract_lowercase)
+    client.post("/api/evidence/text", json={"source_type": "checkin", "text": "more python"})
+
+    skills = client.get("/api/skills").json()
+    assert len(skills) == 1
+    assert skills[0]["evidence_count"] == 2
+
+
 def test_list_evidence_months_groups_by_year_month(client, session):
     session.add(
         EvidenceEntry(source_type="checkin", raw_input="a", created_at=datetime(2024, 1, 5, tzinfo=timezone.utc))

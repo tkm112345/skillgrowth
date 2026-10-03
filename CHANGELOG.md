@@ -9,6 +9,13 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Fixed
+- Evidence-based skill extraction no longer creates a case-insensitive
+  duplicate skill (e.g. "python" alongside an existing "Python") when the
+  LLM match response omits `skill_id`. It now reuses the existing skill via
+  the same name-matching path already used by manual skill creation and CSV
+  import.
+
 ## [0.3.1] - 2026-09-30
 
 ### Added

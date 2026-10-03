@@ -1,6 +1,6 @@
 import csv
 import io
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
@@ -9,6 +9,7 @@ from sqlmodel import Session, func, select
 from app.db import get_session
 from app.models import Skill, SkillLink
 from app.routers.backup import sample_record_ids
+from app.services import upsert_skill
 
 router = APIRouter(prefix="/api/skills", tags=["skills"])
 
@@ -38,30 +39,6 @@ class CsvImportResult(BaseModel):
     skipped_rows: int
 
 
-def _upsert_skill(session: Session, name: str, category: str, proficiency: int | None = None) -> Skill | None:
-    name = name.strip()
-    if not name:
-        return None
-
-    existing = session.exec(select(Skill).where(func.lower(Skill.name) == name.lower())).first()
-    if existing:
-        # Unlike name/category, proficiency is a deliberate manual judgment —
-        # an automatic re-match here (CSV import, activity-extraction) must
-        # never overwrite it, the same reasoning that already keeps this
-        # branch from touching category.
-        existing.last_observed_at = datetime.now(timezone.utc)
-        session.add(existing)
-        session.commit()
-        session.refresh(existing)
-        return existing
-
-    skill = Skill(name=name, category=category.strip() or "未分類", proficiency=proficiency)
-    session.add(skill)
-    session.commit()
-    session.refresh(skill)
-    return skill
-
-
 @router.get("")
 def list_skills(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc())).all()
@@ -85,7 +62,7 @@ def list_skills(session: Session = Depends(get_session)):
 
 @router.post("")
 def add_skill(payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
-    return _upsert_skill(session, payload.name, payload.category, payload.proficiency)
+    return upsert_skill(session, payload.name, payload.category, payload.proficiency)
 
 
 @router.put("/{skill_id}")
@@ -135,7 +112,7 @@ def import_skills_csv(file: UploadFile = File(...), session: Session = Depends(g
     for row in reader:
         name = (row.get("name") or "").strip()
         category = (row.get("category") or "").strip()
-        skill = _upsert_skill(session, name, category)
+        skill = upsert_skill(session, name, category)
         if skill:
             imported.append(skill)
         else:

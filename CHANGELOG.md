@@ -23,6 +23,9 @@ commit as the change, moved into a dated section when a release is cut).
   LLM match response omits `skill_id`. It now reuses the existing skill via
   the same name-matching path already used by manual skill creation and CSV
   import.
+- `PUT /api/goals/{horizon}` now rejects a horizon outside the fixed
+  this_year/5_years/10_years set (400) instead of silently creating a
+  permanently invisible goal row; backup restore applies the same check.
 
 ## [0.3.1] - 2026-09-30
 

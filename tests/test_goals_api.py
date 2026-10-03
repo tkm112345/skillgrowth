@@ -24,6 +24,18 @@ def test_update_goal_persists_description(client):
     assert updated["description"] == "AWS認定を取る"
 
 
+def test_update_goal_rejects_horizon_outside_the_fixed_set(client):
+    """CareerGoal.horizon is keyed/looked up everywhere else (list_goals,
+    build_consult_context) against the fixed 3-value HORIZONS set — an
+    arbitrary value here would create a row nothing ever displays or reads,
+    just a permanent orphan."""
+    resp = client.put("/api/goals/not-a-real-horizon", json={"horizon": "not-a-real-horizon", "description": "x"})
+    assert resp.status_code == 400
+
+    resp = client.get("/api/goals")
+    assert [g["horizon"] for g in resp.json()] == ["this_year", "5_years", "10_years"]
+
+
 def test_update_goal_records_history_only_on_actual_change(client):
     client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "AWS認定を取る"})
     client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "AWS認定を取る"})

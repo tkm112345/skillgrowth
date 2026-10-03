@@ -32,6 +32,7 @@ from app.models import (
     Skill,
     SkillLink,
 )
+from app.routers.goals import HORIZONS
 
 
 def _dt(value: str | None) -> datetime | None:
@@ -205,6 +206,13 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     counts["career_goals"] = 0
     for row in data.get("career_goals", []):
+        # Same closed-set check app/routers/goals.py::update_goal enforces
+        # for the live API — CareerGoal.horizon is keyed/looked-up by a
+        # fixed 3-value set (HORIZONS) everywhere else it's read, so an
+        # unrecognized value here would just become a permanently invisible
+        # orphan row rather than anything a restore should recreate.
+        if row["horizon"] not in HORIZONS:
+            continue
         existing = session.get(CareerGoal, row["horizon"])
         if existing is None:
             session.add(CareerGoal(horizon=row["horizon"], description=row.get("description", "")))

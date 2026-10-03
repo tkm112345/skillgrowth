@@ -531,6 +531,13 @@ from the stored value — saving with no changes (e.g. an edit that's
 immediately cancelled, which never calls this endpoint at all) never
 creates a duplicate entry.
 
+`horizon` must be one of `app/routers/goals.py`'s `HORIZONS` (400 otherwise)
+— every reader (`list_goals`, `app/career_context.py::build_consult_context`)
+looks it up against that same fixed 3-value set, so an unrecognized value
+would just become a permanently invisible row rather than anything any
+page or prompt ever shows. `app/backup_import.py`'s `career_goals` loop
+checks the same set before restoring a row, for the same reason.
+
 `GET /api/goals/history` takes an optional `horizon` filter plus
 `limit`/`offset` (default `limit=5`), the same shape as every other
 paginated list in this app (`evidence`, `export`, `self-pr`). The

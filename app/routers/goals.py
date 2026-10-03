@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -40,6 +40,8 @@ def list_goals(session: Session = Depends(get_session)) -> list[GoalOut]:
 
 @router.put("/{horizon}")
 def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_session)) -> CareerGoal:
+    if horizon not in HORIZONS:
+        raise HTTPException(status_code=400, detail="Invalid horizon")
     goal = session.get(CareerGoal, horizon)
     if goal is None:
         goal = CareerGoal(horizon=horizon)

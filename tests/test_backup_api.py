@@ -176,6 +176,27 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
     assert employment[0]["evidence_id"] != "old-ev-1"  # remapped, not the old id
 
 
+def test_import_skips_career_goal_outside_the_fixed_horizon_set(client):
+    """Same invariant app/routers/goals.py::update_goal enforces for the
+    live API — a backup containing a bogus horizon (hand-edited, or from a
+    version of the app with a different HORIZONS set) must not restore it
+    as a permanent, nothing-ever-displays-it orphan row."""
+    payload = {
+        "career_goals": [
+            {"horizon": "not-a-real-horizon", "description": "x"},
+            {"horizon": "this_year", "description": "AWS認定を取る"},
+        ],
+    }
+
+    resp = client.post("/api/backup/import", json=payload)
+    assert resp.status_code == 200
+    assert resp.json()["career_goals"] == 1
+
+    goals = {g["horizon"]: g for g in client.get("/api/goals").json()}
+    assert goals["this_year"]["description"] == "AWS認定を取る"
+    assert set(goals.keys()) == {"this_year", "5_years", "10_years"}
+
+
 def test_import_drops_portfolio_link_to_a_non_standalone_project(client):
     """app/routers/portfolio.py::_validate_project_id rejects linking a
     portfolio item to a project that's tied to an employer — a backup

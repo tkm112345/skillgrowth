@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-03
+
 ### Added
 - Resume Import: upload an existing resume (`.docx`) and let the LLM draft
   Education/Employment/Project/Certification/Self-PR entries from it. The

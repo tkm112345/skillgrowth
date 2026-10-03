@@ -9,6 +9,7 @@ import Dashboard from '../views/Dashboard.vue'
 import ExportView from '../views/Export.vue'
 import Portfolio from '../views/Portfolio.vue'
 import Profile from '../views/Profile.vue'
+import ResumeImport from '../views/ResumeImport.vue'
 import SelfFeedback from '../views/SelfFeedback.vue'
 import SettingsView from '../views/Settings.vue'
 import Skills from '../views/Skills.vue'
@@ -23,6 +24,7 @@ export default createRouter({
     { path: '/self-feedback', name: 'self-feedback', component: SelfFeedback },
     { path: '/profile', name: 'profile', component: Profile },
     { path: '/portfolio', name: 'portfolio', component: Portfolio },
+    { path: '/resume-import', name: 'resume-import', component: ResumeImport },
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },
     { path: '/certifications', name: 'certifications', component: Certifications },

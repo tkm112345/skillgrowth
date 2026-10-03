@@ -23,6 +23,35 @@ __EXISTING_SKILLS__
 """
 
 
+RESUME_EXTRACT_PROMPT = """あなたは職務経歴書から構造化データを抽出するアシスタントです。
+入力された職務経歴書の全文から、以下のJSON形式で情報を抽出してください。
+説明文は付けず、JSONオブジェクトのみを出力してください。
+
+{
+  "education": [
+    {"school": "学校名", "degree": "学位(不明ならnull)", "major": "学部・学科(不明ならnull)", "start_date": "YYYY-MM-DD(日が不明ならYYYY-MM-01)", "end_date": "YYYY-MM-DD またはnull", "achievements": "補足(不明なら空文字)"}
+  ],
+  "employment": [
+    {"company": "会社名", "department": "部署名(不明ならnull)", "role": "役職(不明ならnull)", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD またはnull(現職の場合)"}
+  ],
+  "projects": [
+    {"employer_index": "このプロジェクトが属するemployment配列の0始まりインデックス(整数)", "title": "プロジェクト名(担当業務の要約)", "role": "担当工程・役割", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD またはnull", "description": "実績・取り組み等の要約(2-4文)"}
+  ],
+  "skills": [
+    {"name": "スキル名", "category": "OS/言語/フレームワーク/DB/ミドルウェア/クラウド等"}
+  ],
+  "certifications": [
+    {"title": "資格名", "activity_date": "YYYY-MM-DD、年のみなら YYYY-01-01、不明ならnull"}
+  ],
+  "self_pr": "自己PR文をそのまま、または要約して1つの文字列として"
+}
+
+注意:
+- 新入社員研修・育児休職・産休など、実務プロジェクトではない期間は projects に含めないこと。
+- employer_index は必ず employment 配列の添字（0始まり）を指すこと。会社名の文字列を書かないこと。
+"""
+
+
 CONSULT_SYSTEM_PROMPT = """あなたは経験豊富なキャリアコンサルタントです。
 相談者本人が実際にこのアプリに記録してきたキャリアデータ（職歴・学歴・プロジェクト・
 スキル・自己PR・ビジョン・キャリア目標）が以下に与えられます。
@@ -140,6 +169,27 @@ def extract_and_match_image(image_path: str, existing_skills: list[dict], settin
         ],
     )
     return _parse_json_array(resp.choices[0].message.content or "[]")
+
+
+def extract_resume(text: str, settings: Settings) -> dict:
+    """Stateless draft extraction for the resume-import feature (see
+    docs/ARCHITECTURE.md) — the caller is responsible for showing the
+    result to the user for review before writing anything to the DB.
+    response_format=json_object is requested because, without it, a
+    schema this large (6 arrays) can produce malformed JSON on at least
+    some local/open models (confirmed during this feature's design: one
+    test run against a local Ollama model broke JSON syntax without it;
+    4 consecutive runs with it all parsed cleanly)."""
+    resp = _complete(
+        settings,
+        model=settings.llm_model,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": RESUME_EXTRACT_PROMPT},
+            {"role": "user", "content": text},
+        ],
+    )
+    return _parse_json_object(resp.choices[0].message.content or "{}")
 
 
 def gap_check(job_description: str, current_skills: list[dict], settings: Settings) -> dict:

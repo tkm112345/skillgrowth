@@ -232,6 +232,12 @@ export const api = {
   deletePortfolioFile: (fileId) => request(`/portfolio/files/${fileId}`, { method: 'DELETE' }),
   downloadPortfolioFile: (fileId) => requestBlob(`/portfolio/files/${fileId}/download`),
 
+  extractResume: (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return requestForm('/resume-import/extract', form)
+  },
+
   search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
 
   getGraph: () => request('/graph'),

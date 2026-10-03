@@ -21,6 +21,7 @@ from app.routers import (
     personal_info,
     portfolio,
     profile,
+    resume_import,
     resume_templates,
     rirekisho_templates,
     search,
@@ -76,6 +77,7 @@ app.include_router(search.router)
 app.include_router(graph.router)
 app.include_router(personal_info.router)
 app.include_router(rirekisho_templates.router)
+app.include_router(resume_import.router)
 
 
 @app.on_event("startup")

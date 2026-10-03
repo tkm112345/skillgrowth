@@ -21,6 +21,7 @@ import {
   Suitcase,
   Sunrise,
   TrendCharts,
+  Upload,
 } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -172,6 +173,10 @@ onMounted(async () => {
           <el-menu-item index="/portfolio">
             <el-icon style="color: var(--hue-red)"><Suitcase /></el-icon>
             <template #title>{{ t('nav.portfolio') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/resume-import">
+            <el-icon style="color: var(--hue-orange)"><Upload /></el-icon>
+            <template #title>{{ t('nav.resumeImport') }}</template>
           </el-menu-item>
         </el-sub-menu>
 

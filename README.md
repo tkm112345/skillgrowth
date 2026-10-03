@@ -83,9 +83,10 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   optionally link to a standalone project, never one tied to an employer.
 - **Skills** — the current skill picture derived from the activity log;
   supports adding a skill directly by name, editing a skill's name/category
-  in place, or importing a batch from a `name,category` CSV file —
-  deliberately not resume parsing, since a personal resume's layout is too
-  format-dependent for reliable extraction.
+  in place, or importing a batch from a `name,category` CSV file.
+- **Resume Import** — upload an existing resume (`.docx`) and let the LLM
+  draft Education/Employment/Project/Skill/Certification/Self-PR entries
+  from it. Nothing is saved until you review and confirm each item.
 - **Activity** — add a reading/talk/certification entry (with optional
   certificate image upload for OCR extraction) and browse a chronological
   feed of everything that's been added, in one page.

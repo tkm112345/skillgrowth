@@ -386,9 +386,56 @@ Manually adding a skill from the Skills page (`POST /api/skills`), or
 importing a `name,category` CSV (`POST /api/skills/import-csv`), bypasses
 this pipeline entirely — both write `Skill` rows directly (through the same
 `upsert_skill` dedup helper in `app/services.py`), since there's no
-free text to extract from. Resume parsing was deliberately not built: a
-personal resume's layout varies too much for reliable LLM extraction, so
-structured skill import goes through CSV instead.
+free text to extract from.
+
+### Resume import (draft-only, never auto-committed)
+
+Full resume parsing was deliberately not built for a long time: a personal
+resume's layout varies too much for reliable LLM extraction. The
+reconsideration (see "Portfolio backup" above for the same kind of
+documented-constraint-first design) landed on a narrower version of the
+feature rather than reversing the original call outright:
+`POST /api/resume-import/extract` (`app/routers/resume_import.py`) reads an
+uploaded `.docx` with `python-docx` and calls `llm.extract_resume`, which
+asks the model for `education`/`employment`/
+`projects`/`skills`/`certifications`/`self_pr` as one JSON object — and
+returns that draft to the caller as-is. **Nothing is written to the DB and
+the uploaded file is never saved to disk**; the frontend (`ResumeImport.vue`)
+shows the draft for the user to edit and deselect items, then creates each
+confirmed item through the *existing* `POST /api/profile/education`,
+`/api/profile/employment`, `/api/profile/projects`, `/api/skills`,
+`/api/learning` (`activity_type: "certification"`), and `/api/self-pr`
+endpoints — so every invariant those already enforce (`upsert_skill`'s
+name dedup, the standalone-project rule, etc.) applies automatically,
+and no second write path for any of those models had to be built.
+
+Three things learned from testing this against a real resume on a local
+model (an Ollama-served model over its OpenAI-compatible endpoint) shaped
+the design:
+- `document.paragraphs` (python-docx's obvious entry point) silently skips
+  any paragraph inside a table — and a real resume's period-by-period
+  project history is commonly laid out as a Word table (confirmed directly:
+  a real test resume had its entire 15-row project history in two tables,
+  reading `.paragraphs` alone surfaced almost none of it). `_document_text`
+  walks `document.element.body`'s children directly (`w:p` and `w:tbl`), so
+  table rows are read in their original position among the surrounding
+  paragraphs, not dropped or appended out of order.
+- Without `response_format={"type": "json_object"}` on the completion
+  request, a schema this wide (six arrays in one response) produced
+  syntactically broken JSON in testing; with it, it didn't. `extract_resume`
+  passes that parameter — the only one of this file's LLM calls that does,
+  since the others return much smaller JSON shapes that haven't shown the
+  same failure mode.
+- Projects are linked to an employment by `employer_index` (the employment
+  array's 0-based position), not by repeating the company name — an LLM
+  asked to copy a company name verbatim doesn't always do so consistently
+  (seen in testing: "Acme Corp" vs. "Acme Corp (formerly Acme Inc.)" across
+  runs), which breaks a string-match join. An index into a list the model
+  itself just generated has nothing to misspell.
+
+Only `.docx` is accepted (400 on anything else) — this repo's Docker image
+has no LibreOffice/`soffice`, and adding one just to read legacy binary
+`.doc` files wasn't worth the image size for this feature alone.
 
 `upsert_skill` is the single place that enforces "`Skill.name` is unique
 case-insensitively": it's shared by the LLM-extraction path above, manual

@@ -1,6 +1,6 @@
 <script setup>
 import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
@@ -13,6 +13,16 @@ const draft = ref(null)
 const selfPr = ref('')
 const selfPrInclude = ref(false)
 const pendingFile = ref(null)
+const skillExtractionEnabled = ref(true)
+
+onMounted(async () => {
+  try {
+    const settings = await api.getSettings()
+    skillExtractionEnabled.value = settings.skill_extraction_enabled
+  } catch (e) {
+    // informational banner only; a failed settings fetch just leaves the default
+  }
+})
 
 function withMeta(items) {
   return (items || []).map((item) => ({ ...item, _include: true, _status: null }))
@@ -32,7 +42,7 @@ async function extract() {
       education: withMeta(result.education),
       employment: withMeta(result.employment),
       projects: withMeta(result.projects),
-      skills: withMeta(result.skills),
+      skills: result.skills || [],
       certifications: withMeta(result.certifications),
     }
     selfPr.value = result.self_pr || ''
@@ -95,6 +105,15 @@ async function register() {
     }
   }
 
+  // Skills are intentionally not registered from the top-level draft list
+  // here: POST /api/profile/projects already runs a project's title/role/
+  // description through the normal evidence-extraction pipeline (gated on
+  // Settings.skill_extraction_enabled), the same path a project added by
+  // hand goes through. Registering the resume's flat skills list directly
+  // would create Skill rows with no SkillLink/EvidenceEntry behind them —
+  // unlike every other skill in this app, which is derived from logged
+  // activity. Letting project registration be the only skill-creating step
+  // here keeps that one way to get a Skill.
   for (const p of draft.value.projects) {
     if (!p._include || p._status === 'done') continue
     try {
@@ -110,18 +129,6 @@ async function register() {
       successCount++
     } catch (err) {
       p._status = 'error'
-      failCount++
-    }
-  }
-
-  for (const s of draft.value.skills) {
-    if (!s._include || s._status === 'done') continue
-    try {
-      await api.addSkill(s.name, s.category || '未分類', null)
-      s._status = 'done'
-      successCount++
-    } catch (err) {
-      s._status = 'error'
       failCount++
     }
   }
@@ -184,14 +191,21 @@ async function register() {
       <h2>{{ t('resumeImport.educationHeader') }}</h2>
       <el-empty v-if="draft.education.length === 0" :description="t('resumeImport.noneFound')" />
       <el-card v-for="e in draft.education" :key="e.school + e.start_date" shadow="never" class="item-card">
-        <el-checkbox v-model="e._include" :disabled="e._status === 'done'" />
+        <div class="item-header">
+          <el-switch
+            v-model="e._include"
+            :disabled="e._status === 'done'"
+            :active-text="t('resumeImport.include')"
+            :inactive-text="t('resumeImport.exclude')"
+          />
+          <el-tag v-if="e._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
+          <el-tag v-else-if="e._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
+        </div>
         <div class="item-fields">
           <el-input v-model="e.school" :placeholder="t('profile.school')" />
           <el-input v-model="e.major" :placeholder="t('profile.major')" />
           <el-input v-model="e.achievements" type="textarea" :rows="2" :placeholder="t('profile.achievements')" />
         </div>
-        <el-tag v-if="e._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
-        <el-tag v-else-if="e._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
       </el-card>
     </section>
 
@@ -199,65 +213,92 @@ async function register() {
       <h2>{{ t('resumeImport.employmentHeader') }}</h2>
       <el-empty v-if="draft.employment.length === 0" :description="t('resumeImport.noneFound')" />
       <el-card v-for="emp in draft.employment" :key="emp.company + emp.start_date" shadow="never" class="item-card">
-        <el-checkbox v-model="emp._include" :disabled="emp._status === 'done'" />
+        <div class="item-header">
+          <el-switch
+            v-model="emp._include"
+            :disabled="emp._status === 'done'"
+            :active-text="t('resumeImport.include')"
+            :inactive-text="t('resumeImport.exclude')"
+          />
+          <el-tag v-if="emp._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
+          <el-tag v-else-if="emp._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
+        </div>
         <div class="item-fields">
           <el-input v-model="emp.company" :placeholder="t('profile.company')" />
           <el-input v-model="emp.role" :placeholder="t('profile.role')" />
         </div>
-        <el-tag v-if="emp._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
-        <el-tag v-else-if="emp._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
       </el-card>
     </section>
 
     <section class="section">
       <h2>{{ t('resumeImport.projectsHeader') }}</h2>
+      <el-alert v-if="!skillExtractionEnabled" type="warning" :closable="false" class="skill-extraction-notice" show-icon>
+        {{ t('resumeImport.skillExtractionOffNotice') }}
+      </el-alert>
       <el-empty v-if="draft.projects.length === 0" :description="t('resumeImport.noneFound')" />
-      <el-card v-for="p in draft.projects" :key="p.title + p.start_date" shadow="never" class="item-card">
-        <el-checkbox v-model="p._include" :disabled="p._status === 'done'" />
+      <el-card v-for="p in draft.projects" :key="p.title + p.start_date" shadow="never" class="item-card project-card">
+        <div class="item-header">
+          <el-switch
+            v-model="p._include"
+            :disabled="p._status === 'done'"
+            :active-text="t('resumeImport.include')"
+            :inactive-text="t('resumeImport.exclude')"
+          />
+          <el-tag v-if="p._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
+          <el-tag v-else-if="p._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
+        </div>
         <div class="item-fields">
           <el-input v-model="p.title" :placeholder="t('profile.projectTitle')" />
           <el-select v-model="p.employer_index" :placeholder="t('resumeImport.noEmployer')">
             <el-option v-for="(emp, idx) in draft.employment" :key="idx" :label="emp.company" :value="idx" />
           </el-select>
-          <el-input v-model="p.description" type="textarea" :rows="2" :placeholder="t('profile.description')" />
           <p class="employer-hint">{{ employerLabel(p.employer_index) }}</p>
+          <el-input v-model="p.description" type="textarea" :rows="5" :placeholder="t('profile.description')" />
         </div>
-        <el-tag v-if="p._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
-        <el-tag v-else-if="p._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
       </el-card>
     </section>
 
     <section class="section">
       <h2>{{ t('resumeImport.skillsHeader') }}</h2>
+      <p class="skills-hint">{{ t('resumeImport.skillsHint') }}</p>
       <el-empty v-if="draft.skills.length === 0" :description="t('resumeImport.noneFound')" />
-      <el-card v-for="s in draft.skills" :key="s.name" shadow="never" class="item-card">
-        <el-checkbox v-model="s._include" :disabled="s._status === 'done'" />
-        <div class="item-fields">
-          <el-input v-model="s.name" :placeholder="t('resumeImport.skillName')" />
-          <el-input v-model="s.category" :placeholder="t('resumeImport.category')" />
-        </div>
-        <el-tag v-if="s._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
-        <el-tag v-else-if="s._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
-      </el-card>
+      <div class="skills-row" v-else>
+        <el-tag v-for="s in draft.skills" :key="s.name" class="skill-tag">{{ s.name }}<span v-if="s.category"> ({{ s.category }})</span></el-tag>
+      </div>
     </section>
 
     <section class="section">
       <h2>{{ t('resumeImport.certificationsHeader') }}</h2>
       <el-empty v-if="draft.certifications.length === 0" :description="t('resumeImport.noneFound')" />
       <el-card v-for="c in draft.certifications" :key="c.title" shadow="never" class="item-card">
-        <el-checkbox v-model="c._include" :disabled="c._status === 'done'" />
+        <div class="item-header">
+          <el-switch
+            v-model="c._include"
+            :disabled="c._status === 'done'"
+            :active-text="t('resumeImport.include')"
+            :inactive-text="t('resumeImport.exclude')"
+          />
+          <el-tag v-if="c._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
+          <el-tag v-else-if="c._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
+        </div>
         <div class="item-fields">
           <el-input v-model="c.title" />
+          <el-date-picker v-model="c.activity_date" value-format="YYYY-MM-DD" :placeholder="t('resumeImport.certificationDate')" />
         </div>
-        <el-tag v-if="c._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
-        <el-tag v-else-if="c._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
       </el-card>
     </section>
 
     <section class="section">
       <h2>{{ t('resumeImport.selfPrHeader') }}</h2>
       <el-card shadow="never" class="item-card">
-        <el-checkbox v-model="selfPrInclude" :disabled="!selfPr.trim()" />
+        <div class="item-header">
+          <el-switch
+            v-model="selfPrInclude"
+            :disabled="!selfPr.trim()"
+            :active-text="t('resumeImport.include')"
+            :inactive-text="t('resumeImport.exclude')"
+          />
+        </div>
         <div class="item-fields">
           <el-input v-model="selfPr" type="textarea" :rows="4" />
         </div>
@@ -289,23 +330,50 @@ async function register() {
   margin: 0 0 0.5rem;
 }
 
+.skill-extraction-notice {
+  margin-bottom: 0.75rem;
+}
+
 .item-card {
   margin-bottom: 0.75rem;
+}
+
+.project-card {
+  max-width: none;
+}
+
+.item-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .item-fields {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.item-fields :deep(.el-textarea) {
+  width: 100%;
 }
 
 .employer-hint {
   color: var(--ink-secondary);
   font-size: 0.85rem;
   margin: 0;
+}
+
+.skills-hint {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 </style>

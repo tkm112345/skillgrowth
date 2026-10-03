@@ -107,17 +107,21 @@ entries, so they can be shown to someone without those entries' baggage.
 ## Resume Import
 
 Upload an existing resume (`.docx` only) and have the LLM draft
-Education/Employment/Project/Skill/Certification/Self-PR entries from it,
-instead of typing years of history in by hand.
+Education/Employment/Project/Certification/Self-PR entries from it, instead
+of typing years of history in by hand.
 
 - Nothing is saved until you review the draft and press Register. Each
-  item has a checkbox and editable fields — uncheck anything wrong or not
-  worth keeping, fix typos or an unlinked project's company first. The
-  uploaded file itself is never stored.
-- Registering creates entries through the same Profile/Skills/
-  Certifications/Self-PR forms would — so a skill that already exists
-  (case-insensitively) is reused rather than duplicated, and the same
-  rules apply as if you'd typed it in yourself.
+  item has an on/off toggle and editable fields — turn off anything wrong
+  or not worth keeping, fix typos or a project's linked employer first.
+  The uploaded file itself is never stored.
+- Registering creates entries through the same Profile/Certifications/
+  Self-PR forms would, so the same rules apply as if you'd typed it in
+  yourself.
+- Skills found in the resume are shown as reference tags only — they
+  aren't registered directly. Registering a project runs its description
+  through the same skill-extraction Activity entries use (if enabled in
+  Settings), so skills end up linked to the project they came from instead
+  of as disconnected entries with no activity behind them.
 - Partial success is shown per item (e.g. one project failing doesn't
   stop the rest from registering).
 

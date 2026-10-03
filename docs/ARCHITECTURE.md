@@ -403,11 +403,29 @@ returns that draft to the caller as-is. **Nothing is written to the DB and
 the uploaded file is never saved to disk**; the frontend (`ResumeImport.vue`)
 shows the draft for the user to edit and deselect items, then creates each
 confirmed item through the *existing* `POST /api/profile/education`,
-`/api/profile/employment`, `/api/profile/projects`, `/api/skills`,
-`/api/learning` (`activity_type: "certification"`), and `/api/self-pr`
-endpoints — so every invariant those already enforce (`upsert_skill`'s
-name dedup, the standalone-project rule, etc.) applies automatically,
-and no second write path for any of those models had to be built.
+`/api/profile/employment`, `/api/profile/projects`, `/api/learning`
+(`activity_type: "certification"`), and `/api/self-pr` endpoints — so every
+invariant those already enforce (the standalone-project rule, etc.) applies
+automatically, and no second write path for any of those models had to be
+built.
+
+**`skills` is extracted but deliberately never registered directly** —
+the draft UI shows it as reference-only tags, not editable/selectable
+entries. Every other `Skill` in this app traces back to a `SkillLink` row
+pointing at an `EvidenceEntry` (see "Evidence → skill extraction flow"
+above): it was derived from something the user actually logged. Calling
+`POST /api/skills` for each name in the resume's flat skill list would
+create `Skill` rows with no evidence behind them — a different kind of row
+than every other skill in the app, with no record of where it came from.
+Registering a project here already runs its title/role/description through
+the normal evidence-extraction pipeline (`POST /api/profile/projects` →
+`services.record_evidence_and_extract`, gated on
+`Settings.skill_extraction_enabled`, exactly as it does for a project
+added by hand) — so a project registered from the resume import flow gets
+its skills the same way, evidence-linked, instead of through a second,
+disconnected creation path. The draft UI shows a warning when
+`skill_extraction_enabled` is off, since in that case registering a
+project here won't extract anything from it either.
 
 Three things learned from testing this against a real resume on a local
 model (an Ollama-served model over its OpenAI-compatible endpoint) shaped

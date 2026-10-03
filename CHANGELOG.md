@@ -11,11 +11,13 @@ commit as the change, moved into a dated section when a release is cut).
 
 ### Added
 - Resume Import: upload an existing resume (`.docx`) and let the LLM draft
-  Education/Employment/Project/Skill/Certification/Self-PR entries from it.
-  The draft is never auto-saved — each item is reviewed, edited, and
-  confirmed individually before being created through the same endpoints
-  manual entry uses, so existing invariants (e.g. skill name dedup) apply
-  automatically.
+  Education/Employment/Project/Certification/Self-PR entries from it. The
+  draft is never auto-saved — each item is reviewed, edited, and confirmed
+  individually before being created through the same endpoints manual
+  entry uses, so existing invariants apply automatically. Skills found in
+  the resume are shown for reference only; registering a project runs its
+  description through the normal skill-extraction pipeline instead, so
+  skills end up linked to the project they came from.
 
 ## [0.3.2] - 2026-10-03
 

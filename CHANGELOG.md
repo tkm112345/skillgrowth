@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-03
+
 ### Security
 - Backup restore now re-checks the "portfolio items may only link to a
   standalone project" rule before restoring a `PortfolioItem`, dropping the

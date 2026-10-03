@@ -41,7 +41,9 @@ from that activity and matches them against skills you already have, so
 your skill picture and a ready-to-use resume can be derived from the log
 at any time — the resume itself is generated from a fixed template, no
 LLM required. Skills can also be added directly (one at a time, or in bulk
-via CSV) when you don't have free-text activity to extract from.
+via CSV) when you don't have free-text activity to extract from, or
+drafted in bulk from an existing resume (reviewed and confirmed before
+anything is saved) if you'd rather not type years of history in by hand.
 
 ```mermaid
 flowchart LR
@@ -50,6 +52,8 @@ flowchart LR
   U3[Education / Employment / Project] --> E
   U4[Reading / talk / certification entry] --> E
   U5[Manual add / CSV import] --> S[(Skill)]
+  U6[Resume import - reviewed draft] --> E
+  U6 --> S
   E --> L[LLM extraction + matching]
   L --> S
   S --> V[Current skill view]
@@ -76,7 +80,8 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   side. Fully editable and deletable, unlike the append-only activity
   log elsewhere in the app.
 - **Profile** — education, employment, and projects (standalone or linked to
-  an employer). Free-text descriptions also feed skill extraction.
+  an employer), each addable, editable in place, and deletable. Free-text
+  descriptions also feed skill extraction.
 - **Portfolio** — deliverables and work samples: title, description (not
   fed into skill extraction), any number of links, and any number of
   uploaded files (PDF, spreadsheets, photos, up to 10MB each). Can
@@ -102,7 +107,8 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   the certifications, education, employment, projects, and portfolio
   pieces that back them. Deliberately excludes day-to-day activity
   entries (reading, talks, quick updates), so the graph stays readable no
-  matter how long you've used the app.
+  matter how long you've used the app. Label wrap width, node spacing, and
+  edge length are adjustable and remembered per-browser.
 - **Resume** — a Self PR field (kept as paginated history, most recent
   used) plus a resume generator that fills a fixed Markdown template from
   your current data — **no LLM involved**, rendered and downloadable, with
@@ -254,21 +260,25 @@ A typical first session looks like this:
    education/employment/projects on Profile (their free-text fields feed
    extraction too), or add a skill directly on Skills if you already know
    you have it and don't need evidence for it.
-5. **Dashboard → Career path goals** and **Vision**, whenever you want to
+5. **Resume Import**, if you already have a resume: upload it (`.docx`)
+   and let the LLM draft Education/Employment/Project/Certification/
+   Self-PR entries from it instead of typing years of history in by
+   hand — nothing is saved until you review and confirm each item.
+6. **Dashboard → Career path goals** and **Vision**, whenever you want to
    write down where you're headed — goals are time-boxed (this year / 5
    years / 10 years) and keep a full edit history; Vision is one looser,
    unstructured paragraph with no history, for whatever doesn't fit into
    "by when."
-6. **Resume**, once you have some Profile/Activity data: write a Self PR
+7. **Resume**, once you have some Profile/Activity data: write a Self PR
    pitch, then "Generate resume from current data." No LLM call — it's
    your data poured into a fixed template — so this works even before
    step 1. Every generation is kept, so you can always go back to an
    earlier version.
-7. **AI Career Support**, only if you configured an LLM in step 1: start a
+8. **AI Career Support**, only if you configured an LLM in step 1: start a
    Career Consult conversation, paste a job posting for a gap check
    against your current skills, or ask for growth guidance toward the
-   goals you wrote in step 5.
-8. **Settings → Data backup**, occasionally: downloads everything (except
+   goals you wrote in step 6.
+9. **Settings → Data backup**, occasionally: downloads everything (except
    the LLM connection settings) as one JSON file. Restoring it later — on
    this instance or a fresh one — is purely additive, so it's safe to
    import into an install that already has data.

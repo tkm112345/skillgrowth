@@ -85,10 +85,6 @@ Education, Employment, and Project entries can each be edited in place
 editing never re-runs skill extraction, so it won't add or change linked
 skills.
 
-There's deliberately no "import resume" feature: a personal resume's layout
-varies too much for reliable LLM extraction. Bulk-loading skills instead
-goes through the CSV import on the Skills page.
-
 ## Portfolio
 
 Deliverables and work samples — a Web link, a PDF, a spreadsheet, a

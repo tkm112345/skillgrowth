@@ -19,3 +19,12 @@ frontend/dist/
 # Personal documents dropped in for local testing (e.g. a real resume) —
 # never meant to be committed to this public repo.
 myself/
+
+# Real resume/CV files (.doc/.docx) used to test Resume Import, wherever
+# they're dropped — blocked by extension, not just by directory, since
+# these are personal data and this repo is public. Test fixtures build
+# .docx files in-memory via python-docx (see tests/conftest.py's
+# sample_docx_bytes), not from files on disk, so nothing legitimate needs
+# to be committed with these extensions.
+*.doc
+*.docx

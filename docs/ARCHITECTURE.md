@@ -912,6 +912,17 @@ afterward" shape `ConsultSession`/`ConsultMessage` already use. A
 file already missing when exported) is skipped, the same as
 `ResumeTemplate` handles that case.
 
+The remap re-checks the privacy-critical invariant above: after resolving
+`PortfolioItem.project_id` through `project_id_map`, the loop looks up that
+*new* `Project` row and drops the association to `None` if its
+`employment_id` is set, rather than trusting the backup data as-is. A
+backup is restored by `session.add()`, never through
+`app/routers/portfolio.py`'s `POST`/`PUT` handlers, so `_validate_project_id`
+never runs on this path — without this check, a hand-edited backup, or one
+taken before this invariant existed, could restore a `PortfolioItem` that
+makes an employer identifiable, the exact thing the live API's check
+exists to prevent.
+
 ## LLM configuration
 
 `Settings` is a singleton DB row (id=1), editable from the Settings page. It

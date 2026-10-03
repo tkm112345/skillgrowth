@@ -283,10 +283,19 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     portfolio_item_id_map: dict[str, str] = {}
     for row in data.get("portfolio_items", []):
+        mapped_project_id = project_id_map.get(row.get("project_id")) if row.get("project_id") else None
+        project = session.get(Project, mapped_project_id) if mapped_project_id else None
+        # Same invariant app/routers/portfolio.py::_validate_project_id
+        # enforces for the live API — only a standalone project (no
+        # employment_id) may be linked. A backup from before that rule
+        # existed, or a hand-edited one, could otherwise restore a
+        # PortfolioItem pointing at an employer-tied project; drop the
+        # association rather than reject the whole row, the same way an
+        # unresolvable evidence_id/employment_id above is dropped to None.
         item = PortfolioItem(
             title=row["title"],
             description=row.get("description", ""),
-            project_id=project_id_map.get(row.get("project_id")) if row.get("project_id") else None,
+            project_id=mapped_project_id if project and project.employment_id is None else None,
             created_at=_dt(row.get("created_at")),
         )
         session.add(item)

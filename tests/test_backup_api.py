@@ -176,6 +176,55 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
     assert employment[0]["evidence_id"] != "old-ev-1"  # remapped, not the old id
 
 
+def test_import_drops_portfolio_link_to_a_non_standalone_project(client):
+    """app/routers/portfolio.py::_validate_project_id rejects linking a
+    portfolio item to a project that's tied to an employer — a backup
+    restore must honor the same invariant rather than silently restoring a
+    row the live API would never let you create."""
+    payload = {
+        "employment": [
+            {
+                "id": "old-emp-1",
+                "company": "Acme",
+                "department": "",
+                "role": "Engineer",
+                "start_date": None,
+                "end_date": None,
+                "evidence_id": None,
+            }
+        ],
+        "projects": [
+            {
+                "id": "old-proj-1",
+                "employment_id": "old-emp-1",
+                "title": "Widget launch",
+                "role": "Lead",
+                "start_date": None,
+                "end_date": None,
+                "description": "",
+                "evidence_id": None,
+            }
+        ],
+        "portfolio_items": [
+            {
+                "id": "old-item-1",
+                "title": "Widget",
+                "description": "",
+                "project_id": "old-proj-1",
+                "created_at": "2025-01-01T00:00:00+00:00",
+            }
+        ],
+    }
+
+    resp = client.post("/api/backup/import", json=payload)
+    assert resp.status_code == 200
+    assert resp.json()["portfolio_items"] == 1
+
+    items = client.get("/api/portfolio").json()
+    assert len(items) == 1
+    assert items[0]["project_id"] is None
+
+
 def test_import_career_goal_fills_only_when_empty(client):
     client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "既に書いた目標"})
 

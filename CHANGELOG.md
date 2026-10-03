@@ -9,6 +9,14 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Security
+- Backup restore now re-checks the "portfolio items may only link to a
+  standalone project" rule before restoring a `PortfolioItem`, dropping the
+  association instead of restoring it as-is. Restoring a hand-edited backup,
+  or one taken before this rule existed, could otherwise bypass the
+  server-side check and recreate a portfolio item pointing at an
+  employer-tied project.
+
 ### Fixed
 - Evidence-based skill extraction no longer creates a case-insensitive
   duplicate skill (e.g. "python" alongside an existing "Python") when the

@@ -97,5 +97,20 @@ def record_evidence_and_extract(
     return entry, linked
 
 
+def select_only(session: Session, entry) -> None:
+    """Postcondition: `entry` is the only row of its table with `is_selected`
+    True — every other row of the same model is flipped to False first.
+    Shared by SelfPR/ResumeTemplate/RirekishoTemplate, the three "exactly
+    one selected row" tables in this app (each enforces it per-table, not
+    via a cross-table rule — a selected SelfPR and a selected ResumeTemplate
+    coexist independently)."""
+    model = type(entry)
+    for other in session.exec(select(model).where(model.is_selected == True)).all():  # noqa: E712
+        other.is_selected = False
+        session.add(other)
+    entry.is_selected = True
+    session.add(entry)
+
+
 def text_block(**fields: str) -> str:
     return "\n".join(f"{key}: {value}" for key, value in fields.items() if value)

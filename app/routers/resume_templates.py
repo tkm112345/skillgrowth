@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 from app.db import RESUME_TEMPLATE_DIR, get_session
 from app.models import ResumeTemplate
 from app.resume_docx import SECTION_FORMAT_CHOICES, render_resume_docx
+from app.services import select_only
 
 router = APIRouter(prefix="/api/resume-templates", tags=["resume_templates"])
 
@@ -25,14 +26,6 @@ def _validate_section_formats(section_formats: dict[str, str]) -> None:
         choices = SECTION_FORMAT_CHOICES.get(key)
         if choices is None or value not in choices:
             raise HTTPException(status_code=400, detail=f"Invalid section format: {key}={value}")
-
-
-def _select_only(session: Session, entry: ResumeTemplate) -> None:
-    for other in session.exec(select(ResumeTemplate).where(ResumeTemplate.is_selected == True)).all():  # noqa: E712
-        other.is_selected = False
-        session.add(other)
-    entry.is_selected = True
-    session.add(entry)
 
 
 @router.get("")
@@ -58,7 +51,7 @@ def upload_resume_template(
     session.add(entry)
     session.flush()
     if is_first:
-        _select_only(session, entry)  # the first template becomes usable by default
+        select_only(session, entry)  # the first template becomes usable by default
     session.commit()
     session.refresh(entry)
     return entry
@@ -78,7 +71,7 @@ def update_resume_template(
         entry.section_formats = json.dumps(payload.section_formats)
     session.add(entry)
     if payload.is_selected:
-        _select_only(session, entry)
+        select_only(session, entry)
     session.commit()
     session.refresh(entry)
     return entry

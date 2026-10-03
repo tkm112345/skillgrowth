@@ -660,13 +660,15 @@ whatever's newest":
   same "you own this document" exception `ExportSnapshot` gets below —
   fixing a typo in an old pitch shouldn't require writing a whole new one.
 - `is_selected: bool` marks exactly one row as the one `build_resume_markdown`
-  uses. `_select_only()` in `app/routers/self_pr.py` enforces the
-  invariant: it clears `is_selected` on every other row before setting it
-  on the target, inside the same transaction. `POST /api/self-pr` calls it
-  on the row it just created (a fresh pitch becomes the one used, matching
-  the old "always latest" behavior by default); `PUT
-  /api/self-pr/{id}/select` calls it on an arbitrary existing row, so an
-  older draft can be brought back without deleting anything newer.
+  uses. `app/services.py::select_only(session, entry)` enforces the
+  invariant: it clears `is_selected` on every other row of `entry`'s table
+  before setting it on `entry`, inside the same transaction — shared (not
+  reimplemented per table) by `SelfPR`/`ResumeTemplate`/`RirekishoTemplate`,
+  the three "exactly one selected row" tables in this app. `POST
+  /api/self-pr` calls it on the row it just created (a fresh pitch becomes
+  the one used, matching the old "always latest" behavior by default);
+  `PUT /api/self-pr/{id}/select` calls it on an arbitrary existing row, so
+  an older draft can be brought back without deleting anything newer.
   `build_resume_markdown` queries `WHERE is_selected == True`, falling
   back to newest-first if none is set (rows created before this feature
   existed, or a backup-imported set — see below).
@@ -675,7 +677,7 @@ Restoring a backup never imports `is_selected` — every imported `SelfPR`
 row is inserted with it unset, regardless of what the backup file says.
 Doing otherwise would let an import silently change which pitch the
 resume uses, or leave two rows both marked selected (the invariant
-`_select_only` exists to prevent) if the imported "selected" row doesn't
+`select_only` exists to prevent) if the imported "selected" row doesn't
 match whichever row is already selected on the instance being imported
 into.
 
@@ -698,10 +700,10 @@ already existed before this field was added, adding it required the
 `ResumeTemplate` (`app/models.py`) stores an uploaded `.docx` file on disk
 under `data/uploads/resume_templates/` (`RESUME_TEMPLATE_DIR` in
 `app/db.py`), referenced by `file_path`, plus a `name`, an `is_selected`
-flag (the same single-selected-row pattern `SelfPR` uses, via
-`_select_only()` — now duplicated in `app/routers/resume_templates.py`),
-and `section_formats` — a JSON text column holding which layout each of
-four sections should use.
+flag (the same single-selected-row pattern `SelfPR` uses, via the shared
+`select_only()` — see "Resume export (no LLM)" above), and
+`section_formats` — a JSON text column holding which layout each of four
+sections should use.
 
 `app/resume_builder.py::build_resume_markdown` was split so its
 data-gathering half, `gather_resume_context(session)`, is shared with
@@ -800,8 +802,8 @@ little value in a long-lived record. The uploaded template is expected to
 leave these blank for hand-filling per application.
 
 `RirekishoTemplate` mirrors `ResumeTemplate` (same `id`/`name`/`file_path`/
-`is_selected`/`uploaded_at` shape, same `_select_only()` single-selected
-pattern, same `.docx`-only upload validation) but has no
+`is_selected`/`uploaded_at` shape, same shared `select_only()`
+single-selected pattern, same `.docx`-only upload validation) but has no
 `section_formats` — a rirekisho's tag set has no user-configurable
 bullet/table choice. `app/rirekisho_docx.py::render_rirekisho_docx` fills:
 `name`, `name_kana`, `birthdate`, `age` (computed from `birthdate` against

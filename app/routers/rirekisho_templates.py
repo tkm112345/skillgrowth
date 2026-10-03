@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 from app.db import RIREKISHO_TEMPLATE_DIR, get_session
 from app.models import RirekishoTemplate
 from app.rirekisho_docx import render_rirekisho_docx
+from app.services import select_only
 
 router = APIRouter(prefix="/api/rirekisho-templates", tags=["rirekisho_templates"])
 
@@ -16,14 +17,6 @@ router = APIRouter(prefix="/api/rirekisho-templates", tags=["rirekisho_templates
 class RirekishoTemplateUpdateIn(BaseModel):
     name: str | None = None
     is_selected: bool | None = None
-
-
-def _select_only(session: Session, entry: RirekishoTemplate) -> None:
-    for other in session.exec(select(RirekishoTemplate).where(RirekishoTemplate.is_selected == True)).all():  # noqa: E712
-        other.is_selected = False
-        session.add(other)
-    entry.is_selected = True
-    session.add(entry)
 
 
 @router.get("")
@@ -49,7 +42,7 @@ def upload_rirekisho_template(
     session.add(entry)
     session.flush()
     if is_first:
-        _select_only(session, entry)  # the first template becomes usable by default
+        select_only(session, entry)  # the first template becomes usable by default
     session.commit()
     session.refresh(entry)
     return entry
@@ -66,7 +59,7 @@ def update_rirekisho_template(
         entry.name = payload.name
     session.add(entry)
     if payload.is_selected:
-        _select_only(session, entry)
+        select_only(session, entry)
     session.commit()
     session.refresh(entry)
     return entry

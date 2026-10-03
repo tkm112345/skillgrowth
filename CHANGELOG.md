@@ -22,7 +22,9 @@ commit as the change, moved into a dated section when a release is cut).
   edited in place, not just added and deleted.
 
 ### Changed
-- Skill Network node labels are a bit larger (11px → 14px) for legibility.
+- Skill Network node labels are a bit larger (11px → 14px) for legibility,
+  and its label wrap width, node spacing, and edge length are now
+  adjustable (remembered per-browser) instead of fixed.
 
 ## [0.3.2] - 2026-10-03
 

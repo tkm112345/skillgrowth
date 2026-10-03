@@ -253,6 +253,12 @@ skills, certifications, education, employment, projects, and portfolio
 pieces — so the graph stays legible no matter how long you've been using
 skillgrowth.
 
+Three display settings above the graph — label wrap width (characters
+before a label line-breaks), node spacing, and edge length — are
+adjustable and remembered per-browser (not synced to the account), since
+how legible a given density of labels/nodes is depends on your screen and
+how much data you have.
+
 ## Resume
 
 - **Self PR** — a free-text pitch about yourself, included at the top of

@@ -291,7 +291,10 @@
     "typeEmployment": "Work history",
     "typeProject": "Project",
     "typePortfolioItem": "Portfolio",
-    "empty": "Nothing to show yet — add some skills and activity first."
+    "empty": "Nothing to show yet — add some skills and activity first.",
+    "labelWrapChars": "Label wrap (characters)",
+    "nodeSpacing": "Node spacing",
+    "edgeLength": "Edge length"
   },
   "export": {
     "title": "Resume",

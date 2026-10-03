@@ -14,6 +14,41 @@ const router = useRouter()
 const graph = ref({ nodes: [], edges: [] })
 const loading = ref(true)
 
+// User-adjustable graph display settings, persisted per-browser (same
+// localStorage pattern App.vue uses for the sidebar width) — not everyone's
+// screen or data density wants the same label length or node spacing.
+const LABEL_WRAP_KEY = 'skillgrowth-graph-label-wrap-chars'
+const REPULSION_KEY = 'skillgrowth-graph-repulsion'
+const EDGE_LENGTH_KEY = 'skillgrowth-graph-edge-length'
+
+function storedNumber(key, fallback, min, max) {
+  const stored = Number(localStorage.getItem(key))
+  return stored >= min && stored <= max ? stored : fallback
+}
+
+const labelWrapChars = ref(storedNumber(LABEL_WRAP_KEY, 10, 1, 40))
+const nodeRepulsion = ref(storedNumber(REPULSION_KEY, 140, 20, 500))
+const edgeLength = ref(storedNumber(EDGE_LENGTH_KEY, 90, 20, 400))
+
+function onLabelWrapChange(value) {
+  localStorage.setItem(LABEL_WRAP_KEY, String(value))
+}
+function onRepulsionChange(value) {
+  localStorage.setItem(REPULSION_KEY, String(value))
+}
+function onEdgeLengthChange(value) {
+  localStorage.setItem(EDGE_LENGTH_KEY, String(value))
+}
+
+function wrapLabel(text, maxChars) {
+  if (!maxChars || text.length <= maxChars) return text
+  const lines = []
+  for (let i = 0; i < text.length; i += maxChars) {
+    lines.push(text.slice(i, i + maxChars))
+  }
+  return lines.join('\n')
+}
+
 onMounted(async () => {
   try {
     graph.value = await api.getGraph()
@@ -83,7 +118,8 @@ const graphOption = computed(() => {
 
   return {
     tooltip: {
-      formatter: (params) => (params.dataType === 'node' ? `${t(TYPE_LABEL_KEYS[params.data.rawType])}: ${params.name}` : ''),
+      formatter: (params) =>
+        params.dataType === 'node' ? `${t(TYPE_LABEL_KEYS[params.data.rawType])}: ${params.data.rawLabel}` : '',
     },
     legend: { data: categories.map((c) => c.name), textStyle: { color: ink.value } },
     series: [
@@ -92,14 +128,15 @@ const graphOption = computed(() => {
         layout: 'force',
         roam: true,
         draggable: true,
-        force: { repulsion: 140, edgeLength: 90 },
+        force: { repulsion: nodeRepulsion.value, edgeLength: edgeLength.value },
         categories,
-        label: { show: true, color: ink.value, fontSize: 14 },
+        label: { show: true, color: ink.value, fontSize: 14, lineHeight: 16 },
         lineStyle: { color: 'source', opacity: 0.4, curveness: 0.1 },
         emphasis: { focus: 'adjacency', lineStyle: { width: 3 } },
         data: graph.value.nodes.map((n) => ({
           id: n.id,
-          name: n.label,
+          name: wrapLabel(n.label, labelWrapChars.value),
+          rawLabel: n.label,
           rawType: n.type,
           category: categoryIndex[n.type],
           symbol: n.type === 'skill' ? 'circle' : 'diamond',
@@ -126,12 +163,71 @@ function onNodeClick(params) {
   <el-card v-if="!loading && graph.nodes.length === 0" shadow="never" class="empty-card">
     {{ t('connections.empty') }}
   </el-card>
-  <el-card v-else shadow="never" class="graph-card">
-    <v-chart v-if="!loading" :option="graphOption" autoresize style="height: 600px" @click="onNodeClick" />
-  </el-card>
+  <template v-else>
+    <el-card shadow="never" class="display-settings-card">
+      <div class="display-setting">
+        <span>{{ t('connections.labelWrapChars') }}</span>
+        <el-input-number
+          v-model="labelWrapChars"
+          :min="1"
+          :max="40"
+          size="small"
+          controls-position="right"
+          @change="onLabelWrapChange"
+        />
+      </div>
+      <div class="display-setting">
+        <span>{{ t('connections.nodeSpacing') }}</span>
+        <el-input-number
+          v-model="nodeRepulsion"
+          :min="20"
+          :max="500"
+          :step="10"
+          size="small"
+          controls-position="right"
+          @change="onRepulsionChange"
+        />
+      </div>
+      <div class="display-setting">
+        <span>{{ t('connections.edgeLength') }}</span>
+        <el-input-number
+          v-model="edgeLength"
+          :min="20"
+          :max="400"
+          :step="10"
+          size="small"
+          controls-position="right"
+          @change="onEdgeLengthChange"
+        />
+      </div>
+    </el-card>
+
+    <el-card shadow="never" class="graph-card">
+      <v-chart v-if="!loading" :option="graphOption" autoresize style="height: 600px" @click="onNodeClick" />
+    </el-card>
+  </template>
 </template>
 
 <style scoped>
+.display-settings-card {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.display-setting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+}
+
+.display-setting .el-input-number {
+  width: 110px;
+}
+
 .graph-card {
   margin-top: 1rem;
 }

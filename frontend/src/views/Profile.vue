@@ -316,7 +316,7 @@ async function removeLink(id) {
     </template>
   </el-dialog>
 
-  <el-dialog v-model="projDialog" :title="t(projEditingId ? 'profile.editProjectDialog' : 'profile.addProjectDialog')" width="480px">
+  <el-dialog v-model="projDialog" :title="t(projEditingId ? 'profile.editProjectDialog' : 'profile.addProjectDialog')" width="680px">
     <el-form :model="projForm" label-width="80px">
       <el-form-item :label="t('profile.relatedEmployment')">
         <el-select v-model="projForm.employment_id" clearable :placeholder="t('profile.relatedEmploymentNone')">

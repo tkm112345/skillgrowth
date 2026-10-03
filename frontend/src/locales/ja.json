@@ -291,7 +291,10 @@
     "typeEmployment": "職歴",
     "typeProject": "プロジェクト",
     "typePortfolioItem": "ポートフォリオ",
-    "empty": "まだ表示できるデータがありません。まずはスキルやアクティビティを追加してください。"
+    "empty": "まだ表示できるデータがありません。まずはスキルやアクティビティを追加してください。",
+    "labelWrapChars": "ラベルの折り返し文字数",
+    "nodeSpacing": "ノードの間隔",
+    "edgeLength": "辺の長さ"
   },
   "export": {
     "title": "職務経歴書",

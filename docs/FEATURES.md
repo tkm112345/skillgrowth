@@ -80,6 +80,11 @@ timestamp and an optional free-text comment.
 All free-text fields here (achievements, project descriptions) also feed
 skill extraction. Links do not — they're just facts, not activity to mine.
 
+Education, Employment, and Project entries can each be edited in place
+(fix a typo, correct a project's linked employer) as well as deleted —
+editing never re-runs skill extraction, so it won't add or change linked
+skills.
+
 There's deliberately no "import resume" feature: a personal resume's layout
 varies too much for reliable LLM extraction. Bulk-loading skills instead
 goes through the CSV import on the Skills page.
@@ -117,11 +122,11 @@ of typing years of history in by hand.
 - Registering creates entries through the same Profile/Certifications/
   Self-PR forms would, so the same rules apply as if you'd typed it in
   yourself.
-- Skills found in the resume are shown as reference tags only — they
-  aren't registered directly. Registering a project runs its description
-  through the same skill-extraction Activity entries use (if enabled in
-  Settings), so skills end up linked to the project they came from instead
-  of as disconnected entries with no activity behind them.
+- Skills the LLM could match to a specific project can be registered
+  linked to that project (so they show up on the Skills page and in the
+  Skill Network). A skill it couldn't tie to any project is shown as a
+  reference-only tag instead — nothing with no activity behind it gets
+  registered here, but you can always add it directly from the Skills page.
 - Partial success is shown per item (e.g. one project failing doesn't
   stop the rest from registering).
 

@@ -87,8 +87,9 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Resume Import** — upload an existing resume (`.docx`) and let the LLM
   draft Education/Employment/Project/Certification/Self-PR entries from it.
   Nothing is saved until you review and confirm each item; skills found in
-  the resume are shown for reference and get linked in through a
-  registered project's own skill extraction, not registered directly.
+  the resume get linked to the project(s) they came from (so they show up
+  in Skills and the Skill Network) rather than registered as a
+  disconnected list.
 - **Activity** — add a reading/talk/certification entry (with optional
   certificate image upload for OCR extraction) and browse a chronological
   feed of everything that's been added, in one page.

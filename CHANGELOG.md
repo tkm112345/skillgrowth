@@ -14,10 +14,15 @@ commit as the change, moved into a dated section when a release is cut).
   Education/Employment/Project/Certification/Self-PR entries from it. The
   draft is never auto-saved — each item is reviewed, edited, and confirmed
   individually before being created through the same endpoints manual
-  entry uses, so existing invariants apply automatically. Skills found in
-  the resume are shown for reference only; registering a project runs its
-  description through the normal skill-extraction pipeline instead, so
-  skills end up linked to the project they came from.
+  entry uses, so existing invariants apply automatically. A skill the LLM
+  could match to a specific project in the resume can be registered linked
+  to that project (showing up in Skills and the Skill Network); a skill it
+  couldn't tie to any project is shown for reference only.
+- Education, Employment, and Project entries on the Profile page can now be
+  edited in place, not just added and deleted.
+
+### Changed
+- Skill Network node labels are a bit larger (11px → 14px) for legibility.
 
 ## [0.3.2] - 2026-10-03
 

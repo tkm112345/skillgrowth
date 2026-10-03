@@ -5,11 +5,12 @@ from docx.oxml.ns import qn
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlmodel import Session
+from pydantic import BaseModel
+from sqlmodel import Session, select
 
-from app import llm
+from app import llm, services
 from app.db import get_session
-from app.models import Settings
+from app.models import Project, Settings, Skill, SkillLink
 
 router = APIRouter(prefix="/api/resume-import", tags=["resume_import"])
 
@@ -62,3 +63,35 @@ def extract_resume(file: UploadFile = File(...), session: Session = Depends(get_
 
     settings = session.get(Settings, 1)
     return llm.extract_resume(text, settings)
+
+
+class LinkSkillIn(BaseModel):
+    project_id: str
+    name: str
+    category: str = "未分類"
+
+
+@router.post("/link-skill")
+def link_skill(payload: LinkSkillIn, session: Session = Depends(get_session)) -> Skill:
+    """Links a resume-extracted skill to the project it came from, via a
+    SkillLink on that project's own evidence_id — the same evidence_id
+    app/routers/graph.py looks for when drawing a Skill->Project edge.
+    Deliberately independent of Settings.skill_extraction_enabled: that
+    flag gates *passive* extraction from free text (quick updates, a
+    project's own description on create), but this is a human confirming
+    an already-reviewed, already-extracted skill, not a new LLM call."""
+    project = session.get(Project, payload.project_id)
+    if project is None or project.evidence_id is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    skill = services.upsert_skill(session, payload.name, payload.category)
+    if skill is None:
+        raise HTTPException(status_code=400, detail="Skill name cannot be empty")
+
+    existing = session.exec(
+        select(SkillLink).where(SkillLink.evidence_id == project.evidence_id, SkillLink.skill_id == skill.id)
+    ).first()
+    if existing is None:
+        session.add(SkillLink(evidence_id=project.evidence_id, skill_id=skill.id, mention_text=payload.name))
+        session.commit()
+    return skill

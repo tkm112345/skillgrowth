@@ -1,7 +1,7 @@
 from sqlmodel import select
 
 from app import llm
-from app.models import Employment
+from app.models import Employment, SkillLink
 
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
@@ -86,3 +86,38 @@ def test_extract_does_not_persist_anything(client, session, sample_docx_bytes, m
     )
     assert resp.status_code == 200
     assert session.exec(select(Employment)).first() is None
+
+
+def test_link_skill_creates_a_graph_edge_to_its_project(client, session):
+    """The whole point of this endpoint: a skill linked to a project must
+    show up as an edge in GET /api/graph — which only happens when the
+    SkillLink's evidence_id matches the project's own evidence_id."""
+    project = client.post("/api/profile/projects", json={"title": "Widget launch", "description": "Built it"}).json()[
+        "project"
+    ]
+
+    resp = client.post(
+        "/api/resume-import/link-skill", json={"project_id": project["id"], "name": "Python", "category": "言語"}
+    )
+    assert resp.status_code == 200
+    skill = resp.json()
+    assert skill["name"] == "Python"
+
+    graph = client.get("/api/graph").json()
+    assert {"source": f"skill:{skill['id']}", "target": f"project:{project['id']}"} in graph["edges"]
+
+
+def test_link_skill_does_not_duplicate_the_link_on_repeat_calls(client, session):
+    project = client.post("/api/profile/projects", json={"title": "Widget launch", "description": "Built it"}).json()[
+        "project"
+    ]
+
+    client.post("/api/resume-import/link-skill", json={"project_id": project["id"], "name": "Python"})
+    client.post("/api/resume-import/link-skill", json={"project_id": project["id"], "name": "Python"})
+
+    assert len(session.exec(select(SkillLink)).all()) == 1
+
+
+def test_link_skill_rejects_unknown_project(client):
+    resp = client.post("/api/resume-import/link-skill", json={"project_id": "does-not-exist", "name": "Python"})
+    assert resp.status_code == 404

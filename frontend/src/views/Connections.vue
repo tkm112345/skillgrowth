@@ -94,7 +94,7 @@ const graphOption = computed(() => {
         draggable: true,
         force: { repulsion: 140, edgeLength: 90 },
         categories,
-        label: { show: true, color: ink.value, fontSize: 11 },
+        label: { show: true, color: ink.value, fontSize: 14 },
         lineStyle: { color: 'source', opacity: 0.4, curveness: 0.1 },
         emphasis: { focus: 'adjacency', lineStyle: { width: 3 } },
         data: graph.value.nodes.map((n) => ({

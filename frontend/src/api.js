@@ -181,16 +181,22 @@ export const api = {
   getEducation: () => request('/profile/education'),
   addEducation: (payload) =>
     request('/profile/education', { method: 'POST', body: JSON.stringify(payload) }),
+  updateEducation: (id, payload) =>
+    request(`/profile/education/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteEducation: (id) => request(`/profile/education/${id}`, { method: 'DELETE' }),
 
   getEmployment: () => request('/profile/employment'),
   addEmployment: (payload) =>
     request('/profile/employment', { method: 'POST', body: JSON.stringify(payload) }),
+  updateEmployment: (id, payload) =>
+    request(`/profile/employment/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteEmployment: (id) => request(`/profile/employment/${id}`, { method: 'DELETE' }),
 
   getProjects: () => request('/profile/projects'),
   addProject: (payload) =>
     request('/profile/projects', { method: 'POST', body: JSON.stringify(payload) }),
+  updateProject: (id, payload) =>
+    request(`/profile/projects/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteProject: (id) => request(`/profile/projects/${id}`, { method: 'DELETE' }),
 
   getLinks: () => request('/profile/links'),
@@ -237,6 +243,11 @@ export const api = {
     form.append('file', file)
     return requestForm('/resume-import/extract', form)
   },
+  linkResumeSkill: (projectId, name, category) =>
+    request('/resume-import/link-skill', {
+      method: 'POST',
+      body: JSON.stringify({ project_id: projectId, name, category }),
+    }),
 
   search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
 

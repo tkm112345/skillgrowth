@@ -49,14 +49,35 @@ function formatPeriod(start, end) {
 
 // -- education form --
 const eduDialog = ref(false)
+const eduEditingId = ref(null)
 const eduForm = reactive({ school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' })
+function openEducationDialog(entry = null) {
+  eduEditingId.value = entry?.id ?? null
+  Object.assign(
+    eduForm,
+    entry
+      ? {
+          school: entry.school,
+          degree: entry.degree,
+          major: entry.major,
+          start_date: entry.start_date,
+          end_date: entry.end_date,
+          achievements: entry.achievements,
+        }
+      : { school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' },
+  )
+  eduDialog.value = true
+}
 async function submitEducation() {
   try {
-    await api.addEducation(eduForm)
-    Object.assign(eduForm, { school: '', degree: '', major: '', start_date: '', end_date: '', achievements: '' })
+    if (eduEditingId.value) {
+      await api.updateEducation(eduEditingId.value, eduForm)
+    } else {
+      await api.addEducation(eduForm)
+    }
     eduDialog.value = false
     await reload()
-    ElMessage.success(t('profile.addedEducation'))
+    ElMessage.success(t(eduEditingId.value ? 'profile.updatedEducation' : 'profile.addedEducation'))
   } catch (e) {
     ElMessage.error(t('common.saveError'))
   }
@@ -73,14 +94,34 @@ async function removeEducation(id) {
 
 // -- employment form --
 const empDialog = ref(false)
+const empEditingId = ref(null)
 const empForm = reactive({ company: '', department: '', role: '', start_date: '', end_date: '' })
+function openEmploymentDialog(entry = null) {
+  empEditingId.value = entry?.id ?? null
+  Object.assign(
+    empForm,
+    entry
+      ? {
+          company: entry.company,
+          department: entry.department,
+          role: entry.role,
+          start_date: entry.start_date,
+          end_date: entry.end_date,
+        }
+      : { company: '', department: '', role: '', start_date: '', end_date: '' },
+  )
+  empDialog.value = true
+}
 async function submitEmployment() {
   try {
-    await api.addEmployment(empForm)
-    Object.assign(empForm, { company: '', department: '', role: '', start_date: '', end_date: '' })
+    if (empEditingId.value) {
+      await api.updateEmployment(empEditingId.value, empForm)
+    } else {
+      await api.addEmployment(empForm)
+    }
     empDialog.value = false
     await reload()
-    ElMessage.success(t('profile.addedEmployment'))
+    ElMessage.success(t(empEditingId.value ? 'profile.updatedEmployment' : 'profile.addedEmployment'))
   } catch (e) {
     ElMessage.error(t('common.saveError'))
   }
@@ -97,17 +138,35 @@ async function removeEmployment(id) {
 
 // -- project form --
 const projDialog = ref(false)
+const projEditingId = ref(null)
 const projForm = reactive({ employment_id: null, title: '', role: '', start_date: '', end_date: '', description: '' })
 function openProjectDialog(employmentId = null) {
+  projEditingId.value = null
   Object.assign(projForm, { employment_id: employmentId, title: '', role: '', start_date: '', end_date: '', description: '' })
+  projDialog.value = true
+}
+function openEditProjectDialog(entry) {
+  projEditingId.value = entry.id
+  Object.assign(projForm, {
+    employment_id: entry.employment_id,
+    title: entry.title,
+    role: entry.role,
+    start_date: entry.start_date,
+    end_date: entry.end_date,
+    description: entry.description,
+  })
   projDialog.value = true
 }
 async function submitProject() {
   try {
-    await api.addProject(projForm)
+    if (projEditingId.value) {
+      await api.updateProject(projEditingId.value, projForm)
+    } else {
+      await api.addProject(projForm)
+    }
     projDialog.value = false
     await reload()
-    ElMessage.success(t('profile.addedProject'))
+    ElMessage.success(t(projEditingId.value ? 'profile.updatedProject' : 'profile.addedProject'))
   } catch (e) {
     ElMessage.error(t('common.saveError'))
   }
@@ -155,13 +214,16 @@ async function removeLink(id) {
   <section class="section" v-loading="loading">
     <div class="section-header">
       <h2>{{ t('profile.educationHeader') }}</h2>
-      <el-button size="small" @click="eduDialog = true">{{ t('common.add') }}</el-button>
+      <el-button size="small" @click="openEducationDialog()">{{ t('common.add') }}</el-button>
     </div>
     <el-card v-for="e in education" :key="e.id" shadow="never" class="item-card">
       <div class="item-title">{{ e.school }} {{ e.degree }} {{ e.major }}</div>
       <div class="item-meta">{{ formatPeriod(e.start_date, e.end_date) }}</div>
       <p v-if="e.achievements">{{ e.achievements }}</p>
-      <el-button size="small" text type="danger" @click="removeEducation(e.id)">{{ t('common.delete') }}</el-button>
+      <div class="card-actions">
+        <el-button size="small" text @click="openEducationDialog(e)">{{ t('common.edit') }}</el-button>
+        <el-button size="small" text type="danger" @click="removeEducation(e.id)">{{ t('common.delete') }}</el-button>
+      </div>
     </el-card>
     <el-empty v-if="!loading && education.length === 0" :description="t('profile.noEntries')" />
   </section>
@@ -169,13 +231,16 @@ async function removeLink(id) {
   <section class="section" v-loading="loading">
     <div class="section-header">
       <h2>{{ t('profile.employmentHeader') }}</h2>
-      <el-button size="small" @click="empDialog = true">{{ t('common.add') }}</el-button>
+      <el-button size="small" @click="openEmploymentDialog()">{{ t('common.add') }}</el-button>
     </div>
     <el-card v-for="e in employment" :key="e.id" shadow="never" class="item-card">
       <div class="item-title">{{ e.company }}<span v-if="e.department"> / {{ e.department }}</span></div>
       <div class="item-meta">{{ e.role }} · {{ formatPeriod(e.start_date, e.end_date) }}</div>
       <div class="card-actions">
-        <el-button size="small" text @click="openProjectDialog(e.id)">{{ t('profile.addProject') }}</el-button>
+        <div>
+          <el-button size="small" text @click="openProjectDialog(e.id)">{{ t('profile.addProject') }}</el-button>
+          <el-button size="small" text @click="openEmploymentDialog(e)">{{ t('common.edit') }}</el-button>
+        </div>
         <el-button size="small" text type="danger" @click="removeEmployment(e.id)">{{ t('common.delete') }}</el-button>
       </div>
 
@@ -184,7 +249,10 @@ async function removeLink(id) {
           <div class="item-title">{{ p.title }}</div>
           <div class="item-meta">{{ p.role }} · {{ formatPeriod(p.start_date, p.end_date) }}</div>
           <p v-if="p.description">{{ p.description }}</p>
-          <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
+          <div class="card-actions">
+            <el-button size="small" text @click="openEditProjectDialog(p)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
+          </div>
         </el-card>
       </div>
     </el-card>
@@ -200,7 +268,10 @@ async function removeLink(id) {
       <div class="item-title">{{ p.title }}</div>
       <div class="item-meta">{{ p.role }} · {{ formatPeriod(p.start_date, p.end_date) }}</div>
       <p v-if="p.description">{{ p.description }}</p>
-      <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
+      <div class="card-actions">
+        <el-button size="small" text @click="openEditProjectDialog(p)">{{ t('common.edit') }}</el-button>
+        <el-button size="small" text type="danger" @click="removeProject(p.id)">{{ t('common.delete') }}</el-button>
+      </div>
     </el-card>
     <el-empty v-if="!loading && standaloneProjects.length === 0" :description="t('profile.noEntries')" />
   </section>
@@ -218,7 +289,7 @@ async function removeLink(id) {
     <el-empty v-if="!loading && links.length === 0" :description="t('profile.noEntries')" />
   </section>
 
-  <el-dialog v-model="eduDialog" :title="t('profile.addEducation')" width="480px">
+  <el-dialog v-model="eduDialog" :title="t(eduEditingId ? 'profile.editEducation' : 'profile.addEducation')" width="480px">
     <el-form :model="eduForm" label-width="80px">
       <el-form-item :label="t('profile.school')"><el-input v-model="eduForm.school" /></el-form-item>
       <el-form-item :label="t('profile.degree')"><el-input v-model="eduForm.degree" /></el-form-item>
@@ -227,10 +298,12 @@ async function removeLink(id) {
       <el-form-item :label="t('profile.endDate')"><el-date-picker v-model="eduForm.end_date" value-format="YYYY-MM-DD" /></el-form-item>
       <el-form-item :label="t('profile.achievements')"><el-input v-model="eduForm.achievements" type="textarea" :rows="3" /></el-form-item>
     </el-form>
-    <template #footer><el-button type="primary" @click="submitEducation">{{ t('common.add') }}</el-button></template>
+    <template #footer>
+      <el-button type="primary" @click="submitEducation">{{ t(eduEditingId ? 'common.save' : 'common.add') }}</el-button>
+    </template>
   </el-dialog>
 
-  <el-dialog v-model="empDialog" :title="t('profile.addEmployment')" width="480px">
+  <el-dialog v-model="empDialog" :title="t(empEditingId ? 'profile.editEmployment' : 'profile.addEmployment')" width="480px">
     <el-form :model="empForm" label-width="80px">
       <el-form-item :label="t('profile.company')"><el-input v-model="empForm.company" /></el-form-item>
       <el-form-item :label="t('profile.department')"><el-input v-model="empForm.department" /></el-form-item>
@@ -238,10 +311,12 @@ async function removeLink(id) {
       <el-form-item :label="t('profile.startDate')"><el-date-picker v-model="empForm.start_date" value-format="YYYY-MM-DD" /></el-form-item>
       <el-form-item :label="t('profile.endDate')"><el-date-picker v-model="empForm.end_date" value-format="YYYY-MM-DD" :placeholder="t('profile.endDatePlaceholder')" /></el-form-item>
     </el-form>
-    <template #footer><el-button type="primary" @click="submitEmployment">{{ t('common.add') }}</el-button></template>
+    <template #footer>
+      <el-button type="primary" @click="submitEmployment">{{ t(empEditingId ? 'common.save' : 'common.add') }}</el-button>
+    </template>
   </el-dialog>
 
-  <el-dialog v-model="projDialog" :title="t('profile.addProjectDialog')" width="480px">
+  <el-dialog v-model="projDialog" :title="t(projEditingId ? 'profile.editProjectDialog' : 'profile.addProjectDialog')" width="480px">
     <el-form :model="projForm" label-width="80px">
       <el-form-item :label="t('profile.relatedEmployment')">
         <el-select v-model="projForm.employment_id" clearable :placeholder="t('profile.relatedEmploymentNone')">
@@ -254,7 +329,9 @@ async function removeLink(id) {
       <el-form-item :label="t('profile.endDate')"><el-date-picker v-model="projForm.end_date" value-format="YYYY-MM-DD" /></el-form-item>
       <el-form-item :label="t('profile.description')"><el-input v-model="projForm.description" type="textarea" :rows="3" :placeholder="t('profile.descriptionPlaceholder')" /></el-form-item>
     </el-form>
-    <template #footer><el-button type="primary" @click="submitProject">{{ t('common.add') }}</el-button></template>
+    <template #footer>
+      <el-button type="primary" @click="submitProject">{{ t(projEditingId ? 'common.save' : 'common.add') }}</el-button>
+    </template>
   </el-dialog>
 
   <el-dialog v-model="linkDialog" :title="t('profile.addLink')" width="420px">

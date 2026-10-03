@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -75,6 +75,19 @@ def create_education(payload: EducationIn, session: Session = Depends(get_sessio
     return EducationResult(education=edu, linked_skills=linked)
 
 
+@router.put("/education/{education_id}")
+def update_education(education_id: str, payload: EducationIn, session: Session = Depends(get_session)) -> Education:
+    edu = session.get(Education, education_id)
+    if edu is None:
+        raise HTTPException(status_code=404, detail="Education entry not found")
+    for key, value in payload.model_dump().items():
+        setattr(edu, key, value)
+    session.add(edu)
+    session.commit()
+    session.refresh(edu)
+    return edu
+
+
 @router.delete("/education/{education_id}")
 def delete_education(education_id: str, session: Session = Depends(get_session)):
     edu = session.get(Education, education_id)
@@ -101,6 +114,19 @@ def create_employment(payload: EmploymentIn, session: Session = Depends(get_sess
     return EmploymentResult(employment=emp, linked_skills=linked)
 
 
+@router.put("/employment/{employment_id}")
+def update_employment(employment_id: str, payload: EmploymentIn, session: Session = Depends(get_session)) -> Employment:
+    emp = session.get(Employment, employment_id)
+    if emp is None:
+        raise HTTPException(status_code=404, detail="Employment entry not found")
+    for key, value in payload.model_dump().items():
+        setattr(emp, key, value)
+    session.add(emp)
+    session.commit()
+    session.refresh(emp)
+    return emp
+
+
 @router.delete("/employment/{employment_id}")
 def delete_employment(employment_id: str, session: Session = Depends(get_session)):
     emp = session.get(Employment, employment_id)
@@ -125,6 +151,19 @@ def create_project(payload: ProjectIn, session: Session = Depends(get_session)) 
     session.commit()
     session.refresh(project)
     return ProjectResult(project=project, linked_skills=linked)
+
+
+@router.put("/projects/{project_id}")
+def update_project(project_id: str, payload: ProjectIn, session: Session = Depends(get_session)) -> Project:
+    project = session.get(Project, project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    for key, value in payload.model_dump().items():
+        setattr(project, key, value)
+    session.add(project)
+    session.commit()
+    session.refresh(project)
+    return project
 
 
 @router.delete("/projects/{project_id}")

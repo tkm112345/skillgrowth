@@ -38,7 +38,7 @@ RESUME_EXTRACT_PROMPT = """あなたは職務経歴書から構造化データ�
     {"employer_index": "このプロジェクトが属するemployment配列の0始まりインデックス(整数)", "title": "プロジェクト名(担当業務の要約)", "role": "担当工程・役割", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD またはnull", "description": "実績・取り組み等の要約(2-4文)"}
   ],
   "skills": [
-    {"name": "スキル名", "category": "OS/言語/フレームワーク/DB/ミドルウェア/クラウド等"}
+    {"name": "スキル名", "category": "OS/言語/フレームワーク/DB/ミドルウェア/クラウド等", "project_indices": "このスキルが使われているprojects配列の0始まりインデックスのリスト。特定のプロジェクトの記述に紐付かない場合は空配列 []"}
   ],
   "certifications": [
     {"title": "資格名", "activity_date": "YYYY-MM-DD、年のみなら YYYY-01-01、不明ならnull"}
@@ -49,6 +49,7 @@ RESUME_EXTRACT_PROMPT = """あなたは職務経歴書から構造化データ�
 注意:
 - 新入社員研修・育児休職・産休など、実務プロジェクトではない期間は projects に含めないこと。
 - employer_index は必ず employment 配列の添字（0始まり）を指すこと。会社名の文字列を書かないこと。
+- project_indices も同様に、projects 配列の添字（0始まり）のみを使うこと。プロジェクト名の文字列を書かないこと。
 """
 
 

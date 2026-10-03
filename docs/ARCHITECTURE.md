@@ -409,23 +409,29 @@ invariant those already enforce (the standalone-project rule, etc.) applies
 automatically, and no second write path for any of those models had to be
 built.
 
-**`skills` is extracted but deliberately never registered directly** —
-the draft UI shows it as reference-only tags, not editable/selectable
-entries. Every other `Skill` in this app traces back to a `SkillLink` row
-pointing at an `EvidenceEntry` (see "Evidence → skill extraction flow"
-above): it was derived from something the user actually logged. Calling
-`POST /api/skills` for each name in the resume's flat skill list would
-create `Skill` rows with no evidence behind them — a different kind of row
-than every other skill in the app, with no record of where it came from.
-Registering a project here already runs its title/role/description through
-the normal evidence-extraction pipeline (`POST /api/profile/projects` →
-`services.record_evidence_and_extract`, gated on
-`Settings.skill_extraction_enabled`, exactly as it does for a project
-added by hand) — so a project registered from the resume import flow gets
-its skills the same way, evidence-linked, instead of through a second,
-disconnected creation path. The draft UI shows a warning when
-`skill_extraction_enabled` is off, since in that case registering a
-project here won't extract anything from it either.
+**Skills are linked to the project(s) they came from, not registered as a
+flat list.** Every other `Skill` in this app traces back to a `SkillLink`
+row pointing at an `EvidenceEntry` (see "Evidence → skill extraction flow"
+above) — it was derived from something the user actually logged.
+`llm.extract_resume`'s prompt asks each skill for `project_indices` (the
+0-based indices into its own `projects` array that mention it); the draft
+UI only offers a skill for registration if that list is non-empty (an
+empty list means the resume's dedicated skills section mentioned it but no
+individual project description did — shown as a reference-only tag
+instead, registerable by hand from the Skills page if wanted).
+Confirming a linked skill calls `POST /api/resume-import/link-skill`
+(`{project_id, name, category}`) once per linked project: it resolves
+`project_id` to that `Project`'s own `evidence_id`, upserts the `Skill`
+(`services.upsert_skill`, the same dedup every other skill-creating path
+uses), and adds a `SkillLink` on that `evidence_id` if one doesn't already
+exist — `app/routers/graph.py` draws a Skill→Project edge precisely when a
+`SkillLink.evidence_id` matches a `Project.evidence_id`, so this is what
+makes an imported skill actually show up connected in the Skill Network.
+Deliberately independent of `Settings.skill_extraction_enabled`: that
+setting gates *passive* extraction from free text the user didn't
+explicitly ask to be parsed (a quick update, a project's own description on
+create); this is a human confirming an already-reviewed, already-extracted
+skill, not a new LLM call, so it isn't gated the same way.
 
 Three things learned from testing this against a real resume on a local
 model (an Ollama-served model over its OpenAI-compatible endpoint) shaped

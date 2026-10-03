@@ -1,6 +1,6 @@
 <script setup>
 import { ElMessage } from 'element-plus'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '../api'
@@ -13,19 +13,18 @@ const draft = ref(null)
 const selfPr = ref('')
 const selfPrInclude = ref(false)
 const pendingFile = ref(null)
-const skillExtractionEnabled = ref(true)
-
-onMounted(async () => {
-  try {
-    const settings = await api.getSettings()
-    skillExtractionEnabled.value = settings.skill_extraction_enabled
-  } catch (e) {
-    // informational banner only; a failed settings fetch just leaves the default
-  }
-})
 
 function withMeta(items) {
   return (items || []).map((item) => ({ ...item, _include: true, _status: null }))
+}
+
+function withSkillMeta(items) {
+  return (items || []).map((item) => ({
+    ...item,
+    project_indices: item.project_indices || [],
+    _include: true,
+    _status: null,
+  }))
 }
 
 function handleFileChange(uploadFile) {
@@ -42,7 +41,7 @@ async function extract() {
       education: withMeta(result.education),
       employment: withMeta(result.employment),
       projects: withMeta(result.projects),
-      skills: result.skills || [],
+      skills: withSkillMeta(result.skills),
       certifications: withMeta(result.certifications),
     }
     selfPr.value = result.self_pr || ''
@@ -57,6 +56,10 @@ async function extract() {
 function employerLabel(index) {
   const emp = draft.value?.employment?.[index]
   return emp ? emp.company : t('resumeImport.noEmployer')
+}
+
+function projectNamesFor(indices) {
+  return indices.map((i) => draft.value?.projects?.[i]?.title).filter(Boolean).join(', ')
 }
 
 async function register() {
@@ -96,7 +99,7 @@ async function register() {
         start_date: emp.start_date || null,
         end_date: emp.end_date || null,
       })
-      employmentIdByIndex[i] = created.id
+      employmentIdByIndex[i] = created.employment.id
       emp._status = 'done'
       successCount++
     } catch (err) {
@@ -105,19 +108,12 @@ async function register() {
     }
   }
 
-  // Skills are intentionally not registered from the top-level draft list
-  // here: POST /api/profile/projects already runs a project's title/role/
-  // description through the normal evidence-extraction pipeline (gated on
-  // Settings.skill_extraction_enabled), the same path a project added by
-  // hand goes through. Registering the resume's flat skills list directly
-  // would create Skill rows with no SkillLink/EvidenceEntry behind them —
-  // unlike every other skill in this app, which is derived from logged
-  // activity. Letting project registration be the only skill-creating step
-  // here keeps that one way to get a Skill.
-  for (const p of draft.value.projects) {
+  const projectIdByIndex = {}
+  for (let i = 0; i < draft.value.projects.length; i++) {
+    const p = draft.value.projects[i]
     if (!p._include || p._status === 'done') continue
     try {
-      await api.addProject({
+      const created = await api.addProject({
         employment_id: employmentIdByIndex[p.employer_index] ?? null,
         title: p.title,
         role: p.role || '',
@@ -125,10 +121,34 @@ async function register() {
         end_date: p.end_date || null,
         description: p.description || '',
       })
+      projectIdByIndex[i] = created.project.id
       p._status = 'done'
       successCount++
     } catch (err) {
       p._status = 'error'
+      failCount++
+    }
+  }
+
+  // Linked to the projects they came from (via the project's own
+  // evidence_id, see POST /api/resume-import/link-skill) rather than
+  // registered as a flat, disconnected list — this is what makes them
+  // show up in the Skills page and as edges in the Skill Network graph.
+  // A skill with no project_indices isn't registered here at all; it stays
+  // reference-only in the UI (see the skills section below).
+  for (const s of draft.value.skills) {
+    if (!s._include || s._status === 'done' || s.project_indices.length === 0) continue
+    try {
+      for (const idx of s.project_indices) {
+        const projectId = projectIdByIndex[idx]
+        if (projectId) {
+          await api.linkResumeSkill(projectId, s.name, s.category || '未分類')
+        }
+      }
+      s._status = 'done'
+      successCount++
+    } catch (err) {
+      s._status = 'error'
       failCount++
     }
   }
@@ -232,9 +252,6 @@ async function register() {
 
     <section class="section">
       <h2>{{ t('resumeImport.projectsHeader') }}</h2>
-      <el-alert v-if="!skillExtractionEnabled" type="warning" :closable="false" class="skill-extraction-notice" show-icon>
-        {{ t('resumeImport.skillExtractionOffNotice') }}
-      </el-alert>
       <el-empty v-if="draft.projects.length === 0" :description="t('resumeImport.noneFound')" />
       <el-card v-for="p in draft.projects" :key="p.title + p.start_date" shadow="never" class="item-card project-card">
         <div class="item-header">
@@ -260,11 +277,40 @@ async function register() {
 
     <section class="section">
       <h2>{{ t('resumeImport.skillsHeader') }}</h2>
-      <p class="skills-hint">{{ t('resumeImport.skillsHint') }}</p>
       <el-empty v-if="draft.skills.length === 0" :description="t('resumeImport.noneFound')" />
-      <div class="skills-row" v-else>
-        <el-tag v-for="s in draft.skills" :key="s.name" class="skill-tag">{{ s.name }}<span v-if="s.category"> ({{ s.category }})</span></el-tag>
-      </div>
+      <template v-else>
+        <p class="skills-hint">{{ t('resumeImport.skillsLinkedHint') }}</p>
+        <el-card
+          v-for="s in draft.skills.filter((s) => s.project_indices.length > 0)"
+          :key="s.name"
+          shadow="never"
+          class="item-card"
+        >
+          <div class="item-header">
+            <el-switch
+              v-model="s._include"
+              :disabled="s._status === 'done'"
+              :active-text="t('resumeImport.include')"
+              :inactive-text="t('resumeImport.exclude')"
+            />
+            <el-tag v-if="s._status === 'done'" type="success" size="small">{{ t('resumeImport.statusDone') }}</el-tag>
+            <el-tag v-else-if="s._status === 'error'" type="danger" size="small">{{ t('resumeImport.statusError') }}</el-tag>
+          </div>
+          <div class="item-fields">
+            <span class="skill-name">{{ s.name }}<span v-if="s.category"> ({{ s.category }})</span></span>
+            <p class="employer-hint">{{ t('resumeImport.linkedToProjects', { names: projectNamesFor(s.project_indices) }) }}</p>
+          </div>
+        </el-card>
+
+        <template v-if="draft.skills.some((s) => s.project_indices.length === 0)">
+          <p class="skills-hint">{{ t('resumeImport.skillsUnlinkedHint') }}</p>
+          <div class="skills-row">
+            <el-tag v-for="s in draft.skills.filter((s) => s.project_indices.length === 0)" :key="s.name" class="skill-tag">
+              {{ s.name }}<span v-if="s.category"> ({{ s.category }})</span>
+            </el-tag>
+          </div>
+        </template>
+      </template>
     </section>
 
     <section class="section">
@@ -330,8 +376,8 @@ async function register() {
   margin: 0 0 0.5rem;
 }
 
-.skill-extraction-notice {
-  margin-bottom: 0.75rem;
+.skill-name {
+  font-weight: 600;
 }
 
 .item-card {

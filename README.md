@@ -153,6 +153,10 @@ The rest of the screens below are shown with the built-in sample data
 |---|---|
 | ![Activity](docs/images/screenshot-activity.png) | ![Resume](docs/images/screenshot-resume.png) |
 
+| Resume Import | Skill Network |
+|---|---|
+| ![Resume Import](docs/images/screenshot-resume-import.png) | ![Skill Network](docs/images/screenshot-skill-network.png) |
+
 ## Design choices
 
 - **Single user, self-hosted.** No auth, no multi-tenancy. Run your own

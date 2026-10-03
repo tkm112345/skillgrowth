@@ -73,6 +73,14 @@ def apply_matches(session: Session, evidence_id: str, matches: list[dict]) -> li
             skill = upsert_skill(session, name, str(match.get("category") or "未分類"))
             if skill is None:
                 continue
+        else:
+            # upsert_skill already bumps last_observed_at for the no-skill_id
+            # branch above; this is the skill_id-matched branch's equivalent —
+            # without it, a skill matched by id here (as opposed to by name)
+            # never gets its "last seen" date refreshed, even though a new
+            # SkillLink for it is being added right below.
+            skill.last_observed_at = datetime.now(timezone.utc)
+            session.add(skill)
 
         session.add(SkillLink(evidence_id=evidence_id, skill_id=skill.id, mention_text=mention_text))
         linked_skills.append(skill)

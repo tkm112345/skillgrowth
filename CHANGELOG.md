@@ -26,6 +26,17 @@ commit as the change, moved into a dated section when a release is cut).
   and its label wrap width, node spacing, and edge length are now
   adjustable (remembered per-browser) instead of fixed.
 
+### Fixed
+- Skill extraction's category for a newly created skill now matches the
+  language of the text it was extracted from, instead of always defaulting
+  to Japanese category labels (e.g. "技術") regardless of what language a
+  quick update, evidence entry, or profile description was written in.
+- A skill's "last seen" date is now updated when the LLM matches it by
+  `skill_id` (reusing an existing skill it was given the id for), not just
+  when it's matched by name — previously that case silently left "last
+  seen" stale even though a new activity/evidence link for the skill was
+  being recorded.
+
 ## [0.3.2] - 2026-10-03
 
 ### Security

@@ -94,6 +94,17 @@ the moment the column is first written to.
 - This repo pushes directly to `main` (no PR workflow) and branch
   protection is bypassed by the repo owner — that's expected, not an
   error to work around.
+- Dependabot PRs are resolved the same way, once CI is green:
+  `gh pr merge <N> --squash --delete-branch --admin`. Claude Code's
+  auto-mode classifier blocks this (`gh pr merge` = "Merge Without
+  Review") and also blocks Claude from editing its own
+  `.claude/settings.json` to allow it ("Self-Modification") — so either
+  add `"Bash(gh pr merge *)"` to `permissions.allow` in
+  `.claude/settings.json` yourself, or run the merge commands yourself
+  via the `!` prefix. If a PR fails to merge with a conflict because its
+  branch predates another already-merged bump touching the same
+  `requirements.txt`/`package.json` lines, comment `@dependabot rebase`
+  on it rather than resolving the conflict by hand.
 - To cut a release (move `Unreleased` into a dated section, tag, publish
   the GitHub release, bump `VERSION` for the next cycle), use the
   `release-cutting` skill.

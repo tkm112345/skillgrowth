@@ -13,3 +13,9 @@ frontend/node_modules/
 frontend/dist/
 
 .claude/settings.local.json
+
+.agent-tasks/
+
+# Personal documents dropped in for local testing (e.g. a real resume) —
+# never meant to be committed to this public repo.
+myself/

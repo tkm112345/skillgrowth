@@ -297,7 +297,8 @@ project calls itself `v1.0.0`.
 ## Known limitations
 
 - Certification ingestion accepts images only (no PDF parsing yet).
-- No resume/CV parsing by design — see "Design choices" above.
+- Resume Import only reads `.docx` — no PDF or other format support, and
+  no parsing of arbitrary documents beyond that one fixed flow.
 - The "current skills" view is read from the database directly, but the
   match/merge step that keeps it deduplicated runs at evidence-ingestion
   time via an LLM call — quality depends on the configured model.

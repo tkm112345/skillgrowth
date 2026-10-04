@@ -433,9 +433,9 @@ enough to be hard to scan.
   activity, skills, profile (education/employment/projects), goals with
   their full history, vision, self feedback, activity types, links,
   self PR history, resume export/template history, portfolio
-  items/links/files, and Career Consult sessions. Deliberately excludes
-  the LLM connection settings (so an API key never ends up in a backup
-  file).
+  items/links/files, Career Consult sessions, and rirekisho personal
+  info/templates. Deliberately excludes the LLM connection settings (so
+  an API key never ends up in a backup file).
 - **Restore from backup** — upload a previously downloaded backup file to
   re-import its records. Always additive: it never deletes or overwrites
   existing rows, and only fills in a career goal if that horizon is still

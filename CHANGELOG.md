@@ -9,6 +9,15 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Fixed
+- README's "Known limitations" no longer claims "no resume/CV parsing by
+  design", which contradicted the Resume Import feature described earlier
+  in the same file; replaced with the actual limitation (`.docx` only, no
+  PDF or other formats).
+- `docs/FEATURES.md`/`FEATURES.ja.md`'s Settings backup description now
+  lists rirekisho personal info/templates, which `POST /api/backup/export`
+  already includes but the docs had omitted.
+
 ## [0.4.0] - 2026-10-03
 
 ### Added

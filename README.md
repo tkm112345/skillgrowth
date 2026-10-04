@@ -89,8 +89,9 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 - **Skills** — the current skill picture derived from the activity log;
   supports adding a skill directly by name, editing a skill's name/category
   in place, or importing a batch from a `name,category` CSV file.
-- **Resume Import** — upload an existing resume (`.docx`) and let the LLM
-  draft Education/Employment/Project/Certification/Self-PR entries from it.
+- **Resume Import** — upload an existing resume (`.docx` or `.pdf`) and let
+  the LLM draft Education/Employment/Project/Certification/Self-PR entries
+  from it.
   Nothing is saved until you review and confirm each item; skills found in
   the resume get linked to the project(s) they came from (so they show up
   in Skills and the Skill Network) rather than registered as a
@@ -264,8 +265,8 @@ A typical first session looks like this:
    education/employment/projects on Profile (their free-text fields feed
    extraction too), or add a skill directly on Skills if you already know
    you have it and don't need evidence for it.
-5. **Resume Import**, if you already have a resume: upload it (`.docx`)
-   and let the LLM draft Education/Employment/Project/Certification/
+5. **Resume Import**, if you already have a resume: upload it (`.docx` or
+   `.pdf`) and let the LLM draft Education/Employment/Project/Certification/
    Self-PR entries from it instead of typing years of history in by
    hand — nothing is saved until you review and confirm each item.
 6. **Dashboard → Career path goals** and **Vision**, whenever you want to
@@ -296,9 +297,12 @@ project calls itself `v1.0.0`.
 
 ## Known limitations
 
-- Certification ingestion accepts images only (no PDF parsing yet).
-- Resume Import only reads `.docx` — no PDF or other format support, and
-  no parsing of arbitrary documents beyond that one fixed flow.
+- Certification ingestion accepts images or a `.pdf` (only its first page
+  is read — a PDF is converted to one image, not treated as a multi-page
+  document).
+- Resume Import reads `.docx` or `.pdf` (text only — a scanned/image-only
+  PDF has no extractable text and is rejected); no parsing of arbitrary
+  documents beyond that one fixed flow.
 - The "current skills" view is read from the database directly, but the
   match/merge step that keeps it deduplicated runs at evidence-ingestion
   time via an LLM call — quality depends on the configured model.

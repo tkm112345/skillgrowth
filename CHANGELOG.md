@@ -9,6 +9,15 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- Certification upload (Activity page) and Resume Import now accept
+  `.pdf` in addition to their existing formats. A certification `.pdf`
+  has its first page rasterized to an image and goes through the same
+  vision-based extraction as an uploaded image; Resume Import reads a
+  `.pdf`'s embedded text (no OCR, so a scanned/image-only PDF is
+  rejected the same way an empty `.docx` already was). New dependency:
+  `pymupdf` (a pure wheel, no system packages needed).
+
 ### Fixed
 - README's "Known limitations" no longer claims "no resume/CV parsing by
   design", which contradicted the Resume Import feature described earlier

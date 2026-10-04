@@ -1,9 +1,20 @@
+import pymupdf
 from sqlmodel import select
 
 from app import llm
 from app.models import Employment, SkillLink
 
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+
+def _pdf_bytes(text: str | None) -> bytes:
+    doc = pymupdf.open()
+    page = doc.new_page()
+    if text:
+        page.insert_text((72, 72), text)
+    data = doc.tobytes()
+    doc.close()
+    return data
 
 
 def test_extract_returns_llm_draft_as_is(client, sample_docx_bytes, monkeypatch):
@@ -75,6 +86,35 @@ def test_extract_rejects_non_docx_extension(client):
         files={"file": ("resume.doc", b"not a real docx", "application/msword")},
     )
     assert resp.status_code == 400
+
+
+def test_extract_accepts_pdf_and_extracts_text(client, monkeypatch):
+    captured = {}
+
+    def fake_extract(text, settings):
+        captured["text"] = text
+        return {}
+
+    monkeypatch.setattr(llm, "extract_resume", fake_extract)
+
+    resp = client.post(
+        "/api/resume-import/extract",
+        files={"file": ("resume.pdf", _pdf_bytes("Acme Corp Software Engineer"), "application/pdf")},
+    )
+    assert resp.status_code == 200
+    assert "Acme Corp Software Engineer" in captured["text"]
+
+
+def test_extract_pdf_with_no_text_is_rejected(client):
+    """A scanned/image-only PDF has no extractable text — rejected with the
+    same error an empty .docx gets, rather than silently running the LLM
+    on nothing. No OCR fallback for this path."""
+    resp = client.post(
+        "/api/resume-import/extract",
+        files={"file": ("resume.pdf", _pdf_bytes(None), "application/pdf")},
+    )
+    assert resp.status_code == 400
+    assert "No text content found" in resp.json()["detail"]
 
 
 def test_extract_does_not_persist_anything(client, session, sample_docx_bytes, monkeypatch):

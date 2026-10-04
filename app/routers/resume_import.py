@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pymupdf
 from docx import Document
 from docx.oxml.ns import qn
 from docx.table import Table
@@ -15,6 +16,19 @@ from app.models import Project, Settings, Skill, SkillLink
 router = APIRouter(prefix="/api/resume-import", tags=["resume_import"])
 
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB, matches evidence/portfolio upload limits
+
+
+def _pdf_text(data: bytes) -> str:
+    # Text-only: a scanned/image-only PDF yields no text here and falls
+    # through to the same "No text content found" error as an empty .docx,
+    # rather than silently returning nothing. No OCR fallback — that would
+    # mean routing through the vision model instead of the text one, a
+    # different extraction path this endpoint doesn't use.
+    try:
+        with pymupdf.open(stream=data, filetype="pdf") as doc:
+            return "\n".join(page.get_text() for page in doc)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Could not read PDF file")
 
 
 def _document_text(document) -> str:
@@ -42,22 +56,26 @@ def _document_text(document) -> str:
 
 @router.post("/extract")
 def extract_resume(file: UploadFile = File(...), session: Session = Depends(get_session)) -> dict:
-    """Stateless draft extraction: reads the uploaded .docx, asks the LLM
-    to structure it, and returns the draft as-is. Nothing is written to
-    the DB and the file is never saved to disk — the caller (the
-    resume-import UI) is responsible for reviewing the draft and creating
-    rows through the existing profile/skills/learning/self-pr endpoints."""
+    """Stateless draft extraction: reads the uploaded .docx or .pdf, asks
+    the LLM to structure it, and returns the draft as-is. Nothing is
+    written to the DB and the file is never saved to disk — the caller
+    (the resume-import UI) is responsible for reviewing the draft and
+    creating rows through the existing profile/skills/learning/self-pr
+    endpoints."""
     data = file.file.read()
     if len(data) > MAX_FILE_SIZE_BYTES:
         raise HTTPException(status_code=400, detail=f"{file.filename}: file exceeds 10MB limit")
 
     ext = Path(file.filename or "").suffix.lower()
-    if ext != ".docx":
-        raise HTTPException(status_code=400, detail="Only .docx files are supported")
+    if ext not in (".docx", ".pdf"):
+        raise HTTPException(status_code=400, detail="Only .docx and .pdf files are supported")
 
-    file.file.seek(0)
-    document = Document(file.file)
-    text = _document_text(document)
+    if ext == ".pdf":
+        text = _pdf_text(data)
+    else:
+        file.file.seek(0)
+        document = Document(file.file)
+        text = _document_text(document)
     if not text.strip():
         raise HTTPException(status_code=400, detail="No text content found in the uploaded file")
 

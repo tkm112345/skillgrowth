@@ -107,7 +107,7 @@ entries, so they can be shown to someone without those entries' baggage.
 
 ## Resume Import
 
-Upload an existing resume (`.docx` only) and have the LLM draft
+Upload an existing resume (`.docx` or `.pdf`) and have the LLM draft
 Education/Employment/Project/Certification/Self-PR entries from it, instead
 of typing years of history in by hand.
 
@@ -115,6 +115,9 @@ of typing years of history in by hand.
   item has an on/off toggle and editable fields — turn off anything wrong
   or not worth keeping, fix typos or a project's linked employer first.
   The uploaded file itself is never stored.
+- A `.pdf` is read for its embedded text only — a scanned/image-only PDF
+  with no extractable text is rejected with a clear error rather than
+  silently producing an empty draft.
 - Registering creates entries through the same Profile/Certifications/
   Self-PR forms would, so the same rules apply as if you'd typed it in
   yourself.
@@ -129,7 +132,9 @@ of typing years of history in by hand.
 ## Skills
 
 - The current skill picture, derived from the activity log: name, category,
-  activity count, first-seen date, last-seen date.
+  activity count, first-seen date, last-seen date. A skill not seen in
+  180+ days gets a "Stale" tag next to its last-seen date — a nudge during
+  reflection, not a restriction (nothing about the skill itself changes).
 - **Add a skill directly** by name/category, for skills you know you have
   but haven't produced activity for yet.
 - **Import CSV** — bulk-add skills from a `name,category` CSV file
@@ -172,9 +177,10 @@ Log page, and a read-only feed that already showed the same entries):
   freely — deleting a type only removes it from the picker, existing
   entries keep their recorded type as plain text. Certification is the one
   built-in, protected type: it drives the resume's Certifications section
-  and unlocks an optional certificate-image field (run through the same
-  vision-based skill extraction as the Profile certification flow), so it
-  can't be renamed or removed. Each certification also gets an **include
+  and unlocks an optional certificate-image field — an image or a `.pdf`
+  (its first page is rasterized to an image before extraction) — run
+  through the same vision-based skill extraction as the Profile
+  certification flow, so it can't be renamed or removed. Each certification also gets an **include
   in resume** switch, shown on its feed entry — same idea as Skills'
   switch of the same name, on by default — for keeping a certification
   tracked here without putting it in front of an employer.

@@ -380,7 +380,12 @@ sequenceDiagram
 
 Certification images go through the analogous
 `extract_and_match_image` path, which sends the image as a base64 data URL
-to a vision-capable model instead of plain text.
+to a vision-capable model instead of plain text. A `.pdf` upload is
+converted to one first before reaching this path: `app/routers/evidence.py`
+rasterizes page 1 with `pymupdf` and writes the result as a `.png`, so the
+extraction code and `EvidenceEntry.file_path` never see anything but image
+files. Only page 1 is used — this upload has always been a single image,
+never a multi-page document.
 
 Manually adding a skill from the Skills page (`POST /api/skills`), or
 importing a `name,category` CSV (`POST /api/skills/import-csv`), bypasses
@@ -396,8 +401,10 @@ reconsideration (see "Portfolio backup" above for the same kind of
 documented-constraint-first design) landed on a narrower version of the
 feature rather than reversing the original call outright:
 `POST /api/resume-import/extract` (`app/routers/resume_import.py`) reads an
-uploaded `.docx` with `python-docx` and calls `llm.extract_resume`, which
-asks the model for `education`/`employment`/
+uploaded `.docx` (via `python-docx`) or `.pdf` (via `pymupdf`'s text
+extraction — no OCR, so a scanned/image-only PDF is rejected the same way
+an empty `.docx` is) and calls `llm.extract_resume`, which asks the model
+for `education`/`employment`/
 `projects`/`skills`/`certifications`/`self_pr` as one JSON object — and
 returns that draft to the caller as-is. **Nothing is written to the DB and
 the uploaded file is never saved to disk**; the frontend (`ResumeImport.vue`)
@@ -457,9 +464,13 @@ the design:
   runs), which breaks a string-match join. An index into a list the model
   itself just generated has nothing to misspell.
 
-Only `.docx` is accepted (400 on anything else) — this repo's Docker image
-has no LibreOffice/`soffice`, and adding one just to read legacy binary
-`.doc` files wasn't worth the image size for this feature alone.
+Only `.docx` and `.pdf` are accepted (400 on anything else) — legacy
+binary `.doc` still isn't, since reading it would need LibreOffice/
+`soffice`, and this repo's Docker image doesn't carry one (not worth the
+image size for this feature alone). `.pdf` support didn't need that
+tradeoff: `pymupdf` is a pure wheel with no system package, so it was
+added for both this endpoint's text extraction and the certification
+upload's page rasterization above.
 
 `upsert_skill` is the single place that enforces "`Skill.name` is unique
 case-insensitively": it's shared by the LLM-extraction path above, manual

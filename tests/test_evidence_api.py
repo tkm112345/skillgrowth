@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pymupdf
+
 from app import llm
 from app.models import EvidenceEntry
 
@@ -134,6 +136,37 @@ def test_add_image_evidence_rejects_unsupported_extension(client):
     resp = client.post(
         "/api/evidence/image",
         files={"file": ("cert.svg", b"<svg onload=alert(1)></svg>", "image/svg+xml")},
+        data={"source_type": "certification"},
+    )
+    assert resp.status_code == 400
+    assert client.get("/api/evidence").json() == []
+
+
+def test_add_image_evidence_accepts_pdf_and_rasterizes_first_page(client, monkeypatch):
+    """A certification PDF is converted to a PNG of its first page before
+    being handed to the same vision extraction path an uploaded image
+    would use — the stored file_path should come out as .png, not .pdf."""
+    doc = pymupdf.open()
+    doc.new_page()
+    pdf_bytes = doc.tobytes()
+    doc.close()
+
+    monkeypatch.setattr(llm, "extract_and_match_image", lambda path, existing_skills, settings: [])
+
+    resp = client.post(
+        "/api/evidence/image",
+        files={"file": ("cert.pdf", pdf_bytes, "application/pdf")},
+        data={"source_type": "certification"},
+    )
+    assert resp.status_code == 200
+    file_path = resp.json()["evidence"]["file_path"]
+    assert file_path.endswith(".png")
+
+
+def test_add_image_evidence_rejects_unreadable_pdf(client):
+    resp = client.post(
+        "/api/evidence/image",
+        files={"file": ("cert.pdf", b"not a real pdf", "application/pdf")},
         data={"source_type": "certification"},
     )
     assert resp.status_code == 400

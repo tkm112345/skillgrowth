@@ -315,7 +315,7 @@ const monthGroups = computed(() => {
           :auto-upload="false"
           :show-file-list="true"
           :limit="1"
-          accept="image/*"
+          accept="image/*,.pdf"
           :on-change="handleCertFileChange"
         >
           <el-button size="small">{{ t('common.add') }}</el-button>

@@ -5,3 +5,4 @@ jinja2>=3.1.6
 python-multipart>=0.0.32
 openai>=3.19.2
 docxtpl[subdoc]>=0.19  # the "subdoc" extra (docxcompose) is needed by new_subdoc(), used to build table/bullet sections
+pymupdf>=1.24  # pure wheel, no system/apt packages needed — used for PDF->image and PDF text extraction

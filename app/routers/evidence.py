@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pymupdf
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlmodel import Session, func, select
@@ -15,7 +16,23 @@ router = APIRouter(prefix="/api/evidence", tags=["evidence"])
 
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB, matches the portfolio upload limit
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf"}
+
+
+def _rasterize_first_pdf_page(data: bytes) -> bytes:
+    """A certification PDF is read by the same vision model as an image, so
+    it's converted to one up front rather than teaching the extraction path
+    a second input type. Only page 1 is used — this app's cert upload has
+    always been a single image, never a multi-page document."""
+    try:
+        with pymupdf.open(stream=data, filetype="pdf") as doc:
+            if doc.page_count == 0:
+                raise HTTPException(status_code=400, detail="PDF has no pages")
+            return doc[0].get_pixmap().tobytes("png")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=400, detail="Could not read PDF file")
 
 
 class TextEvidenceIn(BaseModel):
@@ -91,6 +108,9 @@ def add_image_evidence(
     ext = Path(file.filename or "upload.png").suffix.lower() or ".png"
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail=f"Unsupported image type: {ext}")
+    if ext == ".pdf":
+        data = _rasterize_first_pdf_page(data)
+        ext = ".png"
     dest = UPLOAD_DIR / f"{uuid.uuid4()}{ext}"
     dest.write_bytes(data)
 

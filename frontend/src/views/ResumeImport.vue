@@ -198,7 +198,7 @@ async function register() {
   </el-alert>
 
   <el-card shadow="never" class="upload-card">
-    <el-upload :auto-upload="false" :show-file-list="true" :limit="1" accept=".docx" :on-change="handleFileChange">
+    <el-upload :auto-upload="false" :show-file-list="true" :limit="1" accept=".docx,.pdf" :on-change="handleFileChange">
       <el-button size="small">{{ t('resumeImport.chooseFile') }}</el-button>
     </el-upload>
     <el-button type="primary" :loading="extracting" :disabled="!pendingFile" @click="extract">

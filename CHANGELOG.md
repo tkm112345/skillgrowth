@@ -17,6 +17,9 @@ commit as the change, moved into a dated section when a release is cut).
   `.pdf`'s embedded text (no OCR, so a scanned/image-only PDF is
   rejected the same way an empty `.docx` already was). New dependency:
   `pymupdf` (a pure wheel, no system packages needed).
+- Skills page: a skill not seen in 180+ days now gets a "Stale" tag next
+  to its last-seen date, the same visual pattern Certifications already
+  uses for an expired certification.
 
 ### Fixed
 - README's "Known limitations" no longer claims "no resume/CV parsing by

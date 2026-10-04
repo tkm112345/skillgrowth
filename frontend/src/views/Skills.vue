@@ -60,6 +60,14 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString(locale.value)
 }
 
+const STALE_DAYS = 180
+
+function isStale(row) {
+  const lastSeen = new Date(row.last_observed_at)
+  const daysSince = (Date.now() - lastSeen.getTime()) / (1000 * 60 * 60 * 24)
+  return daysSince > STALE_DAYS
+}
+
 function openAddDialog() {
   editingSkillId.value = null
   Object.assign(form, { name: '', category: '', proficiency: 0 })
@@ -169,8 +177,11 @@ async function submitCsvImport() {
     <el-table-column :label="t('skills.columnFirstSeen')" width="120">
       <template #default="{ row }">{{ formatDate(row.first_observed_at) }}</template>
     </el-table-column>
-    <el-table-column :label="t('skills.columnLastSeen')" width="120">
-      <template #default="{ row }">{{ formatDate(row.last_observed_at) }}</template>
+    <el-table-column :label="t('skills.columnLastSeen')" width="150">
+      <template #default="{ row }">
+        {{ formatDate(row.last_observed_at) }}
+        <el-tag v-if="isStale(row)" type="warning" size="small">{{ t('skills.stale') }}</el-tag>
+      </template>
     </el-table-column>
     <el-table-column :label="t('skills.columnIncludeInResume')" width="110" align="center">
       <template #default="{ row }">

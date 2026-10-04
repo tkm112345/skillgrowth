@@ -232,6 +232,7 @@
     "columnEvidence": "Activity",
     "columnFirstSeen": "First seen",
     "columnLastSeen": "Last seen",
+    "stale": "Stale",
     "columnIncludeInResume": "In resume",
     "resumeToggleError": "Failed to update — please try again.",
     "noEntries": "No skills recorded yet",

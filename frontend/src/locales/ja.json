@@ -232,6 +232,7 @@
     "columnEvidence": "アクティビティ数",
     "columnFirstSeen": "初出",
     "columnLastSeen": "最終確認",
+    "stale": "停滞",
     "columnIncludeInResume": "職務経歴書に含む",
     "resumeToggleError": "更新に失敗しました。もう一度お試しください。",
     "noEntries": "まだスキルが登録されていません",

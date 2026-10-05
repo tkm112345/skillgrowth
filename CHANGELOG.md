@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-05
+
 ### Added
 - Certification upload (Activity page) and Resume Import now accept
   `.pdf` in addition to their existing formats. A certification `.pdf`

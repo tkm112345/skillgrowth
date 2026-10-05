@@ -12,6 +12,7 @@ from app.logging_config import setup_logging
 from app.routers import (
     ai,
     backup,
+    bookmarks,
     consult,
     evidence,
     export,
@@ -19,6 +20,7 @@ from app.routers import (
     graph,
     learning,
     personal_info,
+    planned_certifications,
     portfolio,
     profile,
     resume_import,
@@ -78,6 +80,8 @@ app.include_router(graph.router)
 app.include_router(personal_info.router)
 app.include_router(rirekisho_templates.router)
 app.include_router(resume_import.router)
+app.include_router(bookmarks.router)
+app.include_router(planned_certifications.router)
 
 
 @app.on_event("startup")

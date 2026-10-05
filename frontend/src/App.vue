@@ -1,5 +1,6 @@
 <script setup>
 import {
+  Collection,
   Compass,
   Connection,
   DataAnalysis,
@@ -177,6 +178,10 @@ onMounted(async () => {
           <el-menu-item index="/resume-import">
             <el-icon style="color: var(--hue-orange)"><Upload /></el-icon>
             <template #title>{{ t('nav.resumeImport') }}</template>
+          </el-menu-item>
+          <el-menu-item index="/bookmarks">
+            <el-icon style="color: var(--hue-green)"><Collection /></el-icon>
+            <template #title>{{ t('nav.bookmarks') }}</template>
           </el-menu-item>
         </el-sub-menu>
 

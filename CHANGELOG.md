@@ -20,6 +20,15 @@ commit as the change, moved into a dated section when a release is cut).
 - Skills page: a skill not seen in 180+ days now gets a "Stale" tag next
   to its last-seen date, the same visual pattern Certifications already
   uses for an expired certification.
+- Certifications page: a new "Considering / Planned" tab tracks
+  certifications you're considering or scheduled to take, separate from
+  the existing "Acquired" tab. A "Mark as acquired" action converts a
+  candidate into a regular certification entry (through the same
+  evidence/skill-extraction path manual entry uses) and removes it from
+  the candidates list.
+- Bookmarks: a new page for saving links with a manually-entered title
+  and an optional memo — no automatic title fetching, no LLM/evidence
+  involvement, just a flat list you manage yourself.
 
 ### Fixed
 - README's "Known limitations" no longer claims "no resume/CV parsing by

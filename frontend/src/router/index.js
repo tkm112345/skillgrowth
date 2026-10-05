@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import AiIntegration from '../views/AiIntegration.vue'
+import Bookmarks from '../views/Bookmarks.vue'
 import Certifications from '../views/Certifications.vue'
 import Concept from '../views/Concept.vue'
 import Connections from '../views/Connections.vue'
@@ -25,6 +26,7 @@ export default createRouter({
     { path: '/profile', name: 'profile', component: Profile },
     { path: '/portfolio', name: 'portfolio', component: Portfolio },
     { path: '/resume-import', name: 'resume-import', component: ResumeImport },
+    { path: '/bookmarks', name: 'bookmarks', component: Bookmarks },
     { path: '/skills', name: 'skills', component: Skills },
     { path: '/timeline', name: 'timeline', component: Timeline },
     { path: '/certifications', name: 'certifications', component: Certifications },

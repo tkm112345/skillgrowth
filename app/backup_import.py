@@ -9,6 +9,7 @@ from app import services
 from app.db import PERSONAL_INFO_DIR, PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, RIREKISHO_TEMPLATE_DIR
 from app.models import (
     ActivityType,
+    Bookmark,
     CareerGoal,
     CareerGoalHistory,
     CareerVision,
@@ -21,6 +22,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     PersonalInfo,
+    PlannedCertification,
     PortfolioFile,
     PortfolioItem,
     PortfolioLink,
@@ -197,6 +199,20 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         note("learning_activity", activity.id)
         counts["learning_activities"] += 1
 
+    counts["planned_certifications"] = 0
+    for row in data.get("planned_certifications", []):
+        planned = PlannedCertification(
+            title=row["title"],
+            status=row.get("status", "considering"),
+            target_date=_d(row.get("target_date")),
+            notes=row.get("notes", ""),
+            created_at=_dt(row.get("created_at")),
+        )
+        session.add(planned)
+        session.flush()
+        note("planned_certification", planned.id)
+        counts["planned_certifications"] += 1
+
     counts["external_links"] = 0
     for row in data.get("external_links", []):
         link = ExternalLink(label=row["label"], url=row["url"], created_at=_dt(row.get("created_at")))
@@ -204,6 +220,16 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("external_link", link.id)
         counts["external_links"] += 1
+
+    counts["bookmarks"] = 0
+    for row in data.get("bookmarks", []):
+        bookmark = Bookmark(
+            url=row["url"], title=row["title"], memo=row.get("memo", ""), created_at=_dt(row.get("created_at"))
+        )
+        session.add(bookmark)
+        session.flush()
+        note("bookmark", bookmark.id)
+        counts["bookmarks"] += 1
 
     counts["career_goals"] = 0
     for row in data.get("career_goals", []):

@@ -15,7 +15,9 @@ def test_export_backup_returns_all_sections_when_empty(client):
         "employment",
         "projects",
         "learning_activities",
+        "planned_certifications",
         "external_links",
+        "bookmarks",
         "resume_exports",
         "resume_templates",
         "portfolio_items",
@@ -45,6 +47,31 @@ def test_export_backup_includes_created_records(client):
     assert len(body["skills"]) == 1
     assert body["skills"][0]["name"] == "Python"
     assert len(body["external_links"]) == 1
+
+
+def test_export_backup_includes_planned_certifications_and_bookmarks(client):
+    client.post("/api/planned-certifications", json={"title": "AWS SAA", "status": "planned"})
+    client.post("/api/bookmarks", json={"url": "https://zenn.dev/example", "title": "Example"})
+
+    body = client.get("/api/backup/export").json()
+    assert len(body["planned_certifications"]) == 1
+    assert body["planned_certifications"][0]["title"] == "AWS SAA"
+    assert len(body["bookmarks"]) == 1
+    assert body["bookmarks"][0]["title"] == "Example"
+
+
+def test_import_round_trip_restores_planned_certifications_and_bookmarks(client):
+    client.post("/api/planned-certifications", json={"title": "AWS SAA", "status": "planned"})
+    client.post("/api/bookmarks", json={"url": "https://zenn.dev/example", "title": "Example"})
+    exported = client.get("/api/backup/export").json()
+
+    resp = client.post("/api/backup/import", json=exported)
+    assert resp.status_code == 200
+    assert resp.json()["planned_certifications"] == 1
+    assert resp.json()["bookmarks"] == 1
+
+    assert len(client.get("/api/planned-certifications").json()) == 2
+    assert len(client.get("/api/bookmarks").json()) == 2
 
 
 def test_export_backup_includes_custom_activity_types(client):
@@ -150,7 +177,9 @@ def test_import_remaps_employment_and_evidence_foreign_keys(client):
         "projects": 1,
         "activity_types": 0,
         "learning_activities": 0,
+        "planned_certifications": 0,
         "external_links": 0,
+        "bookmarks": 0,
         "career_goals": 0,
         "career_goal_history": 0,
         "reflection_log": 0,

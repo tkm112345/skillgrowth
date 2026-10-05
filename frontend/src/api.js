@@ -220,6 +220,21 @@ export const api = {
     request(`/learning/types/${id}`, { method: 'PUT', body: JSON.stringify({ label }) }),
   deleteActivityType: (id) => request(`/learning/types/${id}`, { method: 'DELETE' }),
 
+  getPlannedCertifications: () => request('/planned-certifications'),
+  addPlannedCertification: (payload) =>
+    request('/planned-certifications', { method: 'POST', body: JSON.stringify(payload) }),
+  updatePlannedCertification: (id, payload) =>
+    request(`/planned-certifications/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deletePlannedCertification: (id) => request(`/planned-certifications/${id}`, { method: 'DELETE' }),
+  promotePlannedCertification: (id, payload) =>
+    request(`/planned-certifications/${id}/promote`, { method: 'POST', body: JSON.stringify(payload) }),
+
+  getBookmarks: () => request('/bookmarks'),
+  addBookmark: (payload) => request('/bookmarks', { method: 'POST', body: JSON.stringify(payload) }),
+  updateBookmark: (id, payload) =>
+    request(`/bookmarks/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteBookmark: (id) => request(`/bookmarks/${id}`, { method: 'DELETE' }),
+
   getPortfolioItems: () => request('/portfolio'),
   getPortfolioItem: (id) => request(`/portfolio/${id}`),
   createPortfolioItem: (payload) =>

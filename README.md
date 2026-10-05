@@ -103,7 +103,12 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   its acquisition date and an optional expiry date (flagged once past),
   separate from Activity's own "Certifications only" filter — this is
   also the only place a certification's structured fields can be edited
-  after the fact.
+  after the fact. A second tab tracks certifications you're considering
+  or have scheduled to take, with a "Mark as acquired" action that
+  converts a candidate into a regular certification entry.
+- **Bookmarks** — a simple list of links you want to keep for later (a
+  Qiita/Zenn article, etc.): URL, a manually entered title, and an
+  optional memo. No automatic title fetching, no LLM involvement.
 - **Skill Network** — a force-directed graph showing how skills connect to
   the certifications, education, employment, projects, and portfolio
   pieces that back them. Deliberately excludes day-to-day activity

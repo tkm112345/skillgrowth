@@ -129,6 +129,18 @@ of typing years of history in by hand.
 - Partial success is shown per item (e.g. one project failing doesn't
   stop the rest from registering).
 
+## Bookmarks
+
+A plain list of links you want to keep for later — a Qiita/Zenn article,
+a blog post, anything worth not losing track of.
+
+- **Add / edit** — URL, a manually entered title (no automatic fetching
+  of the page's title), and an optional free-text memo.
+- **List** — newest first; the title links out to the URL in a new tab.
+- **Delete** — removes the bookmark. There's no evidence/LLM involvement
+  anywhere in this feature — it's just a fact you're recording, the same
+  as the profile links on the Profile page.
+
 ## Skills
 
 - The current skill picture, derived from the activity log: name, category,
@@ -219,7 +231,11 @@ Log page, and a read-only feed that already showed the same entries):
 ## Certifications
 
 A dedicated page, separate from the Activity feed's "Certifications only"
-filter above, for managing certification entries one at a time:
+filter above, with two tabs: **Acquired** and **Considering / Planned**.
+
+### Acquired
+
+Managing certification entries one at a time:
 
 - **List** — every certification entry, with its acquisition date, an
   optional expiry date, and the same "include in resume" switch shown on
@@ -236,6 +252,26 @@ filter above, for managing certification entries one at a time:
 - **Delete** — same behavior as the Activity feed: removes the structured
   type/title/date; the underlying activity log entry stays in the feed as
   plain text.
+
+### Considering / Planned
+
+A separate list for certifications you're thinking about or have
+scheduled to take — kept apart from the acquired certifications above,
+since an unearned candidate has no business showing up on your resume or
+the Skill Network graph.
+
+- **List** — title, status (Considering or Scheduled), and an optional
+  target exam date.
+- **Add / edit** — a dialog for title, status, an optional target date,
+  and notes.
+- **Mark as acquired** — converts a candidate into a regular acquired
+  certification. You're asked for the acquisition date (defaulting to
+  today); on confirmation, the candidate disappears from this list and
+  appears in the Acquired tab as a normal certification entry — including
+  being picked up by skill extraction and the resume, exactly as if
+  you'd added it there by hand. This conversion can't be undone from the
+  UI (the candidate row itself is deleted once converted).
+- **Delete** — removes the candidate without converting it.
 
 ## Skill Network
 
@@ -438,10 +474,11 @@ enough to be hard to scan.
 - **Data backup** — download every career record as a single JSON file:
   activity, skills, profile (education/employment/projects), goals with
   their full history, vision, self feedback, activity types, links,
-  self PR history, resume export/template history, portfolio
-  items/links/files, Career Consult sessions, and rirekisho personal
-  info/templates. Deliberately excludes the LLM connection settings (so
-  an API key never ends up in a backup file).
+  bookmarks, planned/considering certification candidates, self PR
+  history, resume export/template history, portfolio items/links/files,
+  Career Consult sessions, and rirekisho personal info/templates.
+  Deliberately excludes the LLM connection settings (so an API key never
+  ends up in a backup file).
 - **Restore from backup** — upload a previously downloaded backup file to
   re-import its records. Always additive: it never deletes or overwrites
   existing rows, and only fills in a career goal if that horizon is still

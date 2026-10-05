@@ -198,6 +198,21 @@ erDiagram
     string url
     datetime created_at
   }
+  PlannedCertification {
+    string id
+    string title
+    string status "considering | planned — checked in the router, not the schema"
+    date target_date "nullable"
+    text notes
+    datetime created_at
+  }
+  Bookmark {
+    string id
+    string url
+    string title "manually entered, no automatic fetch"
+    text memo
+    datetime created_at
+  }
   Project ||--o{ PortfolioItem : "optional, standalone projects only"
   PortfolioItem ||--o{ PortfolioLink : "has"
   PortfolioItem ||--o{ PortfolioFile : "has"
@@ -509,6 +524,28 @@ this" are different decisions.
 label+URL list with no evidence/LLM involvement — it's just a fact, not
 something to extract skills from.
 
+`Bookmark` (links to Qiita/Zenn articles, etc. worth keeping) is the same
+kind of plain fact as `ExternalLink` — a flat list with no evidence/LLM
+involvement — just shaped for an unlabeled personal reading list (URL,
+manually entered title, free-text memo) instead of a labeled set of
+profile links.
+
+`PlannedCertification` is a certification the user is considering or has
+scheduled to take — deliberately a separate table from `LearningActivity`,
+which only models already-*earned* certifications (the resume's
+Certifications section, the Skill Network graph node, and the Activity
+feed's certification filter all assume that). `POST
+/api/planned-certifications/{id}/promote` converts a candidate into a
+regular certification: it creates a new `LearningActivity`
+(`activity_type="certification"`) through the same
+`services.record_evidence_and_extract` path manual entry uses — so the
+result is indistinguishable from a hand-added certification, complete with
+its own `EvidenceEntry` and skill extraction — then deletes the
+`PlannedCertification` row. This is a one-way conversion done in a single
+endpoint rather than the frontend issuing a create-then-delete pair, so a
+dropped connection mid-promotion can't leave both a new certification and
+the original candidate behind.
+
 ## Backup, restore, and sample data
 
 `app/backup_import.py::import_backup` is shared by two endpoints:
@@ -540,6 +577,12 @@ backup data, since those are this app's own invariants, not user data a
 backup should be able to grant or revoke. `Settings` is never part of the
 payload in either direction, so an LLM API key can't leak through a
 backup file.
+
+Unlike `reset-all`'s `drop_all`/`create_all` below, `export_backup`,
+`import_backup`, and `RESET_TABLE_ORDER` each hand-list every table they
+touch rather than discovering them automatically — adding a table (as
+`PlannedCertification` and `Bookmark` did) means updating all three by
+hand, or its rows silently never make it into an export/import/reset-sample.
 
 `load-sample` additionally passes a `track` dict into `import_backup`,
 which the function fills with `{table_name: [new_id, ...]}` as it creates

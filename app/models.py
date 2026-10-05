@@ -272,3 +272,27 @@ class SampleDataRecord(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     table_name: str
     record_id: str  # the row's real id, or a CareerGoal horizon
+
+
+class PlannedCertification(SQLModel, table=True):
+    # A certification the user is considering or has scheduled to take —
+    # deliberately separate from LearningActivity, which only models
+    # already-earned certifications (resume_builder.py, the certification
+    # graph node, and the Activity feed's certification filter all assume
+    # that). "status" is checked against PLANNED_CERTIFICATION_STATUSES in
+    # app/routers/planned_certifications.py, not at the schema level (same
+    # pattern as CareerGoal.horizon).
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    title: str
+    status: str  # "considering" | "planned"
+    target_date: Optional[date] = None
+    notes: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class Bookmark(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    url: str
+    title: str
+    memo: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

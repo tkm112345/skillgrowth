@@ -20,7 +20,7 @@ class VisionOut(BaseModel):
     updated_at: Optional[datetime] = None
 
 
-@router.get("")
+@router.get("", operation_id="get_vision")
 def get_vision(session: Session = Depends(get_session)) -> VisionOut:
     vision = session.get(CareerVision, 1)
     if vision is None:
@@ -28,7 +28,7 @@ def get_vision(session: Session = Depends(get_session)) -> VisionOut:
     return VisionOut(content=vision.content, updated_at=vision.updated_at)
 
 
-@router.put("")
+@router.put("", operation_id="update_vision")
 def update_vision(payload: VisionIn, session: Session = Depends(get_session)) -> CareerVision:
     vision = session.get(CareerVision, 1)
     if vision is None:

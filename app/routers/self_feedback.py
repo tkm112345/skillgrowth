@@ -17,12 +17,12 @@ class SelfFeedbackIn(BaseModel):
     next_steps: str = ""
 
 
-@router.get("")
+@router.get("", operation_id="list_self_feedback")
 def list_self_feedback(limit: int = 50, offset: int = 0, session: Session = Depends(get_session)) -> list[SelfFeedback]:
     return session.exec(select(SelfFeedback).order_by(SelfFeedback.entry_date.desc()).offset(offset).limit(limit)).all()
 
 
-@router.post("")
+@router.post("", operation_id="add_self_feedback")
 def add_self_feedback(payload: SelfFeedbackIn, session: Session = Depends(get_session)) -> SelfFeedback:
     entry = SelfFeedback(**payload.model_dump())
     session.add(entry)
@@ -31,7 +31,7 @@ def add_self_feedback(payload: SelfFeedbackIn, session: Session = Depends(get_se
     return entry
 
 
-@router.put("/{entry_id}")
+@router.put("/{entry_id}", operation_id="update_self_feedback")
 def update_self_feedback(
     entry_id: str, payload: SelfFeedbackIn, session: Session = Depends(get_session)
 ) -> SelfFeedback:

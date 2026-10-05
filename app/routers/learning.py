@@ -33,12 +33,12 @@ class LearningResult(BaseModel):
     linked_skills: list[Skill]
 
 
-@router.get("")
+@router.get("", operation_id="list_learning_activities")
 def list_learning(session: Session = Depends(get_session)) -> list[LearningActivity]:
     return session.exec(select(LearningActivity).order_by(LearningActivity.activity_date.desc())).all()
 
 
-@router.post("")
+@router.post("", operation_id="add_learning_activity")
 def create_learning(payload: LearningActivityIn, session: Session = Depends(get_session)) -> LearningResult:
     settings = session.get(Settings, 1)
     text = services.text_block(種別=payload.activity_type, タイトル=payload.title, メモ=payload.notes)
@@ -57,7 +57,7 @@ def create_learning(payload: LearningActivityIn, session: Session = Depends(get_
     return LearningResult(activity=activity, linked_skills=linked)
 
 
-@router.put("/{activity_id}")
+@router.put("/{activity_id}", operation_id="update_learning_activity")
 def update_learning(
     activity_id: str, payload: LearningActivityIn, session: Session = Depends(get_session)
 ) -> LearningActivity:
@@ -98,12 +98,12 @@ def delete_learning(activity_id: str, session: Session = Depends(get_session)):
     return {"ok": True}
 
 
-@router.get("/types")
+@router.get("/types", operation_id="list_activity_types")
 def list_activity_types(session: Session = Depends(get_session)) -> list[ActivityType]:
     return session.exec(select(ActivityType).order_by(ActivityType.created_at.asc())).all()
 
 
-@router.post("/types")
+@router.post("/types", operation_id="add_activity_type")
 def create_activity_type(payload: ActivityTypeIn, session: Session = Depends(get_session)) -> ActivityType:
     label = payload.label.strip()
     if not label:

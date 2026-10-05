@@ -51,12 +51,12 @@ def _validate_project_id(session: Session, project_id: str | None) -> None:
         )
 
 
-@router.get("")
+@router.get("", operation_id="list_portfolio_items")
 def list_portfolio_items(session: Session = Depends(get_session)) -> list[PortfolioItem]:
     return session.exec(select(PortfolioItem).order_by(PortfolioItem.created_at.desc())).all()
 
 
-@router.get("/{item_id}")
+@router.get("/{item_id}", operation_id="get_portfolio_item")
 def get_portfolio_item(item_id: str, session: Session = Depends(get_session)) -> PortfolioItemDetail:
     item = session.get(PortfolioItem, item_id)
     if item is None:
@@ -70,7 +70,7 @@ def get_portfolio_item(item_id: str, session: Session = Depends(get_session)) ->
     return PortfolioItemDetail(item=item, links=links, files=files)
 
 
-@router.post("")
+@router.post("", operation_id="add_portfolio_item")
 def create_portfolio_item(payload: PortfolioItemIn, session: Session = Depends(get_session)) -> PortfolioItem:
     if not (payload.title or "").strip():
         raise HTTPException(status_code=400, detail="Title is required")
@@ -87,7 +87,7 @@ def create_portfolio_item(payload: PortfolioItemIn, session: Session = Depends(g
     return item
 
 
-@router.put("/{item_id}")
+@router.put("/{item_id}", operation_id="update_portfolio_item")
 def update_portfolio_item(
     item_id: str, payload: PortfolioItemIn, session: Session = Depends(get_session)
 ) -> PortfolioItem:
@@ -125,7 +125,7 @@ def delete_portfolio_item(item_id: str, session: Session = Depends(get_session))
     return {"ok": True}
 
 
-@router.post("/{item_id}/links")
+@router.post("/{item_id}/links", operation_id="add_portfolio_link")
 def add_portfolio_link(
     item_id: str, payload: PortfolioLinkIn, session: Session = Depends(get_session)
 ) -> PortfolioLink:

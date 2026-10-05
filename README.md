@@ -244,6 +244,26 @@ This is a coarse, single-password gate, not a real auth system — fine for
 substitute for a reverse proxy's own auth (or a VPN/local network) if you
 need anything stronger.
 
+### Optional MCP server
+
+Set `SKILLGROWTH_MCP_ENABLED=1` to mount an [MCP](https://modelcontextprotocol.io)
+server at `/mcp`, so an MCP client (Claude Desktop, Claude Code, etc.) can
+read and add your career data directly through natural conversation —
+"bookmark this article," "log that I just read this book," "add this
+certification I'm considering." Unset (the default), `/mcp` doesn't exist
+at all.
+
+It exposes read access plus add/update operations across activity,
+certifications (including certification candidates), bookmarks, skills,
+profile, portfolio, self feedback, self PR, goals, and vision — deliberately
+**not** delete operations, Settings (your LLM API key lives there),
+backup/restore, the AI Career Support/Career Consult/evidence-extraction
+endpoints, or anything involving a file upload. If `SKILLGROWTH_BASIC_AUTH_USER`/
+`_PASS` are also set, the same Basic Auth gate covers `/mcp` too. Many of
+the add/update tools run through the same skill-extraction path manual
+entry uses, so when that's turned on in Settings, a tool call can take
+30+ seconds — give your MCP client a generous timeout.
+
 ## Usage
 
 A typical first session looks like this:

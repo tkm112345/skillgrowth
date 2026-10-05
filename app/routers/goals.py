@@ -25,7 +25,7 @@ class GoalOut(BaseModel):
     updated_at: Optional[datetime] = None
 
 
-@router.get("")
+@router.get("", operation_id="list_goals")
 def list_goals(session: Session = Depends(get_session)) -> list[GoalOut]:
     existing = {g.horizon: g for g in session.exec(select(CareerGoal)).all()}
     result = []
@@ -38,7 +38,7 @@ def list_goals(session: Session = Depends(get_session)) -> list[GoalOut]:
     return result
 
 
-@router.put("/{horizon}")
+@router.put("/{horizon}", operation_id="update_goal")
 def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_session)) -> CareerGoal:
     if horizon not in HORIZONS:
         raise HTTPException(status_code=400, detail="Invalid horizon")
@@ -55,7 +55,7 @@ def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_se
     return goal
 
 
-@router.get("/history")
+@router.get("/history", operation_id="list_goal_history")
 def list_goal_history(
     horizon: Optional[str] = None,
     limit: int = 5,

@@ -9,6 +9,7 @@ from app.basic_auth import setup_basic_auth
 from app.db import engine, init_db
 from app.llm import LLMRequestError
 from app.logging_config import setup_logging
+from app.mcp_server import setup_mcp
 from app.routers import (
     ai,
     backup,
@@ -82,6 +83,11 @@ app.include_router(rirekisho_templates.router)
 app.include_router(resume_import.router)
 app.include_router(bookmarks.router)
 app.include_router(planned_certifications.router)
+
+# Must come after every include_router above (reads the app's OpenAPI
+# schema at construction time) and before the SPA fallback route below
+# (a catch-all that would otherwise shadow /mcp).
+setup_mcp(app)
 
 
 @app.on_event("startup")

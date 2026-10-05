@@ -13,12 +13,12 @@ class SelfPRIn(BaseModel):
     content: str
 
 
-@router.get("")
+@router.get("", operation_id="list_self_pr")
 def list_self_pr(limit: int = 20, offset: int = 0, session: Session = Depends(get_session)) -> list[SelfPR]:
     return session.exec(select(SelfPR).order_by(SelfPR.created_at.desc()).offset(offset).limit(limit)).all()
 
 
-@router.post("")
+@router.post("", operation_id="add_self_pr")
 def add_self_pr(payload: SelfPRIn, session: Session = Depends(get_session)) -> SelfPR:
     entry = SelfPR(content=payload.content)
     session.add(entry)
@@ -29,7 +29,7 @@ def add_self_pr(payload: SelfPRIn, session: Session = Depends(get_session)) -> S
     return entry
 
 
-@router.put("/{self_pr_id}")
+@router.put("/{self_pr_id}", operation_id="update_self_pr")
 def update_self_pr(self_pr_id: str, payload: SelfPRIn, session: Session = Depends(get_session)) -> SelfPR:
     entry = session.get(SelfPR, self_pr_id)
     if entry is None:
@@ -41,7 +41,7 @@ def update_self_pr(self_pr_id: str, payload: SelfPRIn, session: Session = Depend
     return entry
 
 
-@router.put("/{self_pr_id}/select")
+@router.put("/{self_pr_id}/select", operation_id="select_self_pr")
 def select_self_pr(self_pr_id: str, session: Session = Depends(get_session)) -> SelfPR:
     entry = session.get(SelfPR, self_pr_id)
     if entry is None:

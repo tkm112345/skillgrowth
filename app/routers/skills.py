@@ -39,7 +39,7 @@ class CsvImportResult(BaseModel):
     skipped_rows: int
 
 
-@router.get("")
+@router.get("", operation_id="list_skills")
 def list_skills(session: Session = Depends(get_session)):
     skills = session.exec(select(Skill).order_by(Skill.last_observed_at.desc())).all()
     counts = dict(session.exec(select(SkillLink.skill_id, func.count(SkillLink.id)).group_by(SkillLink.skill_id)).all())
@@ -60,12 +60,12 @@ def list_skills(session: Session = Depends(get_session)):
     ]
 
 
-@router.post("")
+@router.post("", operation_id="add_skill")
 def add_skill(payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
     return upsert_skill(session, payload.name, payload.category, payload.proficiency)
 
 
-@router.put("/{skill_id}")
+@router.put("/{skill_id}", operation_id="update_skill")
 def update_skill(skill_id: str, payload: SkillIn, session: Session = Depends(get_session)) -> Skill:
     skill = session.get(Skill, skill_id)
     if skill is None:
@@ -138,7 +138,7 @@ class SkillActionMonthCount(BaseModel):
     count: int
 
 
-@router.get("/action-counts")
+@router.get("/action-counts", operation_id="get_skill_action_counts")
 def skill_action_counts(session: Session = Depends(get_session)) -> list[SkillActionMonthCount]:
     bucket = func.strftime("%Y-%m", SkillLink.created_at)
     rows = session.exec(
@@ -153,7 +153,7 @@ def skill_action_counts(session: Session = Depends(get_session)) -> list[SkillAc
     return [SkillActionMonthCount(year=int(y), month=int(m), count=c) for y, m, c in rows]
 
 
-@router.get("/{skill_id}")
+@router.get("/{skill_id}", operation_id="get_skill_detail")
 def skill_detail(skill_id: str, session: Session = Depends(get_session)) -> SkillDetail:
     skill = session.get(Skill, skill_id)
     if skill is None:

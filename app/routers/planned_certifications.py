@@ -30,12 +30,12 @@ def _validate_status(status: str) -> None:
         raise HTTPException(status_code=400, detail="Invalid status")
 
 
-@router.get("")
+@router.get("", operation_id="list_planned_certifications")
 def list_planned_certifications(session: Session = Depends(get_session)) -> list[PlannedCertification]:
     return session.exec(select(PlannedCertification).order_by(PlannedCertification.created_at.asc())).all()
 
 
-@router.post("")
+@router.post("", operation_id="add_planned_certification")
 def create_planned_certification(
     payload: PlannedCertificationIn, session: Session = Depends(get_session)
 ) -> PlannedCertification:
@@ -52,7 +52,7 @@ def create_planned_certification(
     return planned
 
 
-@router.put("/{planned_id}")
+@router.put("/{planned_id}", operation_id="update_planned_certification")
 def update_planned_certification(
     planned_id: str, payload: PlannedCertificationIn, session: Session = Depends(get_session)
 ) -> PlannedCertification:
@@ -82,7 +82,7 @@ def delete_planned_certification(planned_id: str, session: Session = Depends(get
     return {"ok": True}
 
 
-@router.post("/{planned_id}/promote")
+@router.post("/{planned_id}/promote", operation_id="promote_planned_certification")
 def promote_planned_certification(
     planned_id: str, payload: PromoteIn, session: Session = Depends(get_session)
 ) -> LearningActivity:

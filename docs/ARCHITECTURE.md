@@ -31,6 +31,68 @@ user-chosen credentials, and gating it would make the `Dockerfile`'s
 `HEALTHCHECK` above start failing the moment this env-var gate is turned
 on, even though the app itself is healthy.
 
+## MCP server
+
+`app/mcp_server.py::setup_mcp(app)` mounts an [MCP](https://modelcontextprotocol.io)
+server at `/mcp` inside the same FastAPI process via the
+[`fastapi-mcp`](https://github.com/tadata-org/fastapi_mcp) library, only
+when `SKILLGROWTH_MCP_ENABLED` is set (see README's "Optional MCP
+server") — unset, it's a no-op, same "opt-in, off by default" pattern as
+`setup_basic_auth` above. A separate wrapper process was considered and
+rejected: this app's one design principle that matters most here is
+"single user, self-hosted, single process" (see the Concept page), and a
+second process would duplicate startup, auth, and deployment for no
+benefit an in-process mount doesn't already give.
+
+`fastapi-mcp` builds its tool list from the app's OpenAPI schema, so
+`setup_mcp(app)` must run **after** every `app.include_router(...)` call
+(the schema has to be complete first) and **before** the SPA fallback
+route at the bottom of `app/main.py` (a catch-all `GET /{full_path:path}`
+that would otherwise shadow `/mcp`, since Starlette matches routes in
+registration order).
+
+**Tool selection** is an explicit whitelist, `MCP_OPERATIONS` in
+`app/mcp_server.py`, passed as `FastApiMCP(..., include_operations=...)`.
+Each listed id is a FastAPI `operation_id` set explicitly on its route
+(fastapi-mcp's own recommendation — the auto-generated default is an
+unreadable hash-like string); routes with no explicit `operation_id` are
+simply never in the list, so nothing needs to be enumerated on the
+exclude side. The whitelist deliberately covers only read, add, and
+update operations — reading
+(skills/activity/certifications/bookmarks/profile/portfolio/self
+feedback/self PR/goals/vision) plus adding or updating those same
+resources — and excludes:
+
+- every `DELETE` endpoint (a wrong tool call must not be able to erase
+  career data)
+- `settings.py`/`backup.py` (API key and full-database export/import/reset)
+- `ai.py`/`consult.py`/`evidence.py`/`resume_import.py` (LLM-only features,
+  out of scope for "read and record your data")
+- anything involving a multipart file upload (CSV import, certificate/photo/portfolio-file/template uploads) — not a good fit for an MCP tool's schema
+
+Most of the included add/update tools (certifications, planned
+certifications, skills, education/employment/projects) go through the
+same `app/services.py::record_evidence_and_extract` path manual entry via
+the web UI uses — when Settings' skill extraction is turned on, a tool
+call therefore makes the same synchronous LLM round-trip the UI does
+(observed around 30 seconds locally against Ollama), not a new cost MCP
+introduces.
+
+**Auth**: `setup_basic_auth`'s `@app.middleware("http")` wraps the app's
+`router` object itself (not a frozen snapshot of the routes present at
+registration time), so it covers `/mcp` automatically regardless of call
+order — verified in `tests/test_mcp_server.py`'s
+`test_mcp_protected_by_basic_auth_when_both_enabled`. fastapi-mcp's own
+`auth_config` (a `Depends`-based alternative, for deployments with no
+app-wide gate) is intentionally unused here.
+
+**Dependency note**: `fastapi-mcp` 0.4.0 (latest on PyPI as of writing)
+still calls the `mcp` SDK's 1.x `Server(name, description)` positional
+constructor, which `mcp>=2.0` broke by making `description` keyword-only —
+`requirements.txt` pins `mcp>=1.12.0,<2.0.0` until fastapi-mcp catches up
+with the 2.x API. Without this pin, `setup_mcp(app)` raises a `TypeError`
+at import time whenever the gate is enabled.
+
 ## Data model
 
 The activity log (the `EvidenceEntry` table — the name predates the

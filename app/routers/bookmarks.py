@@ -14,12 +14,12 @@ class BookmarkIn(BaseModel):
     memo: str = ""
 
 
-@router.get("")
+@router.get("", operation_id="list_bookmarks")
 def list_bookmarks(session: Session = Depends(get_session)) -> list[Bookmark]:
     return session.exec(select(Bookmark).order_by(Bookmark.created_at.desc())).all()
 
 
-@router.post("")
+@router.post("", operation_id="add_bookmark")
 def create_bookmark(payload: BookmarkIn, session: Session = Depends(get_session)) -> Bookmark:
     url = payload.url.strip()
     title = payload.title.strip()
@@ -32,7 +32,7 @@ def create_bookmark(payload: BookmarkIn, session: Session = Depends(get_session)
     return bookmark
 
 
-@router.put("/{bookmark_id}")
+@router.put("/{bookmark_id}", operation_id="update_bookmark")
 def update_bookmark(bookmark_id: str, payload: BookmarkIn, session: Session = Depends(get_session)) -> Bookmark:
     bookmark = session.get(Bookmark, bookmark_id)
     if bookmark is None:

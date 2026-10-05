@@ -29,6 +29,15 @@ commit as the change, moved into a dated section when a release is cut).
 - Bookmarks: a new page for saving links with a manually-entered title
   and an optional memo — no automatic title fetching, no LLM/evidence
   involvement, just a flat list you manage yourself.
+- Optional MCP server: set `SKILLGROWTH_MCP_ENABLED=1` to mount an MCP
+  server at `/mcp` (off by default) so an MCP client can read and add your
+  career data through conversation. Covers read/add/update across
+  activity, certifications (including candidates), bookmarks, skills,
+  profile, portfolio, self feedback, self PR, goals, and vision —
+  deliberately no delete operations, Settings, backup, LLM-only
+  endpoints, or file uploads. Respects the existing Basic Auth gate when
+  both are enabled. New dependencies: `fastapi-mcp`, `mcp` (pinned below
+  2.0 for compatibility).
 
 ### Fixed
 - README's "Known limitations" no longer claims "no resume/CV parsing by

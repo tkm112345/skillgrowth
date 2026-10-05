@@ -264,6 +264,26 @@ the add/update tools run through the same skill-extraction path manual
 entry uses, so when that's turned on in Settings, a tool call can take
 30+ seconds — give your MCP client a generous timeout.
 
+**Connecting from Claude Code**, once the server above is running with
+`SKILLGROWTH_MCP_ENABLED=1`:
+
+```bash
+claude mcp add --transport http skillgrowth http://localhost:8000/mcp
+```
+
+If you've also turned on the Basic Auth gate, pass the credentials as a
+header instead (`claude mcp add` can take `--header` more than once):
+
+```bash
+claude mcp add --transport http skillgrowth http://localhost:8000/mcp \
+  --header "Authorization: Basic $(printf '%s' 'youruser:yourpassword' | base64)"
+```
+
+Check it connected with `claude mcp list` or `/mcp` inside a session. Add
+`--scope user` instead of the default `local` scope if you want every
+project on your machine to see it, not just whichever one you ran `claude
+mcp add` from.
+
 ## Usage
 
 A typical first session looks like this:

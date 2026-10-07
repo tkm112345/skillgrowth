@@ -9,6 +9,11 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- CI now runs [`gitleaks`](https://github.com/gitleaks/gitleaks) on every
+  push and pull request, scanning full git history for committed secrets
+  (API keys, tokens, private keys).
+
 ## [0.5.0] - 2026-10-05
 
 ### Added

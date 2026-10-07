@@ -14,6 +14,15 @@ commit as the change, moved into a dated section when a release is cut).
   push and pull request, scanning full git history for committed secrets
   (API keys, tokens, private keys).
 
+### Security
+- All third-party GitHub Actions are now pinned to a full commit SHA
+  (with the version as a trailing comment) instead of a mutable tag, so
+  a compromised or re-pointed tag can't silently run different code in
+  CI. Dependabot's existing `github-actions` ecosystem entry keeps these
+  pins up to date. CI jobs that were missing an explicit `permissions:`
+  block (`backend-tests`, `frontend-build`) now declare `contents: read`
+  instead of relying on the repository's default.
+
 ## [0.5.0] - 2026-10-05
 
 ### Added

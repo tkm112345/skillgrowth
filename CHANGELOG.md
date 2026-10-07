@@ -22,6 +22,18 @@ commit as the change, moved into a dated section when a release is cut).
   pins up to date. CI jobs that were missing an explicit `permissions:`
   block (`backend-tests`, `frontend-build`) now declare `contents: read`
   instead of relying on the repository's default.
+- `requirements.txt`/`requirements-dev.txt` now pin exact versions
+  (`==`) instead of a floating lower bound (`>=`), so `pip install`
+  can't silently pull in a newer, unreviewed (or compromised) release.
+  Dependabot's existing weekly `pip` entry will keep these current.
+- The Docker base images (`node:26-slim`, `python:3.12-slim`) are now
+  pinned to their multi-arch manifest-list digest in addition to the
+  tag, for the same reason. Dependabot's `docker` entry keeps the
+  digest current.
+- Enabled Dependabot vulnerability alerts and security updates on
+  GitHub (previously off), so a disclosed CVE in a dependency now
+  triggers an alert/PR immediately instead of waiting for the next
+  weekly scheduled check.
 
 ## [0.5.0] - 2026-10-05
 

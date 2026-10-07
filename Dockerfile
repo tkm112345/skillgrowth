@@ -1,11 +1,11 @@
-FROM node:26-slim AS frontend-build
+FROM node:26-slim@sha256:930557a230abacbc3f4fd9b8648abf8f4bee1e17cb72195dcdfb2f709bc85b33 AS frontend-build
 WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend .
 RUN npm run build
 
-FROM python:3.12-slim
+FROM python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f
 WORKDIR /app
 
 # gosu drops root privileges after the entrypoint chowns the /app/data

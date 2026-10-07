@@ -13,6 +13,12 @@ commit as the change, moved into a dated section when a release is cut).
 - CI now runs [`gitleaks`](https://github.com/gitleaks/gitleaks) on every
   push and pull request, scanning full git history for committed secrets
   (API keys, tokens, private keys).
+- CI now runs [CodeQL](https://codeql.github.com/) static analysis
+  (Python and JavaScript/TypeScript) on every push and pull request to
+  `main`, plus a weekly scheduled scan, looking for exploitable
+  patterns in the app's own code (injection, path traversal, unsafe
+  file handling) rather than known CVEs in dependencies. Results show
+  up under the repo's Security tab.
 
 ### Security
 - All third-party GitHub Actions are now pinned to a full commit SHA

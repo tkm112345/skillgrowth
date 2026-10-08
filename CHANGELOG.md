@@ -40,6 +40,15 @@ commit as the change, moved into a dated section when a release is cut).
   GitHub (previously off), so a disclosed CVE in a dependency now
   triggers an alert/PR immediately instead of waiting for the next
   weekly scheduled check.
+- Fixed 4 CodeQL `py/path-injection` code scanning alerts: the SPA
+  fallback route (`app/main.py`) and the backup-import portfolio file
+  writer (`app/backup_import.py`) now validate the resolved path stays
+  inside their intended root directory using a pattern CodeQL
+  recognizes as sanitized, instead of `Path.is_relative_to()`/
+  `Path.suffix` alone. (A 5th alert, `py/stack-trace-exposure` on the
+  LLM connection test endpoint, was dismissed as a deliberate,
+  documented feature — see `docs/FEATURES.md`'s "Test connection"
+  entry — rather than fixed.)
 
 ## [0.5.0] - 2026-10-05
 

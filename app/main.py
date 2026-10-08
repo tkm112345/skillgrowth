@@ -1,3 +1,4 @@
+import os.path
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -107,7 +108,7 @@ if FRONTEND_DIST.exists():
         # Serves files copied into dist from frontend/public (favicon.svg,
         # icons.svg, ...) directly; anything else falls back to index.html
         # so client-side routing can take over.
-        candidate = (DIST_ROOT / full_path).resolve()
-        if full_path and candidate.is_file() and candidate.is_relative_to(DIST_ROOT):
+        candidate = os.path.normpath(os.path.join(DIST_ROOT, full_path))
+        if full_path and candidate.startswith(str(DIST_ROOT) + os.sep) and os.path.isfile(candidate):
             return FileResponse(candidate)
         return FileResponse(FRONTEND_DIST / "index.html")

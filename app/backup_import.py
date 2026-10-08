@@ -1,4 +1,5 @@
 import base64
+import os.path
 import uuid
 from datetime import date, datetime
 from pathlib import Path
@@ -362,7 +363,9 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         if not item_id or not file_content_b64:
             continue  # orphaned row, or backup captured no file content
         suffix = Path(row.get("original_filename", "")).suffix
-        dest = PORTFOLIO_DIR / f"{uuid.uuid4()}{suffix}"
+        dest = Path(os.path.normpath(os.path.join(PORTFOLIO_DIR, f"{uuid.uuid4()}{suffix}")))
+        if not str(dest).startswith(str(PORTFOLIO_DIR) + os.sep):
+            raise ValueError(f"invalid portfolio file suffix: {suffix!r}")
         dest.write_bytes(base64.b64decode(file_content_b64))
         pf = PortfolioFile(
             portfolio_item_id=item_id,

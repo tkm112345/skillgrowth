@@ -1,6 +1,8 @@
 # skillgrowth
 
 [![CI](https://github.com/tkm112345/skillgrowth/actions/workflows/ci.yml/badge.svg)](https://github.com/tkm112345/skillgrowth/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/tkm112345/skillgrowth?style=flat&label=Latest%20version)](https://github.com/tkm112345/skillgrowth/releases)
+[![License: MIT](https://img.shields.io/github/license/tkm112345/skillgrowth?style=flat)](LICENSE)
 
 A self-hosted tool for your career and skill growth that grows together
 with you, instead of asking you to fill out a static profile once.

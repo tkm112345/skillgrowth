@@ -26,6 +26,11 @@ instead of having to reconstruct them from memory under time pressure.
 > to you as a person; the LLM it optionally talks to is just a tool it
 > uses to extract and match them, not a source of skills itself.
 
+Quick update → skill extraction → the extracted skills showing up on the
+Skills page, the core evidence-to-skill loop skillgrowth is built around:
+
+![A quick update being typed in, submitted, and the two skills it extracted appearing on the Skills page](docs/images/demo-quick-update.gif)
+
 ## Why
 
 Your career history keeps ending up on someone else's platform. During a
@@ -150,13 +155,7 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
 
 ## Screenshots
 
-Quick update → skill extraction → the extracted skills showing up on the
-Skills page, the core evidence-to-skill loop the "Why" section above
-describes:
-
-![A quick update being typed in, submitted, and the two skills it extracted appearing on the Skills page](docs/images/demo-quick-update.gif)
-
-The rest of the screens below are shown with the built-in sample data
+The screens below are shown with the built-in sample data
 (Settings → "Try it with sample data"), not a real account.
 
 | Dashboard | Skills |

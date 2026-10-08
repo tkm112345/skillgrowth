@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-08
+
 ### Added
 - CI now runs [`gitleaks`](https://github.com/gitleaks/gitleaks) on every
   push and pull request, scanning full git history for committed secrets
@@ -23,6 +25,11 @@ commit as the change, moved into a dated section when a release is cut).
   previously untested): `npm run test` from `frontend/`, wired into
   `make check` and the `frontend-build` CI job. Starting coverage is
   `hue.js`, `theme.js`, and the `GlobalSearch` component.
+
+### Changed
+- README now leads with the app icon, CI/release/license badges, and
+  the quick-update demo GIF, above the "Why" section, so a reader sees
+  what the app looks like before the pitch.
 
 ### Security
 - All third-party GitHub Actions are now pinned to a full commit SHA

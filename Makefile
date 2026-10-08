@@ -7,4 +7,5 @@ lint:
 
 check: lint
 	.venv/bin/pytest -q
+	cd frontend && npm run test
 	cd frontend && npm run build

@@ -19,6 +19,10 @@ commit as the change, moved into a dated section when a release is cut).
   patterns in the app's own code (injection, path traversal, unsafe
   file handling) rather than known CVEs in dependencies. Results show
   up under the repo's Security tab.
+- Added a unit test setup for `frontend/` (Vitest + `@vue/test-utils`,
+  previously untested): `npm run test` from `frontend/`, wired into
+  `make check` and the `frontend-build` CI job. Starting coverage is
+  `hue.js`, `theme.js`, and the `GlobalSearch` component.
 
 ### Security
 - All third-party GitHub Actions are now pinned to a full commit SHA

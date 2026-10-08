@@ -7,4 +7,4 @@ openai==3.24.0
 docxtpl[subdoc]==0.20.2  # the "subdoc" extra (docxcompose) is needed by new_subdoc(), used to build table/bullet sections
 pymupdf==1.28.2  # pure wheel, no system/apt packages needed — used for PDF->image and PDF text extraction
 fastapi-mcp==0.4.0  # optional MCP server mounted at /mcp — see app/mcp_server.py, off by default
-mcp==1.30.0  # fastapi-mcp 0.4.0 (latest as of writing) still calls the mcp SDK's 1.x Server(name, description) positional signature, which mcp>=2.0 broke (description became keyword-only) — stay below 2.0 until fastapi-mcp catches up
+mcp==2.2.0  # fastapi-mcp 0.4.0 (latest as of writing) still calls the mcp SDK's 1.x Server(name, description) positional signature, which mcp>=2.0 broke (description became keyword-only) — stay below 2.0 until fastapi-mcp catches up

@@ -21,6 +21,12 @@ commit as the change, moved into a dated section when a release is cut).
   CVEs in dependencies before merge instead of waiting for Dependabot's
   weekly scan.
 
+### Fixed
+- Reverted the `mcp` dependency to `1.30.0` (a Dependabot PR had bumped
+  it to `2.2.0`, breaking the optional MCP server: `fastapi-mcp` 0.4.0
+  still calls the mcp SDK's 1.x `Server(name, description)` positional
+  signature, which `mcp>=2.0` made keyword-only).
+
 ## [0.5.1] - 2026-10-08
 
 ### Added

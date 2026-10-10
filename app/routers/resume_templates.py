@@ -10,7 +10,7 @@ from sqlmodel import Session, select
 from app.db import RESUME_TEMPLATE_DIR, get_session
 from app.models import ResumeTemplate
 from app.resume_docx import SECTION_FORMAT_CHOICES, render_resume_docx
-from app.services import select_only
+from app.services import select_only, validate_section_formats
 
 router = APIRouter(prefix="/api/resume-templates", tags=["resume_templates"])
 
@@ -19,13 +19,6 @@ class ResumeTemplateUpdateIn(BaseModel):
     name: str | None = None
     section_formats: dict[str, str] | None = None
     is_selected: bool | None = None
-
-
-def _validate_section_formats(section_formats: dict[str, str]) -> None:
-    for key, value in section_formats.items():
-        choices = SECTION_FORMAT_CHOICES.get(key)
-        if choices is None or value not in choices:
-            raise HTTPException(status_code=400, detail=f"Invalid section format: {key}={value}")
 
 
 @router.get("")
@@ -67,7 +60,7 @@ def update_resume_template(
     if payload.name is not None:
         entry.name = payload.name
     if payload.section_formats is not None:
-        _validate_section_formats(payload.section_formats)
+        validate_section_formats(payload.section_formats, SECTION_FORMAT_CHOICES)
         entry.section_formats = json.dumps(payload.section_formats)
     session.add(entry)
     if payload.is_selected:

@@ -5,6 +5,30 @@ def test_list_goals_returns_three_default_horizons(client):
     assert horizons == ["this_year", "5_years", "10_years"]
     assert all(g["description"] == "" for g in resp.json())
     assert all(g["updated_at"] is None for g in resp.json())
+    assert all(g["include_in_resume"] is False for g in resp.json())
+
+
+def test_resume_inclusion_defaults_off_and_can_be_toggled_per_horizon(client):
+    resp = client.put("/api/goals/this_year/resume-inclusion", json={"include_in_resume": True})
+    assert resp.status_code == 200
+    assert resp.json()["include_in_resume"] is True
+
+    goals = {g["horizon"]: g for g in client.get("/api/goals").json()}
+    assert goals["this_year"]["include_in_resume"] is True
+    assert goals["5_years"]["include_in_resume"] is False
+
+
+def test_resume_inclusion_toggle_rejects_horizon_outside_the_fixed_set(client):
+    resp = client.put("/api/goals/not-a-real-horizon/resume-inclusion", json={"include_in_resume": True})
+    assert resp.status_code == 400
+
+
+def test_resume_inclusion_toggle_does_not_create_history(client):
+    client.put("/api/goals/this_year", json={"horizon": "this_year", "description": "AWS認定を取る"})
+    client.put("/api/goals/this_year/resume-inclusion", json={"include_in_resume": True})
+
+    history = [h for h in client.get("/api/goals/history").json() if h["horizon"] == "this_year"]
+    assert len(history) == 1  # only the description PUT above recorded history
 
 
 def test_list_goals_returns_real_timestamp_only_for_saved_horizon(client):

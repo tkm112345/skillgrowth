@@ -7,7 +7,13 @@ from pathlib import Path
 from sqlmodel import Session
 
 from app import services
-from app.db import PERSONAL_INFO_DIR, PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, RIREKISHO_TEMPLATE_DIR
+from app.db import (
+    PERSONAL_INFO_DIR,
+    PORTFOLIO_DIR,
+    RESUME_MD_TEMPLATE_DIR,
+    RESUME_TEMPLATE_DIR,
+    RIREKISHO_TEMPLATE_DIR,
+)
 from app.models import (
     ActivityType,
     Bookmark,
@@ -29,6 +35,7 @@ from app.models import (
     PortfolioLink,
     Project,
     ReflectionLog,
+    ResumeMdTemplate,
     ResumeTemplate,
     RirekishoTemplate,
     SelfFeedback,
@@ -243,7 +250,13 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
             continue
         existing = session.get(CareerGoal, row["horizon"])
         if existing is None:
-            session.add(CareerGoal(horizon=row["horizon"], description=row.get("description", "")))
+            session.add(
+                CareerGoal(
+                    horizon=row["horizon"],
+                    description=row.get("description", ""),
+                    include_in_resume=row.get("include_in_resume", False),
+                )
+            )
             note("career_goal", row["horizon"])
             counts["career_goals"] += 1
         elif not existing.description.strip():
@@ -274,7 +287,14 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
     for row in data.get("career_vision", []):
         existing = session.get(CareerVision, 1)
         if existing is None:
-            session.add(CareerVision(id=1, content=row.get("content", ""), updated_at=_dt(row.get("updated_at"))))
+            session.add(
+                CareerVision(
+                    id=1,
+                    content=row.get("content", ""),
+                    updated_at=_dt(row.get("updated_at")),
+                    include_in_resume=row.get("include_in_resume", False),
+                )
+            )
             note("career_vision", "1")
             counts["career_vision"] += 1
         elif not existing.content.strip():
@@ -316,6 +336,26 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         session.flush()
         note("resume_template", template.id)
         counts["resume_templates"] += 1
+
+    counts["resume_md_templates"] = 0
+    for row in data.get("resume_md_templates", []):
+        file_content_b64 = row.get("file_content_base64")
+        if not file_content_b64:
+            continue  # backup captured only the path, or the file was missing when exported
+        dest = RESUME_MD_TEMPLATE_DIR / f"{uuid.uuid4()}.md"
+        dest.write_bytes(base64.b64decode(file_content_b64))
+        # is_selected is deliberately never imported — same reasoning as
+        # resume_templates above.
+        md_template = ResumeMdTemplate(
+            name=row.get("name", "Untitled"),
+            file_path=str(dest),
+            section_formats=row.get("section_formats", "{}"),
+            uploaded_at=_dt(row.get("uploaded_at")),
+        )
+        session.add(md_template)
+        session.flush()
+        note("resume_md_template", md_template.id)
+        counts["resume_md_templates"] += 1
 
     portfolio_item_id_map: dict[str, str] = {}
     for row in data.get("portfolio_items", []):

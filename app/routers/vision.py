@@ -18,14 +18,19 @@ class VisionIn(BaseModel):
 class VisionOut(BaseModel):
     content: str
     updated_at: Optional[datetime] = None
+    include_in_resume: bool = False
+
+
+class VisionResumeInclusionIn(BaseModel):
+    include_in_resume: bool
 
 
 @router.get("", operation_id="get_vision")
 def get_vision(session: Session = Depends(get_session)) -> VisionOut:
     vision = session.get(CareerVision, 1)
     if vision is None:
-        return VisionOut(content="", updated_at=None)
-    return VisionOut(content=vision.content, updated_at=vision.updated_at)
+        return VisionOut(content="", updated_at=None, include_in_resume=False)
+    return VisionOut(content=vision.content, updated_at=vision.updated_at, include_in_resume=vision.include_in_resume)
 
 
 @router.put("", operation_id="update_vision")
@@ -35,6 +40,20 @@ def update_vision(payload: VisionIn, session: Session = Depends(get_session)) ->
         vision = CareerVision(id=1)
     vision.content = payload.content
     vision.updated_at = datetime.now(timezone.utc)
+    session.add(vision)
+    session.commit()
+    session.refresh(vision)
+    return vision
+
+
+@router.put("/resume-inclusion", operation_id="set_vision_resume_inclusion")
+def set_vision_resume_inclusion(
+    payload: VisionResumeInclusionIn, session: Session = Depends(get_session)
+) -> CareerVision:
+    vision = session.get(CareerVision, 1)
+    if vision is None:
+        vision = CareerVision(id=1)
+    vision.include_in_resume = payload.include_in_resume
     session.add(vision)
     session.commit()
     session.refresh(vision)

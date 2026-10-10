@@ -14,7 +14,9 @@
   edit, reverting to what was last saved) or Save. Every saved change is
   kept as history, never overwritten — a "History" link on each goal
   lazy-loads past versions with their dates, 5 at a time with a "Load more"
-  link, so the page stays light even after years of edits.
+  link, so the page stays light even after years of edits. Each horizon
+  also has its own "Include in generated resume" switch (off by default)
+  — see **Resume** below.
 - **Quick update** — a short free-text box for "what have you been working
   on lately"; submitting it runs skill extraction immediately, the same way
   every other activity source does.
@@ -43,7 +45,9 @@ value (a singleton, not a list), shown pre-filled with whatever was last
 saved and overwritten in place on Save — unlike career path goals, past
 versions aren't kept as history. Like career path goals, it's plain text
 with no LLM involvement (extraction or otherwise) and doesn't appear in
-the Activity feed.
+the Activity feed. An "Include in generated resume" switch (off by
+default) controls whether this text appears on the resume — see
+**Resume** below.
 
 ## Self Feedback
 
@@ -310,13 +314,18 @@ how much data you have.
   the resume is marked "In use."
 - **Generate resume** — assembles the current skill picture, work/education
   history, and the selected Self PR into Markdown, following a fixed set of
-  sections (Self PR → Work History → Other Projects → Education → Skills →
-  Certifications) — **no LLM involved**, just your existing data filled
-  into that template, so it works even without an LLM configured. Rendered
-  as formatted HTML in the UI (not raw Markdown text) and downloadable as a
-  `.md` file. Every generation is kept as a snapshot, so past exports
-  remain browsable (20 at a time, with a "Load more" button). Sections with
-  no data are simply omitted.
+  sections (Self PR → Vision → Career Goals → Work History → Other
+  Projects → Education → Skills → Certifications) — **no LLM involved**,
+  just your existing data filled into that template, so it works even
+  without an LLM configured. Rendered as formatted HTML in the UI (not raw
+  Markdown text) and downloadable as a `.md` file. Every generation is kept
+  as a snapshot, so past exports remain browsable (20 at a time, with a
+  "Load more" button). Sections with no data are simply omitted — this
+  includes Vision and Career Goals, which are additionally gated behind
+  their own "include in resume" toggle (off by default — see Vision and
+  Dashboard below), since that data was never shown on the resume before
+  this toggle existed and shouldn't start appearing there without you
+  opting in.
 - **Edit a snapshot** — any past resume, not just the latest, can be edited
   directly as raw Markdown (an "Edit" toggle switches the rendered view to
   a textarea) and saved back in place. Useful for polishing wording the
@@ -325,7 +334,8 @@ how much data you have.
   shows both when it was generated and when it was last edited.
 - **Word template export** — alongside the Markdown resume above, upload a
   `.docx` file with tags like `{{p self_pr }}` (an in-app reference panel
-  lists all six available tags and the exact syntax they need) and
+  lists all available tags, including `vision`/`goals`, and the exact
+  syntax they need) and
   generate a filled copy on demand — just as deterministic as the
   Markdown generator, no LLM involved. Multiple templates can be saved
   and switched between, with one marked as the default. Work history,
@@ -334,6 +344,15 @@ how much data you have.
   the UI, not by editing the template file's own logic — so the same
   `.docx` design can show a table one way and a list another without
   keeping two separate template files.
+- **Markdown template export** — the same idea as the Word template export
+  above, but for a Markdown file: upload a `.md` file with plain Jinja2
+  tags like `{{ self_pr }}` (the in-app reference panel lists the same set
+  of tags, including `vision`/`goals`) and generate a filled copy on
+  demand. Just as deterministic as the other two resume paths, no LLM
+  involved, with its own saved/switchable template list and the same
+  per-section bullet-or-table (or list-or-table) format choice — kept as a
+  separate template type from the Word one so each has its own
+  independent "default template" selection.
 - **Rirekisho** — a distinct document from the resume above: in Japanese
   job hunting, a rirekisho (履歴書) is a standardized personal-history form
   (name, contact details, a combined education/work-history table, a

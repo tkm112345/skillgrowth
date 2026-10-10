@@ -66,12 +66,18 @@ class CareerGoal(SQLModel, table=True):
     horizon: str = Field(primary_key=True)  # "this_year" | "5_years" | "10_years"
     description: str = ""
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Default False: this data was never shown on the resume before this
+    # field existed, so an upgraded install must not start leaking it into
+    # a generated resume without the user explicitly opting in per horizon.
+    include_in_resume: bool = False
 
 
 class CareerVision(SQLModel, table=True):
     id: int = Field(default=1, primary_key=True)  # singleton row, id=1
     content: str = ""
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Default False — same reasoning as CareerGoal.include_in_resume above.
+    include_in_resume: bool = False
 
 
 class CareerGoalHistory(SQLModel, table=True):
@@ -223,6 +229,22 @@ class ConsultMessage(SQLModel, table=True):
 
 
 class ResumeTemplate(SQLModel, table=True):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    name: str
+    file_path: str
+    section_formats: str = "{}"  # JSON text, e.g. {"employment": "table", "projects": "bullet"}
+    is_selected: bool = False
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ResumeMdTemplate(SQLModel, table=True):
+    # Same shape as ResumeTemplate, kept as its own table rather than a
+    # shared one with a format discriminator — select_only() clears every
+    # other row of a model when marking one selected, so a docx template
+    # and a Markdown template must live in separate tables to have
+    # independent "exactly one selected" invariants (mirrors how
+    # RirekishoTemplate is kept separate from ResumeTemplate despite the
+    # near-identical shape).
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     name: str
     file_path: str

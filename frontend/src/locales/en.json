@@ -61,6 +61,8 @@
     "goalHistoryHide": "Hide history",
     "goalHistoryEmpty": "No history yet",
     "goalHistoryLoadMore": "Load more",
+    "goalIncludeInResume": "Include in generated resume",
+    "goalResumeToggleError": "Failed to update",
     "actionCountHeader": "Skill-improving actions per month",
     "categoryHeader": "Category breakdown",
     "statTotalSkills": "Total skills",
@@ -77,7 +79,9 @@
     "subtitle": "A rough, free-form sketch of the kind of career you're aiming for — no structure, no horizons, just what comes to mind.",
     "placeholder": "What kind of career are you aiming for, broadly speaking?",
     "saved": "Saved",
-    "updatedAt": "Last updated {date}"
+    "updatedAt": "Last updated {date}",
+    "includeInResume": "Include in generated resume",
+    "resumeToggleError": "Failed to update"
   },
   "selfFeedback": {
     "title": "Self Feedback",
@@ -381,11 +385,16 @@
     "resumeTemplateTagsHeader": "Available tags",
     "resumeTemplateTagsHint": "Place these in your .docx template, each as the only content of its own paragraph — they're replaced with your data when you generate. education always renders as a plain list; the others follow the format picked above.",
     "resumeTemplateTagSelfPr": "Self PR",
+    "resumeTemplateTagVision": "Vision (only shown if turned on under Vision)",
+    "resumeTemplateTagGoals": "Career goals (only shown for horizons turned on from the Dashboard)",
     "resumeTemplateTagEmployment": "Work history (with nested projects)",
     "resumeTemplateTagProjects": "Other (standalone) projects",
     "resumeTemplateTagEducation": "Education",
     "resumeTemplateTagSkills": "Skills",
-    "resumeTemplateTagCertifications": "Certifications"
+    "resumeTemplateTagCertifications": "Certifications",
+    "resumeMdTemplateHeader": "Markdown template",
+    "resumeMdTemplateHint": "Like the Word template above, but for a Markdown file — upload a .md file with tags like {'{'}{'{'} self_pr {'}'}{'}'} (see the tag reference below) and fill it with your current data on demand. Also deterministic: no LLM involved.",
+    "resumeMdTemplateTagsHint": "Place these anywhere in your .md template using plain Jinja2 syntax (not Word's {'{'}{'{'}p ... {'}'}{'}'} form) — they're replaced with your data when you generate. education always renders as plain text; the others follow the format picked above."
   },
   "rirekisho": {
     "personalInfoHeader": "Rirekisho: Personal info",

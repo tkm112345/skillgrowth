@@ -26,6 +26,7 @@ from app.routers import (
     portfolio,
     profile,
     resume_import,
+    resume_md_templates,
     resume_templates,
     rirekisho_templates,
     search,
@@ -75,6 +76,7 @@ app.include_router(self_pr.router)
 app.include_router(vision.router)
 app.include_router(consult.router)
 app.include_router(resume_templates.router)
+app.include_router(resume_md_templates.router)
 app.include_router(portfolio.router)
 app.include_router(self_feedback.router)
 app.include_router(search.router)

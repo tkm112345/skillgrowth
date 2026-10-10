@@ -187,6 +187,7 @@ erDiagram
   CareerGoal {
     string horizon "this_year/5_years/10_years, primary key"
     text description "current value only"
+    bool include_in_resume "default false — opt-in, see 'Resume export (no LLM)'"
   }
   CareerGoalHistory {
     string id
@@ -198,6 +199,7 @@ erDiagram
     int id "singleton row, id=1"
     text content "no history — overwritten in place"
     datetime updated_at
+    bool include_in_resume "default false — opt-in, see 'Resume export (no LLM)'"
   }
   ConsultSession {
     string id
@@ -222,6 +224,14 @@ erDiagram
     string id
     string name
     string file_path "uploaded .docx, on disk"
+    string section_formats "JSON text: per-section bullet/table or list/table choice"
+    bool is_selected
+    datetime uploaded_at
+  }
+  ResumeMdTemplate {
+    string id
+    string name
+    string file_path "uploaded .md, on disk"
     string section_formats "JSON text: per-section bullet/table or list/table choice"
     bool is_selected
     datetime uploaded_at
@@ -836,12 +846,37 @@ parsing contract to break.
 
 `POST /api/export` calls `app/resume_builder.py::build_resume_markdown`,
 which is pure and deterministic — no LLM, no network call. It builds a
-fixed set of Markdown sections in a fixed order (Self PR → Work History →
-Other Projects → Education → Skills → Certifications) directly from
-`Employment`/`Project`/`Education`/`Skill`/`LearningActivity` rows; any
-section with no data is omitted. This replaced an earlier LLM-based
-`generate_resume()` — layout variance and hallucination risk weren't
-worth it for a document meant to be copy-pasted as-is.
+fixed set of Markdown sections in a fixed order (Self PR → Vision →
+Career Goals → Work History → Other Projects → Education → Skills →
+Certifications) directly from `Employment`/`Project`/`Education`/`Skill`/
+`LearningActivity` rows; any section with no data is omitted. This
+replaced an earlier LLM-based `generate_resume()` — layout variance and
+hallucination risk weren't worth it for a document meant to be
+copy-pasted as-is.
+
+**Vision and Career Goals are opt-in**, unlike every other section here:
+`CareerVision.include_in_resume`/`CareerGoal.include_in_resume` (added
+via `_ensure_column`, both `BOOLEAN DEFAULT 0`) gate whether
+`gather_resume_context` returns non-`None`/non-empty `vision`/`goals`
+keys at all — `build_resume_markdown` then applies the same
+"omit if empty" guard it already uses for every other section, so a
+blank Vision stays omitted even with the toggle on. The default is
+`False`, the opposite of `Skill.include_in_resume`/
+`LearningActivity.include_in_resume`'s `True` default: those two were
+already showing on the resume before their toggle existed, so flipping
+the default to `False` would have silently hidden data every existing
+install already had on their resume. Vision and Career Goals are the
+reverse case — `app/career_context.py::build_consult_context` has always
+read them for Career Consult, but `gather_resume_context` never did, so
+defaulting the new toggle to `True` would make previously-internal
+content start appearing on an upgraded install's resume without the user
+ever asking for that. `PUT /api/vision/resume-inclusion` and
+`PUT /api/goals/{horizon}/resume-inclusion` are the toggle endpoints —
+narrow and separate from the content-editing `PUT`s, the same
+"don't touch the content" shape `PUT /api/skills/{id}/resume-inclusion`
+already uses, and (for goals) deliberately not routed through
+`update_goal`'s `CareerGoalHistory` write, since toggling visibility
+isn't a change to the goal's description.
 
 `SelfPR` rows are still never deleted-and-replaced by adding a new one —
 `POST /api/self-pr` always inserts, and `GET /api/self-pr` (paginated,
@@ -907,9 +942,12 @@ silently drift on what a resume includes.
 
 `render_resume_docx` uses [docxtpl](https://docxtpl.readthedocs.io/) (a
 Jinja2-over-python-docx templating library — pure Python, no native
-system libraries required, unlike e.g. WeasyPrint) to fill six tags in
-the uploaded template: `self_pr`, `employment`, `projects`, `education`,
-`skills`, `certifications`. `employment`/`projects`/`skills`/
+system libraries required, unlike e.g. WeasyPrint) to fill eight tags in
+the uploaded template: `self_pr`, `vision`, `goals`, `employment`,
+`projects`, `education`, `skills`, `certifications` (`vision`/`goals`
+render as empty subdocs when their `include_in_resume` toggle is off or
+their content is blank — see "Resume export (no LLM)" above for that
+toggle). `employment`/`projects`/`skills`/
 `certifications` are each built as a docxtpl "subdoc" — a dynamically
 constructed native Word paragraph list or table (via `python-docx`'s
 paragraph/table APIs), chosen per `SECTION_FORMAT_CHOICES` in
@@ -963,6 +1001,66 @@ rather than creating a template with no backing file. `is_selected` is
 never imported, the same reasoning `SelfPR` uses (see "Resume export
 (no LLM)" above) — an import must never silently change which template
 generation defaults to.
+
+## Markdown-template resume export
+
+`ResumeMdTemplate` (`app/models.py`) is the Markdown counterpart to
+`ResumeTemplate` above — same `id`/`name`/`file_path`/`section_formats`/
+`is_selected`/`uploaded_at` shape, files stored under
+`data/uploads/resume_md_templates/` (`RESUME_MD_TEMPLATE_DIR` in
+`app/db.py`) — but kept as its **own table rather than a shared one with
+a format discriminator column**. `app/services.py::select_only` enforces
+"exactly one selected row" by clearing `is_selected` on every other row
+of `type(entry)`; if docx and Markdown templates shared one table, a
+`select_only` call for a newly-selected Markdown template would also
+deselect whichever docx template was selected (and vice versa), which is
+wrong — a user should be able to have one default Word template and one
+default Markdown template at the same time. This mirrors why
+`RirekishoTemplate` is already its own table rather than a parameterized
+`ResumeTemplate`.
+
+`app/resume_markdown_template.py::render_resume_markdown_template(session,
+template)` is the Markdown analogue of `render_resume_docx` — it calls
+the same `gather_resume_context(session)`, so the Markdown, Word, and
+plain-Markdown-generator (`build_resume_markdown`) paths can never drift
+on what a resume includes. Instead of docxtpl subdocs, each section is
+rendered to a plain string (`_render_employment`/`_render_skills`/etc.),
+using plain Markdown bullet lists or `| a | b |`-style pipe tables for
+the same `SECTION_FORMAT_CHOICES` (bullet/table, list/table) the Word
+path uses — `app/services.py::validate_section_formats` was factored out
+of `app/routers/resume_templates.py` so both this router and
+`resume_templates.py` validate a `section_formats` payload against
+`SECTION_FORMAT_CHOICES` the same way, without duplicating the check.
+
+**The uploaded template uses plain Jinja2 syntax, `{{ tag_name }}`, not
+Word's `{{p tag_name }}`.** The `{{p ... }}` paragraph-substitution form
+exists in docxtpl specifically to avoid XML nesting inside a `<w:t>` text
+run (see "Word-template resume export" above) — a failure mode that only
+exists in OOXML's paragraph/run structure. A plain-text Markdown file has
+no such structure, so `jinja2.Template(text).render(context)` (the
+`jinja2` package is already a direct dependency — see
+`requirements.txt` — since `docxtpl` depends on it transitively, but
+this is the first place this codebase imports it directly) just works
+with ordinary tag syntax. The in-app tag reference panel on the Resume
+page shows this template's tags with plain `{{ ... }}`, distinct from
+the Word template's `{{p ... }}` list right above it, so a user copying
+syntax between the two upload forms doesn't carry the wrong one over.
+
+Unlike `render_resume_docx`, there's no subdoc/"nested inside a run"
+failure mode to guard against, so a tag with no matching context key
+would normally raise a Jinja2 `UndefinedError` — avoided here simply by
+always including all eight keys in the rendered `context` dict (empty
+string for `self_pr`/`vision` when there's no content, empty string for
+`goals`/`employment`/etc. when the list is empty), the same "always
+substitute, never omit" behavior `render_resume_docx` already has for
+the Word path.
+
+Backup export/import follows the `ResumeTemplate` pattern exactly
+(`app/routers/backup.py::_dump_resume_md_templates` embeds the file's
+content as base64; `app/backup_import.py`'s `resume_md_templates` loop
+decodes it back to a new file under `RESUME_MD_TEMPLATE_DIR`, skipping a
+row with no `file_content_base64`; `is_selected` is never imported, same
+reasoning as every other "exactly one selected" table in this app).
 
 ## Rirekisho export
 

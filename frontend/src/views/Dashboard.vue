@@ -101,6 +101,17 @@ async function saveGoal(goal) {
   }
 }
 
+async function toggleGoalResumeInclusion(goal) {
+  const next = !goal.include_in_resume
+  goal.include_in_resume = next
+  try {
+    await api.setGoalResumeInclusion(goal.horizon, next)
+  } catch (e) {
+    goal.include_in_resume = !next
+    ElMessage.error(t('dashboard.goalResumeToggleError'))
+  }
+}
+
 async function submitCheckin() {
   if (!checkinText.value.trim()) return
   submittingCheckin.value = true
@@ -254,6 +265,11 @@ const categoryOption = computed(() => {
           </div>
         </template>
 
+        <div class="goal-resume-toggle">
+          <el-switch :model-value="goal.include_in_resume" @change="toggleGoalResumeInclusion(goal)" />
+          <span>{{ t('dashboard.goalIncludeInResume') }}</span>
+        </div>
+
         <div v-if="historyOpenHorizon === goal.horizon" class="goal-history-panel">
           <ul v-if="historyByHorizon[goal.horizon]?.length" class="goal-history">
             <li v-for="h in historyByHorizon[goal.horizon]" :key="h.id">
@@ -361,6 +377,15 @@ const categoryOption = computed(() => {
   display: flex;
   gap: 0.25rem;
   margin-top: 0.5rem;
+}
+
+.goal-resume-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
 }
 
 .goal-history-panel {

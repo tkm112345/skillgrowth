@@ -1,4 +1,4 @@
-from app.models import Education, Employment, LearningActivity, Skill
+from app.models import CareerGoal, CareerVision, Education, Employment, LearningActivity, Skill
 from app.resume_builder import build_resume_markdown
 
 
@@ -51,3 +51,35 @@ def test_certification_excluded_from_resume_when_include_in_resume_is_false(sess
     content = build_resume_markdown(session)
     assert "Shown Cert" in content
     assert "Hidden Cert" not in content
+
+
+def test_vision_included_only_when_toggled_on(session):
+    session.add(CareerVision(id=1, content="好きな価値観", include_in_resume=False))
+    session.commit()
+    assert "## Vision" not in build_resume_markdown(session)
+
+    vision = session.get(CareerVision, 1)
+    vision.include_in_resume = True
+    session.add(vision)
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Vision" in content
+    assert "好きな価値観" in content
+
+
+def test_blank_vision_is_omitted_even_when_toggled_on(session):
+    session.add(CareerVision(id=1, content="   ", include_in_resume=True))
+    session.commit()
+    assert "## Vision" not in build_resume_markdown(session)
+
+
+def test_goals_included_only_when_toggled_on_per_horizon(session):
+    session.add(CareerGoal(horizon="this_year", description="今年の目標", include_in_resume=True))
+    session.add(CareerGoal(horizon="5_years", description="5年後の目標", include_in_resume=False))
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Career Goals" in content
+    assert "今年の目標" in content
+    assert "5年後の目標" not in content

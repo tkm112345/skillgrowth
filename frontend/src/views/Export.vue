@@ -41,6 +41,8 @@ const FORMAT_OPTION_LABEL_KEYS = {
 }
 const RESUME_TAGS = [
   { tag: 'self_pr', labelKey: 'export.resumeTemplateTagSelfPr' },
+  { tag: 'vision', labelKey: 'export.resumeTemplateTagVision' },
+  { tag: 'goals', labelKey: 'export.resumeTemplateTagGoals' },
   { tag: 'employment', labelKey: 'export.resumeTemplateTagEmployment' },
   { tag: 'projects', labelKey: 'export.resumeTemplateTagProjects' },
   { tag: 'education', labelKey: 'export.resumeTemplateTagEducation' },
@@ -55,6 +57,14 @@ const newTemplateFile = ref(null)
 const uploadingTemplate = ref(false)
 const generatingTemplateId = ref(null)
 const savingFormatId = ref(null)
+
+const resumeMdTemplates = ref([])
+const loadingResumeMdTemplates = ref(true)
+const newMdTemplateName = ref('')
+const newMdTemplateFile = ref(null)
+const uploadingMdTemplate = ref(false)
+const generatingMdTemplateId = ref(null)
+const savingMdFormatId = ref(null)
 
 const editingSelfPRId = ref(null)
 const draftSelfPR = ref('')
@@ -108,22 +118,25 @@ const generatingRirekishoTemplateId = ref(null)
 
 onMounted(async () => {
   try {
-    const [page, prs, templates] = await Promise.all([
+    const [page, prs, templates, mdTemplates] = await Promise.all([
       api.getExports(PAGE_SIZE, 0),
       api.getSelfPRs(SELF_PR_PAGE_SIZE, 0),
       api.getResumeTemplates(),
+      api.getResumeMdTemplates(),
     ])
     exports.value = page
     hasMore.value = page.length === PAGE_SIZE
     selfPRs.value = prs
     hasMoreSelfPR.value = prs.length === SELF_PR_PAGE_SIZE
     resumeTemplates.value = templates
+    resumeMdTemplates.value = mdTemplates
   } catch (e) {
     ElMessage.error(t('common.loadError'))
   } finally {
     loading.value = false
     loadingSelfPR.value = false
     loadingResumeTemplates.value = false
+    loadingResumeMdTemplates.value = false
   }
 
   try {
@@ -309,11 +322,86 @@ function tagSyntax(tag) {
   return `{{p ${tag} }}`
 }
 
+function mdTagSyntax(tag) {
+  return `{{ ${tag} }}`
+}
+
 async function removeTemplate(id) {
   await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
   try {
     await api.deleteResumeTemplate(id)
     resumeTemplates.value = resumeTemplates.value.filter((tpl) => tpl.id !== id)
+  } catch (e) {
+    ElMessage.error(t('common.deleteError'))
+  }
+}
+
+function handleMdTemplateFileChange(uploadFile) {
+  newMdTemplateFile.value = uploadFile.raw
+}
+
+async function uploadMdTemplate() {
+  if (!newMdTemplateName.value.trim() || !newMdTemplateFile.value) return
+  uploadingMdTemplate.value = true
+  try {
+    const template = await api.uploadResumeMdTemplate(newMdTemplateName.value, newMdTemplateFile.value)
+    resumeMdTemplates.value.unshift(template)
+    newMdTemplateName.value = ''
+    newMdTemplateFile.value = null
+    ElMessage.success(t('export.resumeTemplateUploaded'))
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateUploadError', { error: e.message }))
+  } finally {
+    uploadingMdTemplate.value = false
+  }
+}
+
+async function setDefaultMdTemplate(tpl) {
+  try {
+    const updated = await api.updateResumeMdTemplate(tpl.id, { is_selected: true })
+    for (const other of resumeMdTemplates.value) other.is_selected = other.id === updated.id
+    ElMessage.success(t('export.resumeTemplateSelected'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  }
+}
+
+async function updateMdSectionFormat(tpl, key, value) {
+  const formats = { ...parseSectionFormats(tpl), [key]: value }
+  savingMdFormatId.value = tpl.id
+  try {
+    const updated = await api.updateResumeMdTemplate(tpl.id, { section_formats: formats })
+    tpl.section_formats = updated.section_formats
+    ElMessage.success(t('export.resumeTemplateFormatSaved'))
+  } catch (e) {
+    ElMessage.error(t('common.saveError'))
+  } finally {
+    savingMdFormatId.value = null
+  }
+}
+
+async function generateFromMdTemplate(tpl) {
+  generatingMdTemplateId.value = tpl.id
+  try {
+    const blob = await api.generateResumeMarkdownFromTemplate(tpl.id)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${tpl.name}.md`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    ElMessage.error(t('export.resumeTemplateGenerateError', { error: e.message }))
+  } finally {
+    generatingMdTemplateId.value = null
+  }
+}
+
+async function removeMdTemplate(id) {
+  await ElMessageBox.confirm(t('export.confirmDeleteResumeTemplate'), t('profile.confirm'))
+  try {
+    await api.deleteResumeMdTemplate(id)
+    resumeMdTemplates.value = resumeMdTemplates.value.filter((tpl) => tpl.id !== id)
   } catch (e) {
     ElMessage.error(t('common.deleteError'))
   }
@@ -620,6 +708,99 @@ async function selectSelfPR(pr) {
         <ul class="resume-tags-list">
           <li v-for="item in RESUME_TAGS" :key="item.tag">
             <code>{{ tagSyntax(item.tag) }}</code> — {{ t(item.labelKey) }}
+          </li>
+        </ul>
+      </el-collapse-item>
+    </el-collapse>
+  </el-card>
+
+  <el-card shadow="never" class="export-card accent-aqua" v-loading="loadingResumeMdTemplates">
+    <template #header>{{ t('export.resumeMdTemplateHeader') }}</template>
+    <p class="self-pr-hint">{{ t('export.resumeMdTemplateHint') }}</p>
+
+    <div class="template-upload-row">
+      <el-input v-model="newMdTemplateName" :placeholder="t('export.resumeTemplateNamePlaceholder')" />
+      <el-upload
+        :auto-upload="false"
+        :show-file-list="true"
+        :limit="1"
+        accept=".md"
+        :on-change="handleMdTemplateFileChange"
+      >
+        <el-button size="small">{{ t('export.resumeTemplateChooseFile') }}</el-button>
+      </el-upload>
+      <el-button
+        type="primary"
+        :loading="uploadingMdTemplate"
+        :disabled="!newMdTemplateName.trim() || !newMdTemplateFile"
+        @click="uploadMdTemplate"
+      >
+        {{ t('export.resumeTemplateUpload') }}
+      </el-button>
+    </div>
+
+    <el-empty
+      v-if="!loadingResumeMdTemplates && resumeMdTemplates.length === 0"
+      :description="t('export.resumeTemplateEmpty')"
+    />
+
+    <el-card v-for="tpl in resumeMdTemplates" :key="tpl.id" shadow="never" class="template-card">
+      <template #header>
+        <div class="export-header">
+          <span>
+            {{ tpl.name }}
+            <el-tag v-if="tpl.is_selected" size="small" type="success" class="self-pr-selected-tag">
+              {{ t('export.resumeTemplateDefault') }}
+            </el-tag>
+          </span>
+          <div class="export-header-actions">
+            <el-button
+              v-if="!tpl.is_selected"
+              size="small"
+              text
+              @click="setDefaultMdTemplate(tpl)"
+            >
+              {{ t('export.resumeTemplateUseAsDefault') }}
+            </el-button>
+            <el-button
+              size="small"
+              text
+              type="primary"
+              :loading="generatingMdTemplateId === tpl.id"
+              @click="generateFromMdTemplate(tpl)"
+            >
+              {{ t('export.resumeTemplateGenerate') }}
+            </el-button>
+            <el-button size="small" text type="danger" @click="removeMdTemplate(tpl.id)">
+              {{ t('common.delete') }}
+            </el-button>
+          </div>
+        </div>
+      </template>
+      <div class="template-format-row" v-for="field in SECTION_FORMAT_FIELDS" :key="field.key">
+        <span class="template-format-label">{{ t(field.labelKey) }}</span>
+        <el-select
+          :model-value="parseSectionFormats(tpl)[field.key] || field.options[0]"
+          size="small"
+          :disabled="savingMdFormatId === tpl.id"
+          @update:model-value="(value) => updateMdSectionFormat(tpl, field.key, value)"
+        >
+          <el-option
+            v-for="opt in field.options"
+            :key="opt"
+            :value="opt"
+            :label="t(FORMAT_OPTION_LABEL_KEYS[opt])"
+          />
+        </el-select>
+      </div>
+    </el-card>
+
+    <el-collapse class="resume-tags-collapse">
+      <el-collapse-item :title="t('export.resumeTemplateTagsHeader')">
+        <p class="self-pr-hint">{{ t('export.resumeMdTemplateTagsHint') }}</p>
+        <ul class="resume-tags-list">
+          <li v-for="item in RESUME_TAGS" :key="item.tag">
+            <code>{{ mdTagSyntax(item.tag) }}</code> — {{ t(item.labelKey) }}
           </li>
         </ul>
       </el-collapse-item>

@@ -23,6 +23,11 @@ class GoalOut(BaseModel):
     horizon: str
     description: str
     updated_at: Optional[datetime] = None
+    include_in_resume: bool = False
+
+
+class GoalResumeInclusionIn(BaseModel):
+    include_in_resume: bool
 
 
 @router.get("", operation_id="list_goals")
@@ -32,9 +37,16 @@ def list_goals(session: Session = Depends(get_session)) -> list[GoalOut]:
     for h in HORIZONS:
         goal = existing.get(h)
         if goal is None:
-            result.append(GoalOut(horizon=h, description="", updated_at=None))
+            result.append(GoalOut(horizon=h, description="", updated_at=None, include_in_resume=False))
         else:
-            result.append(GoalOut(horizon=h, description=goal.description, updated_at=goal.updated_at))
+            result.append(
+                GoalOut(
+                    horizon=h,
+                    description=goal.description,
+                    updated_at=goal.updated_at,
+                    include_in_resume=goal.include_in_resume,
+                )
+            )
     return result
 
 
@@ -49,6 +61,22 @@ def update_goal(horizon: str, payload: GoalIn, session: Session = Depends(get_se
         session.add(CareerGoalHistory(horizon=horizon, description=payload.description))
     goal.description = payload.description
     goal.updated_at = datetime.now(timezone.utc)
+    session.add(goal)
+    session.commit()
+    session.refresh(goal)
+    return goal
+
+
+@router.put("/{horizon}/resume-inclusion", operation_id="set_goal_resume_inclusion")
+def set_goal_resume_inclusion(
+    horizon: str, payload: GoalResumeInclusionIn, session: Session = Depends(get_session)
+) -> CareerGoal:
+    if horizon not in HORIZONS:
+        raise HTTPException(status_code=400, detail="Invalid horizon")
+    goal = session.get(CareerGoal, horizon)
+    if goal is None:
+        goal = CareerGoal(horizon=horizon)
+    goal.include_in_resume = payload.include_in_resume
     session.add(goal)
     session.commit()
     session.refresh(goal)

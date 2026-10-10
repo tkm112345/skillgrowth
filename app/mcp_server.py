@@ -64,10 +64,12 @@ MCP_OPERATIONS = [
     # app/routers/goals.py
     "list_goals",
     "update_goal",
+    "set_goal_resume_inclusion",
     "list_goal_history",
     # app/routers/vision.py
     "get_vision",
     "update_vision",
+    "set_vision_resume_inclusion",
 ]
 
 

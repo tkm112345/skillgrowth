@@ -91,6 +91,19 @@ export const api = {
   deleteResumeTemplate: (id) => request(`/resume-templates/${id}`, { method: 'DELETE' }),
   generateResumeDocx: (id) => requestBlob(`/resume-templates/${id}/generate`, { method: 'POST' }),
 
+  getResumeMdTemplates: () => request('/resume-md-templates'),
+  uploadResumeMdTemplate: (name, file) => {
+    const form = new FormData()
+    form.append('name', name)
+    form.append('file', file)
+    return requestForm('/resume-md-templates', form)
+  },
+  updateResumeMdTemplate: (id, payload) =>
+    request(`/resume-md-templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteResumeMdTemplate: (id) => request(`/resume-md-templates/${id}`, { method: 'DELETE' }),
+  generateResumeMarkdownFromTemplate: (id) =>
+    requestBlob(`/resume-md-templates/${id}/generate`, { method: 'POST' }),
+
   getPersonalInfo: () => request('/personal-info'),
   updatePersonalInfo: (payload) =>
     request('/personal-info', { method: 'PUT', body: JSON.stringify(payload) }),
@@ -160,6 +173,11 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ horizon, description }),
     }),
+  setGoalResumeInclusion: (horizon, includeInResume) =>
+    request(`/goals/${horizon}/resume-inclusion`, {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
+    }),
   getGoalHistory: (horizon, limit = 5, offset = 0) =>
     request(`/goals/history?horizon=${horizon}&limit=${limit}&offset=${offset}`),
 
@@ -168,6 +186,11 @@ export const api = {
     request('/vision', {
       method: 'PUT',
       body: JSON.stringify({ content }),
+    }),
+  setVisionResumeInclusion: (includeInResume) =>
+    request('/vision/resume-inclusion', {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
     }),
 
   getSelfFeedback: (limit = 50, offset = 0) =>

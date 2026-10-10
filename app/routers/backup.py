@@ -10,6 +10,7 @@ from app.backup_import import import_backup
 from app.db import (
     PERSONAL_INFO_DIR,
     PORTFOLIO_DIR,
+    RESUME_MD_TEMPLATE_DIR,
     RESUME_TEMPLATE_DIR,
     RIREKISHO_TEMPLATE_DIR,
     UPLOAD_DIR,
@@ -38,6 +39,7 @@ from app.models import (
     PortfolioLink,
     Project,
     ReflectionLog,
+    ResumeMdTemplate,
     ResumeTemplate,
     RirekishoTemplate,
     SampleDataRecord,
@@ -75,6 +77,7 @@ RESET_TABLE_ORDER: list[tuple[str, type]] = [
     ("bookmark", Bookmark),
     ("resume_export", ExportSnapshot),
     ("resume_template", ResumeTemplate),
+    ("resume_md_template", ResumeMdTemplate),
     ("portfolio_link", PortfolioLink),
     ("portfolio_file", PortfolioFile),
     ("portfolio_item", PortfolioItem),
@@ -95,6 +98,19 @@ def _dump_resume_templates(session: Session) -> list[dict]:
     # can't resolve.
     rows = []
     for row in session.exec(select(ResumeTemplate)).all():
+        data = row.model_dump(mode="json")
+        try:
+            data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
+        except FileNotFoundError:
+            data["file_content_base64"] = None
+        rows.append(data)
+    return rows
+
+
+def _dump_resume_md_templates(session: Session) -> list[dict]:
+    # Same reasoning as _dump_resume_templates.
+    rows = []
+    for row in session.exec(select(ResumeMdTemplate)).all():
         data = row.model_dump(mode="json")
         try:
             data["file_content_base64"] = base64.b64encode(Path(row.file_path).read_bytes()).decode("ascii")
@@ -172,6 +188,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "bookmarks": dump(Bookmark),
         "resume_exports": dump(ExportSnapshot),
         "resume_templates": _dump_resume_templates(session),
+        "resume_md_templates": _dump_resume_md_templates(session),
         "portfolio_items": dump(PortfolioItem),
         "portfolio_links": dump(PortfolioLink),
         "portfolio_files": _dump_portfolio_files(session),
@@ -279,7 +296,14 @@ def reset_all_data(session: Session = Depends(get_session)) -> dict:
         fresh.add_all(default_activity_types())
         fresh.commit()
 
-    for directory in (PORTFOLIO_DIR, RESUME_TEMPLATE_DIR, PERSONAL_INFO_DIR, RIREKISHO_TEMPLATE_DIR, UPLOAD_DIR):
+    for directory in (
+        PORTFOLIO_DIR,
+        RESUME_TEMPLATE_DIR,
+        RESUME_MD_TEMPLATE_DIR,
+        PERSONAL_INFO_DIR,
+        RIREKISHO_TEMPLATE_DIR,
+        UPLOAD_DIR,
+    ):
         for f in directory.iterdir():
             if f.is_file() and not f.name.startswith("."):
                 f.unlink()

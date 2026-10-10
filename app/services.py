@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from fastapi import HTTPException
 from sqlmodel import Session, func, select
 
 from app import llm
@@ -127,6 +128,19 @@ def select_only(session: Session, entry) -> None:
         session.add(other)
     entry.is_selected = True
     session.add(entry)
+
+
+def validate_section_formats(section_formats: dict[str, str], choices: dict[str, list[str]]) -> None:
+    """Shared by resume_templates.py and resume_md_templates.py — both
+    render the same ctx from app.resume_builder.gather_resume_context, just
+    into different file formats, so the same per-section bullet/table (or
+    list/table) choice applies to each. `choices` is passed in rather than
+    imported here, so this stays a generic helper not coupled to either
+    renderer module."""
+    for key, value in section_formats.items():
+        allowed = choices.get(key)
+        if allowed is None or value not in allowed:
+            raise HTTPException(status_code=400, detail=f"Invalid section format: {key}={value}")
 
 
 def text_block(**fields: str) -> str:

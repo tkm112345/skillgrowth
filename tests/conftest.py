@@ -62,11 +62,26 @@ def sample_docx_bytes():
 
     def build() -> bytes:
         doc = Document()
-        for tag in ("self_pr", "employment", "projects", "education", "skills", "certifications"):
+        for tag in ("self_pr", "vision", "goals", "employment", "projects", "education", "skills", "certifications"):
             doc.add_paragraph("{{p " + tag + " }}")
         buf = BytesIO()
         doc.save(buf)
         return buf.getvalue()
+
+    return build
+
+
+@pytest.fixture
+def sample_md_template_bytes():
+    """A minimal Markdown template with one plain Jinja2 tag per resume
+    section, for exercising the Markdown-template renderer — mirrors
+    sample_docx_bytes above, but plain `{{ tag }}` syntax since there's no
+    docxtpl paragraph-substitution quirk in plain text."""
+
+    def build() -> bytes:
+        tags = ("self_pr", "vision", "goals", "employment", "projects", "education", "skills", "certifications")
+        text = "\n\n".join("{{ " + tag + " }}" for tag in tags)
+        return text.encode("utf-8")
 
     return build
 

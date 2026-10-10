@@ -1,15 +1,19 @@
 from sqlmodel import Session, select
 
-from app.models import Education, Employment, LearningActivity, Project, SelfPR, Skill
+from app.models import CareerGoal, CareerVision, Education, Employment, LearningActivity, Project, SelfPR, Skill
 
 SECTION_HEADERS = {
     "self_pr": "## Self PR",
+    "vision": "## Vision",
+    "goals": "## Career Goals",
     "work_history": "## Work History",
     "other_projects": "## Other Projects",
     "education": "## Education",
     "skills": "## Skills",
     "certifications": "## Certifications",
 }
+
+GOAL_HORIZON_LABELS = {"this_year": "This year", "5_years": "5 years", "10_years": "10 years"}
 
 
 def _period(start, end, present_label: str = "Present") -> str:
@@ -84,12 +88,26 @@ def gather_resume_context(session: Session) -> dict:
         for cert in certification_rows
     ]
 
+    vision_row = session.get(CareerVision, 1)
+    vision = None
+    if vision_row is not None and vision_row.include_in_resume and vision_row.content.strip():
+        vision = vision_row.content
+
+    goal_rows = session.exec(select(CareerGoal)).all()
+    goals = [
+        {"horizon": g.horizon, "label": GOAL_HORIZON_LABELS.get(g.horizon, g.horizon), "description": g.description}
+        for g in goal_rows
+        if g.include_in_resume and g.description.strip()
+    ]
+
     return {
         # None when no SelfPR row exists at all; "" is a valid (if unusual)
         # value for a row that exists but is empty — the two must stay
         # distinguishable so build_resume_markdown can match its old
         # "if selected_pr:" (object-presence) behavior exactly.
         "self_pr": selected_pr.content if selected_pr is not None else None,
+        "vision": vision,
+        "goals": goals,
         "employment": employment,
         "standalone_projects": [project_dict(p) for p in standalone_projects],
         "education": education,
@@ -107,6 +125,16 @@ def build_resume_markdown(session: Session) -> str:
 
     if ctx["self_pr"] is not None:
         lines += [SECTION_HEADERS["self_pr"], "", ctx["self_pr"], ""]
+
+    if ctx["vision"]:
+        lines += [SECTION_HEADERS["vision"], "", ctx["vision"], ""]
+
+    if ctx["goals"]:
+        lines.append(SECTION_HEADERS["goals"])
+        lines.append("")
+        for goal in ctx["goals"]:
+            lines.append(f"- **{goal['label']}**: {goal['description']}")
+        lines.append("")
 
     if ctx["employment"]:
         lines.append(SECTION_HEADERS["work_history"])

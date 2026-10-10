@@ -43,6 +43,15 @@ def _build_self_pr_subdoc(tpl: DocxTemplate, text: str | None):
     return subdoc
 
 
+def _build_goals_subdoc(tpl: DocxTemplate, goals: list[dict]):
+    subdoc = tpl.new_subdoc()
+    for goal in goals:
+        p = subdoc.add_paragraph()
+        p.add_run(f"{goal['label']}: ").bold = True
+        p.add_run(goal["description"])
+    return subdoc
+
+
 def _build_employment_subdoc(tpl: DocxTemplate, employment: list[dict], fmt: str):
     subdoc = tpl.new_subdoc()
     if fmt == "table":
@@ -123,6 +132,8 @@ def render_resume_docx(session: Session, template: ResumeTemplate) -> bytes:
     tpl = DocxTemplate(template.file_path)
     context = {
         "self_pr": _build_self_pr_subdoc(tpl, ctx["self_pr"]),
+        "vision": _build_self_pr_subdoc(tpl, ctx["vision"]),
+        "goals": _build_goals_subdoc(tpl, ctx["goals"]),
         "employment": _build_employment_subdoc(tpl, ctx["employment"], section_formats.get("employment", "bullet")),
         "projects": _build_projects_subdoc(tpl, ctx["standalone_projects"], section_formats.get("projects", "bullet")),
         "education": _build_education_subdoc(tpl, ctx["education"]),

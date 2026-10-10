@@ -14,6 +14,8 @@ PERSONAL_INFO_DIR = UPLOAD_DIR / "personal_info"
 PERSONAL_INFO_DIR.mkdir(exist_ok=True)
 RIREKISHO_TEMPLATE_DIR = UPLOAD_DIR / "rirekisho_templates"
 RIREKISHO_TEMPLATE_DIR.mkdir(exist_ok=True)
+RESUME_MD_TEMPLATE_DIR = UPLOAD_DIR / "resume_md_templates"
+RESUME_MD_TEMPLATE_DIR.mkdir(exist_ok=True)
 
 engine = create_engine(f"sqlite:///{DATA_DIR / 'skillgrowth.db'}")
 
@@ -118,6 +120,8 @@ def init_db() -> None:
     _ensure_column(engine, "learningactivity", "include_in_resume", "BOOLEAN DEFAULT 1")
     _ensure_column(engine, "learningactivity", "expiry_date", "DATE")
     _ensure_column(engine, "consultsession", "target_industry", "TEXT")
+    _ensure_column(engine, "careervision", "include_in_resume", "BOOLEAN DEFAULT 0")
+    _ensure_column(engine, "careergoal", "include_in_resume", "BOOLEAN DEFAULT 0")
     _ensure_index(engine, "skilllink", "evidence_id")
     _ensure_index(engine, "skilllink", "skill_id")
     _ensure_index(engine, "education", "evidence_id")

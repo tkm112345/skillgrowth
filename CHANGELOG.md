@@ -9,6 +9,17 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Added
+- Resume generation can now include your Vision and/or per-horizon Career
+  Goals, each gated behind its own opt-in "include in resume" toggle
+  (default off, so no existing resume content changes unless you turn it
+  on) — on the Vision page and the Dashboard's Career Goals card
+  respectively.
+- A new Markdown-template path for the resume (alongside the existing
+  Word-template one): upload a `.md` file with plain `{{ tag }}` Jinja2
+  placeholders and generate a filled-in Markdown resume on demand, with
+  the same per-section bullet/table format choice the Word templates use.
+
 ## [0.5.2] - 2026-10-10
 
 ### Security

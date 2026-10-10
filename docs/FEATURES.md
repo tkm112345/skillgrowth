@@ -485,9 +485,9 @@ to vouch for how good the LLM's suggestions actually are.
 Many of this app's screens — Dashboard, Profile, Activity, Skills,
 Certifications — are different views onto that same append-only activity
 log, added to a little at a time rather than reset each time around.
-Vision, career path goals, Self Feedback, Self PR, and resume/rirekisho
-generation itself all sit outside that log, though, and never go through
-LLM extraction at any point. Portfolio sits outside it too — its
+Vision, Personal Values, career path goals, Self Feedback, Self PR, and
+resume/rirekisho generation itself all sit outside that log, though, and
+never go through LLM extraction at any point. Portfolio sits outside it too — its
 description is deliberately excluded from skill extraction. Skill
 Network isn't a view onto the log either — it visualizes how skills
 relate to the other entities that back them.

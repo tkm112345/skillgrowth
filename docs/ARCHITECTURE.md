@@ -322,8 +322,9 @@ erDiagram
   }
 ```
 
-`Skill.proficiency` is the one field on this diagram that isn't derived
-from activity — the Concept page states "activity-based, not
+`Skill.proficiency` is one of two fields on this diagram that aren't
+derived from activity (the other is `PersonalValues.content`, a few
+entities below) — the Concept page states "activity-based, not
 self-assessment" as a design principle, and a manually-set 1-5 rating is
 exactly a self-assessment. It's a deliberate, scoped exception rather
 than an oversight: reviewers asked for a way to see skill level at a

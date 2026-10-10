@@ -9,6 +9,18 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Security
+- `npm ci` (CI and the Docker build) now runs with `--ignore-scripts`,
+  so a compromised npm dependency can't execute arbitrary code at
+  install time (the vector behind several recent npm supply-chain
+  worms). No package in this project's dependency tree relies on an
+  install script to function.
+- CI now runs [`pip-audit`](https://github.com/pypa/pip-audit) against
+  `requirements.txt` and `npm audit --audit-level=high` against the
+  frontend lockfile on every push and pull request, catching known
+  CVEs in dependencies before merge instead of waiting for Dependabot's
+  weekly scan.
+
 ## [0.5.1] - 2026-10-08
 
 ### Added

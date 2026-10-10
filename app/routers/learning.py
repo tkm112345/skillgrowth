@@ -28,6 +28,10 @@ class ActivityTypeIn(BaseModel):
     label: str
 
 
+class ActivityTypeResumeInclusionIn(BaseModel):
+    include_in_resume: bool
+
+
 class LearningResult(BaseModel):
     activity: LearningActivity
     linked_skills: list[Skill]
@@ -134,6 +138,20 @@ def update_activity_type(
         raise HTTPException(status_code=400, detail="A type with this name already exists")
     activity_type.label = label
     activity_type.translation_key = None
+    session.add(activity_type)
+    session.commit()
+    session.refresh(activity_type)
+    return activity_type
+
+
+@router.put("/types/{type_id}/resume-inclusion", operation_id="set_activity_type_resume_inclusion")
+def set_activity_type_resume_inclusion(
+    type_id: str, payload: ActivityTypeResumeInclusionIn, session: Session = Depends(get_session)
+) -> ActivityType:
+    activity_type = session.get(ActivityType, type_id)
+    if activity_type is None:
+        raise HTTPException(status_code=404, detail="Activity type not found")
+    activity_type.include_in_resume = payload.include_in_resume
     session.add(activity_type)
     session.commit()
     session.refresh(activity_type)

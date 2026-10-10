@@ -92,6 +92,17 @@ async function removeItem(id) {
   }
 }
 
+async function toggleResumeInclusion(item) {
+  const next = !item.include_in_resume
+  item.include_in_resume = next
+  try {
+    await api.updatePortfolioItem(item.id, { include_in_resume: next })
+  } catch (e) {
+    item.include_in_resume = !next
+    ElMessage.error(t('common.saveError'))
+  }
+}
+
 // -- links --
 const linkDrafts = reactive({})
 function linkDraft(itemId) {
@@ -193,6 +204,11 @@ async function downloadFile(file) {
         <el-tag v-if="item.project_id" size="small" type="info">{{ projectTitle(item.project_id) }}</el-tag>
       </div>
       <p v-if="item.description">{{ item.description }}</p>
+
+      <div class="resume-toggle-row">
+        <el-switch :model-value="item.include_in_resume" size="small" @change="toggleResumeInclusion(item)" />
+        <span>{{ t('portfolio.includeInResume') }}</span>
+      </div>
 
       <div class="sub-block">
         <div class="sub-header">{{ t('portfolio.linksHeader') }}</div>
@@ -317,6 +333,15 @@ async function downloadFile(file) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.resume-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
 }
 
 .sub-block {

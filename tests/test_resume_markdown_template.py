@@ -1,4 +1,15 @@
-from app.models import CareerGoal, CareerVision, Education, Employment, Project, ResumeMdTemplate, SelfPR, Skill
+from app.models import (
+    CareerGoal,
+    CareerVision,
+    Education,
+    Employment,
+    ExternalLink,
+    PersonalValues,
+    Project,
+    ResumeMdTemplate,
+    SelfPR,
+    Skill,
+)
 from app.resume_markdown_template import render_resume_markdown_template
 
 
@@ -9,6 +20,8 @@ def test_render_fills_tags_from_structured_data(session, tmp_path, sample_md_tem
     session.add(SelfPR(content="A short pitch", is_selected=True))
     session.add(CareerVision(id=1, content="My vision", include_in_resume=True))
     session.add(CareerGoal(horizon="this_year", description="This year's goal", include_in_resume=True))
+    session.add(PersonalValues(id=1, content="My values"))
+    session.add(ExternalLink(label="GitHub", url="https://github.com/example", include_in_resume=True))
     session.add(Employment(id="emp-1", company="Acme", role="Engineer"))
     session.add(Project(employment_id="emp-1", title="Widget launch", role="Lead"))
     session.add(Project(title="Side project", role="Solo"))
@@ -22,6 +35,8 @@ def test_render_fills_tags_from_structured_data(session, tmp_path, sample_md_tem
     assert "A short pitch" in text
     assert "My vision" in text
     assert "This year's goal" in text
+    assert "My values" in text
+    assert "github.com/example" in text
     assert "Acme" in text
     assert "Widget launch" in text
     assert "Side project" in text

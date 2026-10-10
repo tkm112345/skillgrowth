@@ -205,6 +205,17 @@ async function removeLink(id) {
     ElMessage.error(t('common.deleteError'))
   }
 }
+
+async function toggleLinkResumeInclusion(link) {
+  const next = !link.include_in_resume
+  link.include_in_resume = next
+  try {
+    await api.setLinkResumeInclusion(link.id, next)
+  } catch (e) {
+    link.include_in_resume = !next
+    ElMessage.error(t('common.saveError'))
+  }
+}
 </script>
 
 <template>
@@ -282,9 +293,13 @@ async function removeLink(id) {
       <el-button size="small" @click="linkDialog = true">{{ t('common.add') }}</el-button>
     </div>
     <div class="links-row" v-if="links.length">
-      <el-tag v-for="l in links" :key="l.id" closable @close="removeLink(l.id)" class="link-tag">
-        <a :href="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
-      </el-tag>
+      <div v-for="l in links" :key="l.id" class="link-item">
+        <el-tag closable @close="removeLink(l.id)" class="link-tag">
+          <a :href="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+        </el-tag>
+        <el-switch :model-value="l.include_in_resume" size="small" @change="toggleLinkResumeInclusion(l)" />
+        <span class="link-resume-label">{{ t('profile.linkIncludeInResume') }}</span>
+      </div>
     </div>
     <el-empty v-if="!loading && links.length === 0" :description="t('profile.noEntries')" />
   </section>
@@ -396,11 +411,22 @@ async function removeLink(id) {
 .links-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .link-tag a {
   color: inherit;
   text-decoration: none;
+}
+
+.link-resume-label {
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
 }
 </style>

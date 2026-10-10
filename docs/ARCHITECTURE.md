@@ -166,7 +166,7 @@ erDiagram
     date activity_date
     date expiry_date "optional, only meaningful for activity_type=='certification'"
     text notes
-    bool include_in_resume "only meaningful for activity_type=='certification'"
+    bool include_in_resume "for certification: resume Certifications filter. For other types: fine exclusion on top of ActivityType.include_in_resume's type-level gate"
   }
   ActivityType {
     string id
@@ -174,6 +174,7 @@ erDiagram
     bool is_protected "true only for the seeded 'certification' row — can't be renamed/deleted"
     string translation_key "learning.type* i18n key for the seeded defaults; cleared on rename"
     datetime created_at
+    bool include_in_resume "default false — type-level gate for the resume's Activities & Links section"
   }
   SelfFeedback {
     string id
@@ -200,6 +201,12 @@ erDiagram
     text content "no history — overwritten in place"
     datetime updated_at
     bool include_in_resume "default false — opt-in, see 'Resume export (no LLM)'"
+  }
+  PersonalValues {
+    int id "singleton row, id=1"
+    text content "no history — overwritten in place"
+    datetime updated_at
+    bool include_in_resume "default TRUE — brand-new field, nothing to surprise on upgrade"
   }
   ConsultSession {
     string id
@@ -269,6 +276,7 @@ erDiagram
     string label "free text, e.g. GitHub/X/note/Zenn/Blog"
     string url
     datetime created_at
+    bool include_in_resume "default false — opt-in, feeds the resume's Activities & Links section"
   }
   PlannedCertification {
     string id
@@ -294,6 +302,7 @@ erDiagram
     text description "free text — deliberately NOT run through skill extraction"
     string project_id "nullable FK to Project; must be standalone (employment_id IS NULL)"
     datetime created_at
+    bool include_in_resume "default false — opt-in, feeds the resume's Activities & Links section"
   }
   PortfolioLink {
     string id
@@ -323,6 +332,9 @@ observed date) reliably stands in for it. Left `null` until the user
 sets it on the Skills page; an automatic re-match of an existing skill
 (CSV import, activity extraction) never touches it, the same as it
 already leaves `category` alone on that path.
+
+`PersonalValues.content` is the second such exception — see "Resume
+export (no LLM)" below for why it needed one.
 
 ## Skill Network graph
 
@@ -636,8 +648,9 @@ nothing is ever deleted or updated by id. The one exception is
 `CareerGoal`, which is keyed by `horizon` rather than `id` — import only
 fills in a horizon whose `description` is still empty, so it can never
 silently overwrite a goal the user has already written. `CareerVision`
-(see "Career vision" below) gets the same treatment, keyed by its fixed
-`id=1` instead of a horizon. `CareerGoalHistory` rows (see "Career goal
+(see "Career vision" below) and `PersonalValues` (see "Resume export (no
+LLM)" above) get the same treatment, each keyed by its fixed `id=1`
+instead of a horizon. `CareerGoalHistory` rows (see "Career goal
 history" below) are plain insert-only records like `SelfPR`, so every
 imported row is simply added. `SelfFeedback` is the same — plain
 insert-only, no dedup. `ActivityType` is the other exception: deduped by
@@ -659,13 +672,15 @@ hand, or its rows silently never make it into an export/import/reset-sample.
 `load-sample` additionally passes a `track` dict into `import_backup`,
 which the function fills with `{table_name: [new_id, ...]}` as it creates
 each row (a horizon string for `career_goal`, the literal string `"1"` for
-`career_vision`, instead of an id, since neither table has one). The
+`career_vision`/`personal_values`, instead of an id, since none of those
+tables has a real id column that fits this shape). The
 router persists these as `SampleDataRecord` rows. `POST
 /api/backup/reset-sample` reads all `SampleDataRecord` rows, deletes
 exactly those ids from each real table (children before the rows they
 reference — see `RESET_TABLE_ORDER` in `app/routers/backup.py`), blanks
 the `description` of any tracked `CareerGoal` horizon and the `content` of
-`CareerVision` if tracked, then deletes the `SampleDataRecord` rows
+`CareerVision`/`PersonalValues` if tracked, then deletes the
+`SampleDataRecord` rows
 themselves. Running `load-sample` more than once
 accumulates more tracked rows rather than overwriting the previous batch,
 so `reset-sample` always undoes everything sample data has ever added, not
@@ -848,11 +863,11 @@ parsing contract to break.
 which is pure and deterministic — no LLM, no network call. It builds a
 fixed set of Markdown sections in a fixed order (Self PR → Vision →
 Career Goals → Work History → Other Projects → Education → Skills →
-Certifications) directly from `Employment`/`Project`/`Education`/`Skill`/
-`LearningActivity` rows; any section with no data is omitted. This
-replaced an earlier LLM-based `generate_resume()` — layout variance and
-hallucination risk weren't worth it for a document meant to be
-copy-pasted as-is.
+Certifications → Activities & Links → Personal Values) directly from
+`Employment`/`Project`/`Education`/`Skill`/`LearningActivity` rows; any
+section with no data is omitted. This replaced an earlier LLM-based
+`generate_resume()` — layout variance and hallucination risk weren't
+worth it for a document meant to be copy-pasted as-is.
 
 **Vision and Career Goals are opt-in**, unlike every other section here:
 `CareerVision.include_in_resume`/`CareerGoal.include_in_resume` (added
@@ -877,6 +892,74 @@ narrow and separate from the content-editing `PUT`s, the same
 already uses, and (for goals) deliberately not routed through
 `update_goal`'s `CareerGoalHistory` write, since toggling visibility
 isn't a change to the goal's description.
+
+**Activities & Links is a single combined section** drawing from three
+tables that were already being recorded but that no resume output ever
+read: `ExternalLink`, `PortfolioItem` (with its `PortfolioLink` rows —
+`PortfolioFile` is deliberately excluded, since its download URL is
+local to this instance and wouldn't resolve for someone reading a
+resume sent elsewhere), and `LearningActivity` rows whose
+`activity_type` isn't `"certification"` (that already has its own
+Certifications section above). A market-research pass across ~18
+published engineer resumes found that most bundle exactly this kind of
+content — profile links, OSS/portfolio work, talks given — into one
+section rather than several, so `gather_resume_context` returns one
+`activities` key (`{"links": [...], "portfolio": [...], "talks":
+[...]}`) rather than three separate ones, which also means every output
+path (plain Markdown, Word, Markdown template) only needs to wire up a
+single new tag instead of three.
+
+Each of the three sources gets its own opt-in gate, all `BOOLEAN DEFAULT
+0`, for the same "don't surprise an upgraded install" reason Vision/Goals
+above has: `ExternalLink.include_in_resume` and
+`PortfolioItem.include_in_resume` are per-row toggles (the latter reuses
+the existing `PUT /api/portfolio/{id}` partial-update endpoint rather
+than adding a new one, since that endpoint already exists and already
+follows the "only touch fields present in the payload" pattern via
+`model_fields_set`). `ExternalLink` had no `PUT` endpoint at all before
+this — `PUT /api/profile/links/{id}/resume-inclusion` is new and
+deliberately narrow (toggle only, `label`/`url` editing is still out of
+scope).
+
+`LearningActivity` needed a different shape: it already has a per-row
+`include_in_resume` (`BOOLEAN DEFAULT 1`, see "Evidence → skill
+extraction flow" above), but that column has been meaningless for every
+`activity_type` except `"certification"` since the day it was added —
+`gather_resume_context`'s certification query is the only place that's
+ever read it, and that query's own `WHERE` clause already filters to
+`activity_type == "certification"` first. Reusing the existing
+`True`-defaulted column for this new section directly would have
+silently surfaced every existing non-certification activity (readings,
+talks, anything) on every upgraded install's resume the moment this
+shipped. Instead, `ActivityType.include_in_resume` (`BOOLEAN DEFAULT 0`,
+toggled via `PUT /api/learning/types/{id}/resume-inclusion`) is a new
+type-level gate: a `LearningActivity` row is only eligible for this
+section when *both* its type is opted in *and* its own row-level
+`include_in_resume` is still `True` (the row-level field now does real
+work for non-certification types for the first time, exactly mirroring
+the role it already played for certifications — type-level eligibility,
+then a per-row override to hide one entry of an otherwise-visible type).
+The query explicitly excludes `activity_type == "certification"`
+regardless of this flag, so flipping it on for the protected
+`"certification"` type (which the UI doesn't offer, since the toggle is
+only rendered for non-protected types) still couldn't double-list a
+certification in both sections.
+
+**`PersonalValues`** (`app/models.py`) is a second deliberate exception
+to "activity-based, not self-assessment" — the first being
+`Skill.proficiency` (see above). A personal-values statement ("好きな
+価値観・考え方": what you value in how you work) has no activity to
+derive it from by definition, the same way a 1-5 proficiency rating
+can't be computed from the evidence log. It's modeled identically to
+`CareerVision` — singleton row (`id=1`), `content`, `updated_at`,
+`include_in_resume` — and reuses the exact same `GET`/`PUT`/
+`PUT .../resume-inclusion` router shape (`app/routers/personal_values.py`
+mirrors `app/routers/vision.py`). The one difference: `include_in_resume`
+defaults to `True` here, not `False` — unlike Vision/Goals/the three
+Activities & Links sources above, there is no existing install with this
+field already populated, so there's no "don't surprise an upgraded
+install" risk to guard against; defaulting to visible is simply the more
+convenient behavior for a brand-new field nobody has used yet.
 
 `SelfPR` rows are still never deleted-and-replaced by adding a new one —
 `POST /api/self-pr` always inserts, and `GET /api/self-pr` (paginated,
@@ -942,12 +1025,13 @@ silently drift on what a resume includes.
 
 `render_resume_docx` uses [docxtpl](https://docxtpl.readthedocs.io/) (a
 Jinja2-over-python-docx templating library — pure Python, no native
-system libraries required, unlike e.g. WeasyPrint) to fill eight tags in
+system libraries required, unlike e.g. WeasyPrint) to fill ten tags in
 the uploaded template: `self_pr`, `vision`, `goals`, `employment`,
-`projects`, `education`, `skills`, `certifications` (`vision`/`goals`
-render as empty subdocs when their `include_in_resume` toggle is off or
-their content is blank — see "Resume export (no LLM)" above for that
-toggle). `employment`/`projects`/`skills`/
+`projects`, `education`, `skills`, `certifications`, `activities`,
+`personal_values` (`vision`/`goals`/`activities`/`personal_values`
+render as empty subdocs when their respective `include_in_resume` toggle
+is off, or empty/blank — see "Resume export (no LLM)" above for those
+toggles). `employment`/`projects`/`skills`/
 `certifications` are each built as a docxtpl "subdoc" — a dynamically
 constructed native Word paragraph list or table (via `python-docx`'s
 paragraph/table APIs), chosen per `SECTION_FORMAT_CHOICES` in
@@ -1049,10 +1133,11 @@ syntax between the two upload forms doesn't carry the wrong one over.
 Unlike `render_resume_docx`, there's no subdoc/"nested inside a run"
 failure mode to guard against, so a tag with no matching context key
 would normally raise a Jinja2 `UndefinedError` — avoided here simply by
-always including all eight keys in the rendered `context` dict (empty
-string for `self_pr`/`vision` when there's no content, empty string for
-`goals`/`employment`/etc. when the list is empty), the same "always
-substitute, never omit" behavior `render_resume_docx` already has for
+always including all ten keys in the rendered `context` dict (empty
+string for `self_pr`/`vision`/`personal_values` when there's no content,
+empty string for `goals`/`employment`/`activities`/etc. when the list is
+empty), the same "always substitute, never omit" behavior
+`render_resume_docx` already has for
 the Word path.
 
 Backup export/import follows the `ResumeTemplate` pattern exactly

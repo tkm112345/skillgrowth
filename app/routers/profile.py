@@ -58,6 +58,10 @@ class ExternalLinkIn(BaseModel):
     url: str
 
 
+class ExternalLinkResumeInclusionIn(BaseModel):
+    include_in_resume: bool
+
+
 @router.get("/education", operation_id="list_education")
 def list_education(session: Session = Depends(get_session)) -> list[Education]:
     return session.exec(select(Education).order_by(Education.start_date.desc())).all()
@@ -183,6 +187,20 @@ def list_links(session: Session = Depends(get_session)) -> list[ExternalLink]:
 @router.post("/links", operation_id="add_profile_link")
 def create_link(payload: ExternalLinkIn, session: Session = Depends(get_session)) -> ExternalLink:
     link = ExternalLink(label=payload.label.strip(), url=payload.url.strip())
+    session.add(link)
+    session.commit()
+    session.refresh(link)
+    return link
+
+
+@router.put("/links/{link_id}/resume-inclusion", operation_id="set_link_resume_inclusion")
+def set_link_resume_inclusion(
+    link_id: str, payload: ExternalLinkResumeInclusionIn, session: Session = Depends(get_session)
+) -> ExternalLink:
+    link = session.get(ExternalLink, link_id)
+    if link is None:
+        raise HTTPException(status_code=404, detail="Link not found")
+    link.include_in_resume = payload.include_in_resume
     session.add(link)
     session.commit()
     session.refresh(link)

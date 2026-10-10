@@ -7,7 +7,9 @@ from app.models import (
     CareerVision,
     Education,
     Employment,
+    ExternalLink,
     LearningActivity,
+    PersonalValues,
     Project,
     ResumeTemplate,
     SelfPR,
@@ -32,6 +34,8 @@ def test_render_resume_docx_fills_tags_from_structured_data(session, tmp_path, s
     session.add(SelfPR(content="A short pitch", is_selected=True))
     session.add(CareerVision(id=1, content="My vision", include_in_resume=True))
     session.add(CareerGoal(horizon="this_year", description="This year's goal", include_in_resume=True))
+    session.add(PersonalValues(id=1, content="My values"))
+    session.add(ExternalLink(label="GitHub", url="https://github.com/example", include_in_resume=True))
     session.add(Employment(id="emp-1", company="Acme", role="Engineer"))
     session.add(Project(employment_id="emp-1", title="Widget launch", role="Lead"))
     session.add(Project(title="Side project", role="Solo"))
@@ -47,6 +51,8 @@ def test_render_resume_docx_fills_tags_from_structured_data(session, tmp_path, s
     assert "A short pitch" in text
     assert "My vision" in text
     assert "This year's goal" in text
+    assert "My values" in text
+    assert "github.com/example" in text
     assert "Acme" in text
     assert "Widget launch" in text
     assert "Side project" in text

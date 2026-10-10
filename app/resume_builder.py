@@ -1,6 +1,20 @@
 from sqlmodel import Session, select
 
-from app.models import CareerGoal, CareerVision, Education, Employment, LearningActivity, Project, SelfPR, Skill
+from app.models import (
+    ActivityType,
+    CareerGoal,
+    CareerVision,
+    Education,
+    Employment,
+    ExternalLink,
+    LearningActivity,
+    PersonalValues,
+    PortfolioItem,
+    PortfolioLink,
+    Project,
+    SelfPR,
+    Skill,
+)
 
 SECTION_HEADERS = {
     "self_pr": "## Self PR",
@@ -11,6 +25,8 @@ SECTION_HEADERS = {
     "education": "## Education",
     "skills": "## Skills",
     "certifications": "## Certifications",
+    "activities": "## Activities & Links",
+    "personal_values": "## Personal Values",
 }
 
 GOAL_HORIZON_LABELS = {"this_year": "This year", "5_years": "5 years", "10_years": "10 years"}
@@ -100,6 +116,59 @@ def gather_resume_context(session: Session) -> dict:
         if g.include_in_resume and g.description.strip()
     ]
 
+    link_rows = session.exec(select(ExternalLink).where(ExternalLink.include_in_resume == True)).all()  # noqa: E712
+    links = [{"label": link.label, "url": link.url} for link in link_rows]
+
+    # Type-level gate (ActivityType.include_in_resume) decides which
+    # activity types are eligible at all; the row-level
+    # LearningActivity.include_in_resume then hides individual entries of
+    # an otherwise-eligible type. "certification" is excluded here — it
+    # already has its own Certifications section above.
+    resume_worthy_types = [
+        t.label
+        for t in session.exec(select(ActivityType).where(ActivityType.include_in_resume == True)).all()  # noqa: E712
+    ]
+    talk_rows = session.exec(
+        select(LearningActivity)
+        .where(
+            LearningActivity.activity_type != "certification",
+            LearningActivity.activity_type.in_(resume_worthy_types),
+            LearningActivity.include_in_resume == True,  # noqa: E712
+        )
+        .order_by(LearningActivity.activity_date.desc())
+    ).all()
+    talks = [
+        {
+            "activity_type": t.activity_type,
+            "title": t.title,
+            "date": t.activity_date.isoformat() if t.activity_date else "",
+        }
+        for t in talk_rows
+    ]
+
+    portfolio_rows = session.exec(
+        select(PortfolioItem).where(PortfolioItem.include_in_resume == True)  # noqa: E712
+    ).all()
+    portfolio_item_ids = [p.id for p in portfolio_rows]
+    portfolio_links_by_item: dict[str, list[dict]] = {}
+    if portfolio_item_ids:
+        for pl in session.exec(
+            select(PortfolioLink).where(PortfolioLink.portfolio_item_id.in_(portfolio_item_ids))
+        ).all():
+            portfolio_links_by_item.setdefault(pl.portfolio_item_id, []).append({"label": pl.label, "url": pl.url})
+    # PortfolioFile is deliberately not included — its download URL is
+    # local to this instance and wouldn't resolve for someone reading a
+    # resume sent outside it.
+    portfolio = [
+        {"title": p.title, "description": p.description, "links": portfolio_links_by_item.get(p.id, [])}
+        for p in portfolio_rows
+    ]
+
+    values_row = session.get(PersonalValues, 1)
+    personal_values = None
+    if values_row is not None and values_row.include_in_resume and values_row.content.strip():
+        personal_values = values_row.content
+
     return {
         # None when no SelfPR row exists at all; "" is a valid (if unusual)
         # value for a row that exists but is empty — the two must stay
@@ -113,6 +182,8 @@ def gather_resume_context(session: Session) -> dict:
         "education": education,
         "skills_by_category": skills_by_category,
         "certifications": certifications,
+        "activities": {"links": links, "portfolio": portfolio, "talks": talks},
+        "personal_values": personal_values,
     }
 
 
@@ -182,5 +253,24 @@ def build_resume_markdown(session: Session) -> str:
             date_suffix = f" ({cert['date']})" if cert["date"] else ""
             lines.append(f"- {cert['title']}{date_suffix}")
         lines.append("")
+
+    activities = ctx["activities"]
+    if activities["links"] or activities["portfolio"] or activities["talks"]:
+        lines.append(SECTION_HEADERS["activities"])
+        lines.append("")
+        for link in activities["links"]:
+            lines.append(f"- [{link['label']}]({link['url']})")
+        for item in activities["portfolio"]:
+            suffix = f" — {item['description']}" if item["description"] else ""
+            lines.append(f"- **{item['title']}**{suffix}")
+            for link in item["links"]:
+                lines.append(f"  - [{link['label']}]({link['url']})")
+        for talk in activities["talks"]:
+            date_suffix = f" ({talk['date']})" if talk["date"] else ""
+            lines.append(f"- {talk['activity_type']}: {talk['title']}{date_suffix}")
+        lines.append("")
+
+    if ctx["personal_values"]:
+        lines += [SECTION_HEADERS["personal_values"], "", ctx["personal_values"], ""]
 
     return "\n".join(lines).rstrip() + "\n"

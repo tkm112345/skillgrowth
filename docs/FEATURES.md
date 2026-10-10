@@ -49,6 +49,14 @@ the Activity feed. An "Include in generated resume" switch (off by
 default) controls whether this text appears on the resume — see
 **Resume** below.
 
+- **Personal Values** — a second, separate free-text box on the same
+  page: a short statement of what you value in how you work or in a
+  team, distinct from the career-direction sketch above. Same
+  singleton/overwrite-in-place shape as Vision, but its "Include in
+  generated resume" switch defaults **on** rather than off, since this is
+  a brand-new field with no existing content any upgraded install could
+  be surprised by.
+
 ## Self Feedback
 
 A dedicated page for structured, periodic self-review — its own entity
@@ -72,7 +80,10 @@ timestamp and an optional free-text comment.
 
 - **Links** — a small list of label+URL pairs for showing your public work
   and presence: GitHub, X, note, Zenn, a personal blog or homepage, or
-  anything else. No fixed platform list — the label is free text.
+  anything else. No fixed platform list — the label is free text. Each
+  link has its own "Include in resume" switch (off by default) that
+  controls whether it appears in the resume's Activities & Links section
+  — see **Resume** below.
 - **Education** — school, degree, major, start/end date, free-text
   achievements.
 - **Employment** — company, department, role, start/end date (leave end
@@ -108,6 +119,11 @@ entries, so they can be shown to someone without those entries' baggage.
 - Included in data backup/restore, with every uploaded file's actual
   content embedded (the same treatment Word resume templates get, since
   losing a deliberately-uploaded file on restore would be a real loss).
+- An "Include in resume" switch (off by default) controls whether this
+  item (its title, description, and links — uploaded files are never
+  included, since their download link only works on this instance)
+  appears in the resume's Activities & Links section — see **Resume**
+  below.
 
 ## Resume Import
 
@@ -191,7 +207,12 @@ Log page, and a read-only feed that already showed the same entries):
   (reading, talk given, talk attended, certification, other), and any of
   them except certification can be renamed or deleted, and new ones added
   freely — deleting a type only removes it from the picker, existing
-  entries keep their recorded type as plain text. Certification is the one
+  entries keep their recorded type as plain text. Each non-certification
+  type also has its own "Include in resume" switch (off by default) —
+  turning it on makes every activity recorded with that type eligible for
+  the resume's Activities & Links section (an individual entry can still
+  be hidden with its own switch in the feed below, same as
+  certifications already work — see **Resume**). Certification is the one
   built-in, protected type: it drives the resume's Certifications section
   and unlocks an optional certificate-image field — an image or a `.pdf`
   (its first page is rasterized to an image before extraction) — run
@@ -315,17 +336,29 @@ how much data you have.
 - **Generate resume** — assembles the current skill picture, work/education
   history, and the selected Self PR into Markdown, following a fixed set of
   sections (Self PR → Vision → Career Goals → Work History → Other
-  Projects → Education → Skills → Certifications) — **no LLM involved**,
+  Projects → Education → Skills → Certifications → Activities & Links →
+  Personal Values) — **no LLM involved**,
   just your existing data filled into that template, so it works even
   without an LLM configured. Rendered as formatted HTML in the UI (not raw
   Markdown text) and downloadable as a `.md` file. Every generation is kept
   as a snapshot, so past exports remain browsable (20 at a time, with a
   "Load more" button). Sections with no data are simply omitted — this
-  includes Vision and Career Goals, which are additionally gated behind
-  their own "include in resume" toggle (off by default — see Vision and
-  Dashboard below), since that data was never shown on the resume before
-  this toggle existed and shouldn't start appearing there without you
-  opting in.
+  includes Vision, Career Goals, and Activities & Links, which are
+  additionally gated behind their own "include in resume" toggle (off by
+  default — see Vision, Dashboard, Profile, Portfolio, and Activity
+  above), since that data was never shown on the resume before these
+  toggles existed and shouldn't start appearing there without you opting
+  in. Personal Values is the one exception — its toggle defaults on,
+  since it's a brand-new field with nothing to surprise an existing
+  install.
+- **Activities & Links** — a combined section drawing from three places
+  you'd already recorded data but that never reached the resume before:
+  your Profile links, your Portfolio items (title, description, and
+  links — not uploaded files), and any activity type you've opted in
+  from Activity's "Manage types" (e.g. talks given). Each source has its
+  own off-by-default toggle (see Profile/Portfolio/Activity above);
+  certifications are never duplicated here, since they already have
+  their own Certifications section.
 - **Edit a snapshot** — any past resume, not just the latest, can be edited
   directly as raw Markdown (an "Edit" toggle switches the rendered view to
   a textarea) and saved back in place. Useful for polishing wording the
@@ -334,8 +367,8 @@ how much data you have.
   shows both when it was generated and when it was last edited.
 - **Word template export** — alongside the Markdown resume above, upload a
   `.docx` file with tags like `{{p self_pr }}` (an in-app reference panel
-  lists all available tags, including `vision`/`goals`, and the exact
-  syntax they need) and
+  lists all available tags, including `vision`/`goals`/`activities`/
+  `personal_values`, and the exact syntax they need) and
   generate a filled copy on demand — just as deterministic as the
   Markdown generator, no LLM involved. Multiple templates can be saved
   and switched between, with one marked as the default. Work history,
@@ -347,7 +380,8 @@ how much data you have.
 - **Markdown template export** — the same idea as the Word template export
   above, but for a Markdown file: upload a `.md` file with plain Jinja2
   tags like `{{ self_pr }}` (the in-app reference panel lists the same set
-  of tags, including `vision`/`goals`) and generate a filled copy on
+  of tags, including `vision`/`goals`/`activities`/`personal_values`) and
+  generate a filled copy on
   demand. Just as deterministic as the other two resume paths, no LLM
   involved, with its own saved/switchable template list and the same
   per-section bullet-or-table (or list-or-table) format choice — kept as a

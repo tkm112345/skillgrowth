@@ -13,6 +13,12 @@ const saving = ref(false)
 const updatedAt = ref(null)
 const includeInResume = ref(false)
 
+const valuesContent = ref('')
+const loadingValues = ref(true)
+const savingValues = ref(false)
+const valuesUpdatedAt = ref(null)
+const valuesIncludeInResume = ref(true)
+
 onMounted(async () => {
   try {
     const vision = await api.getVision()
@@ -24,6 +30,17 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+
+  try {
+    const values = await api.getPersonalValues()
+    valuesContent.value = values.content
+    valuesUpdatedAt.value = values.updated_at
+    valuesIncludeInResume.value = values.include_in_resume
+  } catch (e) {
+    ElMessage.error(t('common.loadError'))
+  } finally {
+    loadingValues.value = false
+  }
 })
 
 async function toggleResumeInclusion() {
@@ -33,6 +50,17 @@ async function toggleResumeInclusion() {
     await api.setVisionResumeInclusion(next)
   } catch (e) {
     includeInResume.value = !next
+    ElMessage.error(t('vision.resumeToggleError'))
+  }
+}
+
+async function toggleValuesResumeInclusion() {
+  const next = !valuesIncludeInResume.value
+  valuesIncludeInResume.value = next
+  try {
+    await api.setPersonalValuesResumeInclusion(next)
+  } catch (e) {
+    valuesIncludeInResume.value = !next
     ElMessage.error(t('vision.resumeToggleError'))
   }
 }
@@ -49,6 +77,17 @@ async function save() {
     ElMessage.success(t('vision.saved'))
   } finally {
     saving.value = false
+  }
+}
+
+async function saveValues() {
+  savingValues.value = true
+  try {
+    const updated = await api.updatePersonalValues(valuesContent.value)
+    valuesUpdatedAt.value = updated.updated_at
+    ElMessage.success(t('vision.saved'))
+  } finally {
+    savingValues.value = false
   }
 }
 </script>
@@ -70,11 +109,33 @@ async function save() {
       <el-button type="primary" :loading="saving" @click="save">{{ t('common.save') }}</el-button>
     </div>
   </el-card>
+
+  <el-card shadow="never" class="chart-card accent-violet" v-loading="loadingValues">
+    <template #header>{{ t('vision.valuesTitle') }}</template>
+    <p class="values-hint">{{ t('vision.valuesSubtitle') }}</p>
+    <el-input v-model="valuesContent" type="textarea" :rows="10" :placeholder="t('vision.valuesPlaceholder')" />
+    <div class="vision-resume-toggle">
+      <el-switch :model-value="valuesIncludeInResume" @change="toggleValuesResumeInclusion" />
+      <span>{{ t('vision.includeInResume') }}</span>
+    </div>
+    <div class="vision-footer">
+      <span v-if="valuesUpdatedAt" class="vision-updated">
+        {{ t('vision.updatedAt', { date: formatDateTime(valuesUpdatedAt) }) }}
+      </span>
+      <el-button type="primary" :loading="savingValues" @click="saveValues">{{ t('common.save') }}</el-button>
+    </div>
+  </el-card>
 </template>
 
 <style scoped>
 .chart-card {
   margin-bottom: 1rem;
+}
+
+.values-hint {
+  color: var(--ink-secondary);
+  font-size: 0.85rem;
+  margin-top: 0;
 }
 
 .vision-resume-toggle {

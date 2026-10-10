@@ -17,9 +17,21 @@ def test_create_custom_type(client):
     assert body["label"] == "Side project"
     assert body["is_protected"] is False
     assert body["translation_key"] is None
+    assert body["include_in_resume"] is False
 
     types = client.get("/api/learning/types").json()
     assert "Side project" in [t["label"] for t in types]
+
+
+def test_resume_inclusion_defaults_off_and_can_be_toggled(client):
+    created = client.post("/api/learning/types", json={"label": "Side project"}).json()
+
+    resp = client.put(f"/api/learning/types/{created['id']}/resume-inclusion", json={"include_in_resume": True})
+    assert resp.status_code == 200
+    assert resp.json()["include_in_resume"] is True
+
+    types = client.get("/api/learning/types").json()
+    assert next(t for t in types if t["id"] == created["id"])["include_in_resume"] is True
 
 
 def test_create_rejects_empty_label(client):

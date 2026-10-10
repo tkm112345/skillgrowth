@@ -25,9 +25,21 @@ def test_create_and_list_item(client):
     resp = _create_item(client)
     assert resp.status_code == 200
     assert resp.json()["title"] == "My Deliverable"
+    assert resp.json()["include_in_resume"] is False
 
     items = client.get("/api/portfolio").json()
     assert len(items) == 1
+
+
+def test_resume_inclusion_defaults_off_and_can_be_toggled(client):
+    item = _create_item(client).json()
+
+    resp = client.put(f"/api/portfolio/{item['id']}", json={"include_in_resume": True})
+    assert resp.status_code == 200
+    assert resp.json()["include_in_resume"] is True
+
+    items = client.get("/api/portfolio").json()
+    assert items[0]["include_in_resume"] is True
 
 
 def test_create_item_with_standalone_project_succeeds(client):

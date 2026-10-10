@@ -1,4 +1,18 @@
-from app.models import CareerGoal, CareerVision, Education, Employment, LearningActivity, Skill
+from sqlmodel import select
+
+from app.models import (
+    ActivityType,
+    CareerGoal,
+    CareerVision,
+    Education,
+    Employment,
+    ExternalLink,
+    LearningActivity,
+    PersonalValues,
+    PortfolioItem,
+    PortfolioLink,
+    Skill,
+)
 from app.resume_builder import build_resume_markdown
 
 
@@ -83,3 +97,84 @@ def test_goals_included_only_when_toggled_on_per_horizon(session):
     assert "## Career Goals" in content
     assert "今年の目標" in content
     assert "5年後の目標" not in content
+
+
+def test_external_link_included_only_when_toggled_on(session):
+    session.add(ExternalLink(label="GitHub", url="https://github.com/example", include_in_resume=False))
+    session.commit()
+    assert "## Activities & Links" not in build_resume_markdown(session)
+
+    link = session.exec(select(ExternalLink)).first()
+    link.include_in_resume = True
+    session.add(link)
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Activities & Links" in content
+    assert "github.com/example" in content
+
+
+def test_talk_shown_only_when_activity_type_toggled_on(session):
+    talk_type = ActivityType(label="Talk given", include_in_resume=False)
+    session.add(talk_type)
+    session.add(LearningActivity(activity_type="Talk given", title="Conference keynote"))
+    session.commit()
+    assert "Conference keynote" not in build_resume_markdown(session)
+
+    talk_type.include_in_resume = True
+    session.add(talk_type)
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Activities & Links" in content
+    assert "Conference keynote" in content
+
+
+def test_certification_never_appears_in_activities_section(session):
+    cert_type = session.exec(select(ActivityType).where(ActivityType.label == "certification")).first()
+    cert_type.include_in_resume = True  # even if someone flips this on
+    session.add(cert_type)
+    session.add(LearningActivity(activity_type="certification", title="AWS SAA"))
+    session.commit()
+
+    content = build_resume_markdown(session)
+    # It still shows up in the dedicated Certifications section...
+    assert "## Certifications" in content
+    assert "AWS SAA" in content
+    # ...but Activities & Links stays empty and omitted (no other eligible data).
+    assert "## Activities & Links" not in content
+
+
+def test_portfolio_item_included_only_when_toggled_on(session):
+    item = PortfolioItem(title="Side Project", description="A thing I built", include_in_resume=False)
+    session.add(item)
+    session.commit()
+    session.add(PortfolioLink(portfolio_item_id=item.id, label="Repo", url="https://example.com/repo"))
+    session.commit()
+    assert "Side Project" not in build_resume_markdown(session)
+
+    item.include_in_resume = True
+    session.add(item)
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Activities & Links" in content
+    assert "Side Project" in content
+    assert "example.com/repo" in content
+
+
+def test_personal_values_defaults_to_shown_and_appears_last(session):
+    session.add(PersonalValues(id=1, content="世界をちょっとだけ良くしたい"))
+    session.add(LearningActivity(activity_type="certification", title="AWS SAA"))
+    session.commit()
+
+    content = build_resume_markdown(session)
+    assert "## Personal Values" in content
+    assert "世界をちょっとだけ良くしたい" in content
+    assert content.index("## Certifications") < content.index("## Personal Values")
+
+
+def test_personal_values_omitted_when_toggled_off(session):
+    session.add(PersonalValues(id=1, content="世界をちょっとだけ良くしたい", include_in_resume=False))
+    session.commit()
+    assert "## Personal Values" not in build_resume_markdown(session)

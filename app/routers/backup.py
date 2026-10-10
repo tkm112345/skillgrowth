@@ -33,6 +33,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     PersonalInfo,
+    PersonalValues,
     PlannedCertification,
     PortfolioFile,
     PortfolioItem,
@@ -177,6 +178,7 @@ def export_backup(session: Session = Depends(get_session)) -> dict:
         "career_goals": dump(CareerGoal),
         "career_goal_history": dump(CareerGoalHistory),
         "career_vision": dump(CareerVision),
+        "personal_values": dump(PersonalValues),
         "reflection_log": dump(ReflectionLog),
         "education": dump(Education),
         "employment": dump(Employment),
@@ -253,6 +255,14 @@ def reset_sample_data(session: Session = Depends(get_session)) -> dict:
             vision.content = ""
             session.add(vision)
             counts["career_vision"] += 1
+
+    counts["personal_values"] = 0
+    for _ in ids_by_table.get("personal_values", set()):
+        values = session.get(PersonalValues, 1)
+        if values:
+            values.content = ""
+            session.add(values)
+            counts["personal_values"] += 1
 
     for r in records:
         session.delete(r)

@@ -94,6 +94,17 @@ async function removeType(type) {
   await loadActivityTypes()
 }
 
+async function toggleTypeResumeInclusion(type) {
+  const next = !type.include_in_resume
+  type.include_in_resume = next
+  try {
+    await api.setActivityTypeResumeInclusion(type.id, next)
+  } catch (e) {
+    type.include_in_resume = !next
+    ElMessage.error(e.message)
+  }
+}
+
 const sourceLabelKeys = {
   certification: 'timeline.sourceCertification',
   checkin: 'timeline.sourceCheckin',
@@ -400,37 +411,45 @@ const monthGroups = computed(() => {
   <el-empty v-if="!loading && displayedEntries.length === 0" :description="t('timeline.noEntries')" />
 
   <el-dialog v-model="manageTypesVisible" :title="t('learning.manageTypes')" width="min(420px, 92vw)">
-    <div v-for="type in activityTypes" :key="type.id" class="type-row">
-      <template v-if="editingTypeId === type.id">
-        <el-input v-model="draftTypeLabel" size="small" />
-        <el-button size="small" @click="cancelEditType">{{ t('common.cancel') }}</el-button>
-        <el-button size="small" type="primary" :loading="savingType" @click="saveTypeEdit(type)">
-          {{ t('common.save') }}
-        </el-button>
-      </template>
-      <template v-else>
-        <span class="type-row-label" :class="{ 'type-row-label-compact': type.is_protected }">
-          {{ typeDisplayLabel(type) }}
-        </span>
-        <template v-if="type.is_protected">
-          <span class="type-row-hint">{{ t('learning.protectedTypeHint') }}</span>
+    <div v-for="type in activityTypes" :key="type.id" class="type-row-group">
+      <div class="type-row">
+        <template v-if="editingTypeId === type.id">
+          <el-input v-model="draftTypeLabel" size="small" />
+          <el-button size="small" @click="cancelEditType">{{ t('common.cancel') }}</el-button>
+          <el-button size="small" type="primary" :loading="savingType" @click="saveTypeEdit(type)">
+            {{ t('common.save') }}
+          </el-button>
         </template>
         <template v-else>
-          <el-button size="small" text @click="startEditType(type)">{{ t('common.edit') }}</el-button>
-          <el-button size="small" text type="danger" @click="removeType(type)">{{ t('common.delete') }}</el-button>
+          <span class="type-row-label" :class="{ 'type-row-label-compact': type.is_protected }">
+            {{ typeDisplayLabel(type) }}
+          </span>
+          <template v-if="type.is_protected">
+            <span class="type-row-hint">{{ t('learning.protectedTypeHint') }}</span>
+          </template>
+          <template v-else>
+            <el-button size="small" text @click="startEditType(type)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" text type="danger" @click="removeType(type)">{{ t('common.delete') }}</el-button>
+          </template>
         </template>
-      </template>
+      </div>
+      <div v-if="!type.is_protected && editingTypeId !== type.id" class="type-resume-toggle">
+        <el-switch :model-value="type.include_in_resume" size="small" @change="toggleTypeResumeInclusion(type)" />
+        <span>{{ t('learning.typeIncludeInResume') }}</span>
+      </div>
     </div>
-    <div class="type-row">
-      <el-input
-        v-model="newTypeLabel"
-        size="small"
-        :placeholder="t('learning.typeLabelPlaceholder')"
-        @keyup.enter="addActivityType"
-      />
-      <el-button size="small" type="primary" :loading="addingType" @click="addActivityType">
-        {{ t('common.add') }}
-      </el-button>
+    <div class="type-row-group">
+      <div class="type-row">
+        <el-input
+          v-model="newTypeLabel"
+          size="small"
+          :placeholder="t('learning.typeLabelPlaceholder')"
+          @keyup.enter="addActivityType"
+        />
+        <el-button size="small" type="primary" :loading="addingType" @click="addActivityType">
+          {{ t('common.add') }}
+        </el-button>
+      </div>
     </div>
     <template #footer><el-button @click="manageTypesVisible = false">{{ t('common.close') }}</el-button></template>
   </el-dialog>
@@ -442,15 +461,27 @@ const monthGroups = computed(() => {
   font-size: 0.8rem;
 }
 
+.type-row-group {
+  padding: 0.4rem 0;
+}
+
+.type-row-group + .type-row-group {
+  border-top: 1px solid var(--border);
+}
+
 .type-row {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  padding: 0.4rem 0;
 }
 
-.type-row + .type-row {
-  border-top: 1px solid var(--border);
+.type-resume-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
 }
 
 .type-row-label {

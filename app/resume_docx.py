@@ -52,6 +52,23 @@ def _build_goals_subdoc(tpl: DocxTemplate, goals: list[dict]):
     return subdoc
 
 
+def _build_activities_subdoc(tpl: DocxTemplate, activities: dict):
+    subdoc = tpl.new_subdoc()
+    for link in activities["links"]:
+        subdoc.add_paragraph(f"• {link['label']}: {link['url']}")
+    for item in activities["portfolio"]:
+        p = subdoc.add_paragraph()
+        p.add_run(f"• {item['title']}").bold = True
+        if item["description"]:
+            subdoc.add_paragraph(item["description"])
+        for link in item["links"]:
+            subdoc.add_paragraph(f"  - {link['label']}: {link['url']}")
+    for talk in activities["talks"]:
+        suffix = f" ({talk['date']})" if talk["date"] else ""
+        subdoc.add_paragraph(f"• {talk['activity_type']}: {talk['title']}{suffix}")
+    return subdoc
+
+
 def _build_employment_subdoc(tpl: DocxTemplate, employment: list[dict], fmt: str):
     subdoc = tpl.new_subdoc()
     if fmt == "table":
@@ -141,6 +158,8 @@ def render_resume_docx(session: Session, template: ResumeTemplate) -> bytes:
         "certifications": _build_certifications_subdoc(
             tpl, ctx["certifications"], section_formats.get("certifications", "list")
         ),
+        "activities": _build_activities_subdoc(tpl, ctx["activities"]),
+        "personal_values": _build_self_pr_subdoc(tpl, ctx["personal_values"]),
     }
     tpl.render(context)
 

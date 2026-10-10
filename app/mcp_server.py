@@ -19,6 +19,7 @@ MCP_OPERATIONS = [
     "update_learning_activity",
     "list_activity_types",
     "add_activity_type",
+    "set_activity_type_resume_inclusion",
     # app/routers/planned_certifications.py
     "list_planned_certifications",
     "add_planned_certification",
@@ -46,6 +47,7 @@ MCP_OPERATIONS = [
     "update_project",
     "list_profile_links",
     "add_profile_link",
+    "set_link_resume_inclusion",
     # app/routers/portfolio.py
     "list_portfolio_items",
     "get_portfolio_item",
@@ -70,6 +72,10 @@ MCP_OPERATIONS = [
     "get_vision",
     "update_vision",
     "set_vision_resume_inclusion",
+    # app/routers/personal_values.py
+    "get_personal_values",
+    "update_personal_values",
+    "set_personal_values_resume_inclusion",
 ]
 
 

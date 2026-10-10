@@ -29,6 +29,7 @@ from app.models import (
     ExternalLink,
     LearningActivity,
     PersonalInfo,
+    PersonalValues,
     PlannedCertification,
     PortfolioFile,
     PortfolioItem,
@@ -60,10 +61,10 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
     Every record gets a freshly generated id, and foreign keys (evidence_id,
     skill_id, employment_id) are remapped from the old ids in `data` to the
     new ones, since re-running an import must never collide with existing
-    rows. CareerGoal is keyed by horizon (not id) and CareerVision is a
-    singleton (id=1); both only fill in a value that's still empty, so
-    importing never silently overwrites a goal or vision the user has
-    already written.
+    rows. CareerGoal is keyed by horizon (not id) and CareerVision/
+    PersonalValues are singletons (id=1); all three only fill in a value
+    that's still empty, so importing never silently overwrites a goal,
+    vision, or values statement the user has already written.
 
     If `track` is given, the real id of every row this call creates (or, for
     CareerGoal, the horizon it filled in, or "1" for CareerVision) is
@@ -187,7 +188,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
         existing = services.find_activity_type_by_label(session, label)
         if existing:
             continue
-        activity_type = ActivityType(label=label)
+        activity_type = ActivityType(label=label, include_in_resume=row.get("include_in_resume", False))
         session.add(activity_type)
         session.flush()
         note("activity_type", activity_type.id)
@@ -223,7 +224,12 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
 
     counts["external_links"] = 0
     for row in data.get("external_links", []):
-        link = ExternalLink(label=row["label"], url=row["url"], created_at=_dt(row.get("created_at")))
+        link = ExternalLink(
+            label=row["label"],
+            url=row["url"],
+            created_at=_dt(row.get("created_at")),
+            include_in_resume=row.get("include_in_resume", False),
+        )
         session.add(link)
         session.flush()
         note("external_link", link.id)
@@ -304,6 +310,27 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
             note("career_vision", "1")
             counts["career_vision"] += 1
 
+    counts["personal_values"] = 0
+    for row in data.get("personal_values", []):
+        existing = session.get(PersonalValues, 1)
+        if existing is None:
+            session.add(
+                PersonalValues(
+                    id=1,
+                    content=row.get("content", ""),
+                    updated_at=_dt(row.get("updated_at")),
+                    include_in_resume=row.get("include_in_resume", True),
+                )
+            )
+            note("personal_values", "1")
+            counts["personal_values"] += 1
+        elif not existing.content.strip():
+            existing.content = row.get("content", "")
+            existing.updated_at = _dt(row.get("updated_at")) or existing.updated_at
+            session.add(existing)
+            note("personal_values", "1")
+            counts["personal_values"] += 1
+
     counts["resume_exports"] = 0
     for row in data.get("resume_exports", []):
         snapshot = ExportSnapshot(
@@ -373,6 +400,7 @@ def import_backup(session: Session, data: dict, track: dict[str, list[str]] | No
             description=row.get("description", ""),
             project_id=mapped_project_id if project and project.employment_id is None else None,
             created_at=_dt(row.get("created_at")),
+            include_in_resume=row.get("include_in_resume", False),
         )
         session.add(item)
         session.flush()

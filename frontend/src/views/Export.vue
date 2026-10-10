@@ -48,6 +48,8 @@ const RESUME_TAGS = [
   { tag: 'education', labelKey: 'export.resumeTemplateTagEducation' },
   { tag: 'skills', labelKey: 'export.resumeTemplateTagSkills' },
   { tag: 'certifications', labelKey: 'export.resumeTemplateTagCertifications' },
+  { tag: 'activities', labelKey: 'export.resumeTemplateTagActivities' },
+  { tag: 'personal_values', labelKey: 'export.resumeTemplateTagPersonalValues' },
 ]
 
 const resumeTemplates = ref([])

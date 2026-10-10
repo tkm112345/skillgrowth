@@ -80,6 +80,20 @@ class CareerVision(SQLModel, table=True):
     include_in_resume: bool = False
 
 
+class PersonalValues(SQLModel, table=True):
+    # Same shape as CareerVision — singleton row, id=1, no history. A
+    # second deliberate exception to "activity-based, not self-assessment"
+    # (the first is Skill.proficiency, see docs/ARCHITECTURE.md) — a
+    # personal-values statement has no activity to derive it from by
+    # definition. Default True (unlike CareerVision/CareerGoal): this is a
+    # brand-new table with no existing data on any install, so there's no
+    # "don't surprise upgraded installs" risk to guard against.
+    id: int = Field(default=1, primary_key=True)
+    content: str = ""
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    include_in_resume: bool = True
+
+
 class CareerGoalHistory(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     horizon: str
@@ -130,6 +144,10 @@ class ExternalLink(SQLModel, table=True):
     label: str  # e.g. "GitHub", "X", "note", "Zenn", "Blog" — free text, not a fixed enum
     url: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Default False — same "don't surprise an upgraded install" reasoning as
+    # CareerGoal/CareerVision.include_in_resume: this link was never on the
+    # resume before this field existed.
+    include_in_resume: bool = False
 
 
 class PortfolioItem(SQLModel, table=True):
@@ -140,6 +158,8 @@ class PortfolioItem(SQLModel, table=True):
     # enforced in app/routers/portfolio.py, not at the schema level
     project_id: Optional[str] = Field(default=None, foreign_key="project.id", index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Default False — same reasoning as ExternalLink.include_in_resume above.
+    include_in_resume: bool = False
 
 
 class PortfolioLink(SQLModel, table=True):
@@ -175,9 +195,12 @@ class LearningActivity(SQLModel, table=True):
     expiry_date: Optional[date] = None
     notes: str = ""
     evidence_id: Optional[str] = Field(default=None, foreign_key="evidenceentry.id", index=True)
-    # Only meaningful for activity_type == "certification" — controls
-    # whether resume_builder.py's Certifications section includes this
-    # entry, the same role Skill.include_in_resume plays for skills.
+    # For activity_type == "certification", controls whether
+    # resume_builder.py's Certifications section includes this entry (the
+    # same role Skill.include_in_resume plays for skills). For any other
+    # type, this is the row-level fine exclusion on top of
+    # ActivityType.include_in_resume's type-level gate (see that field) —
+    # it only has an effect once the type itself is opted in.
     include_in_resume: bool = True
 
 
@@ -190,6 +213,16 @@ class ActivityType(SQLModel, table=True):
     # is free text from then on, not a translated default.
     translation_key: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Type-level gate for the resume's "Activities & Links" section: a
+    # LearningActivity of this type is only eligible to appear there when
+    # this is True (default False — opt-in, same reasoning as every other
+    # new resume-visible field added alongside this one). "certification"
+    # is deliberately never gated by this — it already has its own
+    # Certifications section and is excluded from this section's query
+    # regardless of this flag. The per-row LearningActivity.include_in_resume
+    # still applies on top of this, for hiding one entry of an otherwise
+    # resume-visible type.
+    include_in_resume: bool = False
 
 
 class SelfFeedback(SQLModel, table=True):

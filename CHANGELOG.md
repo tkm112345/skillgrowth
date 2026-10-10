@@ -19,6 +19,16 @@ commit as the change, moved into a dated section when a release is cut).
   Word-template one): upload a `.md` file with plain `{{ tag }}` Jinja2
   placeholders and generate a filled-in Markdown resume on demand, with
   the same per-section bullet/table format choice the Word templates use.
+- Resume generation can now include a new combined "Activities & Links"
+  section, drawing from data you'd already recorded but that never
+  appeared on the resume before: profile links, portfolio items, and
+  activity types (e.g. talks given) you opt in via their own
+  "include in resume" toggle — on the Profile, Portfolio, and Activity
+  ("Manage types") pages respectively. All default off.
+- A new Personal Values field (Vision page), for a short personal
+  statement about what you value in how you work — shown on the resume
+  by default (toggleable off), since this is a brand-new field with
+  nothing to accidentally expose on upgrade.
 
 ## [0.5.2] - 2026-10-10
 

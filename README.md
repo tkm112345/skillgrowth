@@ -132,8 +132,11 @@ Full feature list: [docs/FEATURES.md](docs/FEATURES.md) ([日本語](docs/FEATUR
   used) plus a resume generator that fills a fixed Markdown template from
   your current data — **no LLM involved**, rendered and downloadable, with
   past generations kept as browsable snapshots, any of which can be edited
-  directly as Markdown afterward. Vision and Career Goals can optionally be
-  included too, each behind its own off-by-default toggle. Alongside that,
+  directly as Markdown afterward. Vision, Career Goals, and a combined
+  "Activities & Links" section (profile links, portfolio items, and
+  opted-in activity types like talks given) can optionally be included
+  too, each behind its own off-by-default toggle; a Personal Values field
+  is included by default. Alongside that,
   upload your own `.docx` template with tags like `{{p self_pr }}`, or a
   `.md` template with plain `{{ self_pr }}` tags, and generate a filled
   copy of either — also no LLM involved, with per-section bullet-list/table

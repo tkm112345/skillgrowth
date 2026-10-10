@@ -22,6 +22,7 @@ from app.routers import (
     graph,
     learning,
     personal_info,
+    personal_values,
     planned_certifications,
     portfolio,
     profile,
@@ -74,6 +75,7 @@ app.include_router(backup.router)
 app.include_router(ai.router)
 app.include_router(self_pr.router)
 app.include_router(vision.router)
+app.include_router(personal_values.router)
 app.include_router(consult.router)
 app.include_router(resume_templates.router)
 app.include_router(resume_md_templates.router)

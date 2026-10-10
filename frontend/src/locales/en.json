@@ -81,7 +81,10 @@
     "saved": "Saved",
     "updatedAt": "Last updated {date}",
     "includeInResume": "Include in generated resume",
-    "resumeToggleError": "Failed to update"
+    "resumeToggleError": "Failed to update",
+    "valuesTitle": "Personal Values",
+    "valuesSubtitle": "What you care about and how you like to work — a short, personal statement, separate from the career-direction sketch above.",
+    "valuesPlaceholder": "What do you value in how you work, or in a team?"
   },
   "selfFeedback": {
     "title": "Self Feedback",
@@ -107,6 +110,7 @@
     "linkUrl": "URL",
     "addedLink": "Added link",
     "confirmDeleteLink": "Delete this link?",
+    "linkIncludeInResume": "Include in resume",
     "educationHeader": "Education",
     "employmentHeader": "Work history",
     "otherProjectsHeader": "Other projects",
@@ -200,7 +204,8 @@
     "downloadError": "Failed to download: {error}",
     "confirmDeleteFile": "Delete this file?",
     "noEntries": "Nothing here yet",
-    "confirmDeleteItem": "Delete this deliverable and all its links and files?"
+    "confirmDeleteItem": "Delete this deliverable and all its links and files?",
+    "includeInResume": "Include in resume"
   },
   "learning": {
     "type": "Type",
@@ -218,7 +223,8 @@
     "manageTypes": "Manage types",
     "typeLabelPlaceholder": "New type name",
     "deleteTypeConfirm": "Delete this type? Activities already recorded with it keep it as plain text.",
-    "protectedTypeHint": "Built-in — can't be renamed or deleted (used for the resume's Certifications section and certificate image extraction)."
+    "protectedTypeHint": "Built-in — can't be renamed or deleted (used for the resume's Certifications section and certificate image extraction).",
+    "typeIncludeInResume": "Include this type in the resume's Activities & Links section"
   },
   "skills": {
     "title": "Skills",
@@ -392,6 +398,8 @@
     "resumeTemplateTagEducation": "Education",
     "resumeTemplateTagSkills": "Skills",
     "resumeTemplateTagCertifications": "Certifications",
+    "resumeTemplateTagActivities": "Activities & links (external links, portfolio items, and activity types turned on — see Profile, Portfolio, and Activity's \"Manage types\")",
+    "resumeTemplateTagPersonalValues": "Personal values (only shown if turned on under Vision)",
     "resumeMdTemplateHeader": "Markdown template",
     "resumeMdTemplateHint": "Like the Word template above, but for a Markdown file — upload a .md file with tags like {'{'}{'{'} self_pr {'}'}{'}'} (see the tag reference below) and fill it with your current data on demand. Also deterministic: no LLM involved.",
     "resumeMdTemplateTagsHint": "Place these anywhere in your .md template using plain Jinja2 syntax (not Word's {'{'}{'{'}p ... {'}'}{'}'} form) — they're replaced with your data when you generate. education always renders as plain text; the others follow the format picked above."

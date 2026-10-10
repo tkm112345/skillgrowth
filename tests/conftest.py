@@ -62,7 +62,18 @@ def sample_docx_bytes():
 
     def build() -> bytes:
         doc = Document()
-        for tag in ("self_pr", "vision", "goals", "employment", "projects", "education", "skills", "certifications"):
+        for tag in (
+            "self_pr",
+            "vision",
+            "goals",
+            "employment",
+            "projects",
+            "education",
+            "skills",
+            "certifications",
+            "activities",
+            "personal_values",
+        ):
             doc.add_paragraph("{{p " + tag + " }}")
         buf = BytesIO()
         doc.save(buf)
@@ -79,7 +90,18 @@ def sample_md_template_bytes():
     docxtpl paragraph-substitution quirk in plain text."""
 
     def build() -> bytes:
-        tags = ("self_pr", "vision", "goals", "employment", "projects", "education", "skills", "certifications")
+        tags = (
+            "self_pr",
+            "vision",
+            "goals",
+            "employment",
+            "projects",
+            "education",
+            "skills",
+            "certifications",
+            "activities",
+            "personal_values",
+        )
         text = "\n\n".join("{{ " + tag + " }}" for tag in tags)
         return text.encode("utf-8")
 

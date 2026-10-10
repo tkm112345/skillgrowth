@@ -25,6 +25,7 @@ class PortfolioItemIn(BaseModel):
     title: str | None = None
     description: str | None = None
     project_id: str | None = None
+    include_in_resume: bool | None = None
 
 
 class PortfolioLinkIn(BaseModel):
@@ -104,6 +105,8 @@ def update_portfolio_item(
     if "project_id" in payload.model_fields_set:
         _validate_project_id(session, payload.project_id)
         item.project_id = payload.project_id
+    if payload.include_in_resume is not None:
+        item.include_in_resume = payload.include_in_resume
 
     session.add(item)
     session.commit()

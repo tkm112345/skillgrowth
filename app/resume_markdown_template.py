@@ -27,6 +27,21 @@ def _render_goals(goals: list[dict]) -> str:
     return "\n".join(f"- **{goal['label']}**: {goal['description']}" for goal in goals)
 
 
+def _render_activities(activities: dict) -> str:
+    lines = []
+    for link in activities["links"]:
+        lines.append(f"- [{link['label']}]({link['url']})")
+    for item in activities["portfolio"]:
+        suffix = f" — {item['description']}" if item["description"] else ""
+        lines.append(f"- **{item['title']}**{suffix}")
+        for link in item["links"]:
+            lines.append(f"  - [{link['label']}]({link['url']})")
+    for talk in activities["talks"]:
+        date_suffix = f" ({talk['date']})" if talk["date"] else ""
+        lines.append(f"- {talk['activity_type']}: {talk['title']}{date_suffix}")
+    return "\n".join(lines)
+
+
 def _render_employment(employment: list[dict], fmt: str) -> str:
     if fmt == "table":
         rows = [
@@ -106,6 +121,8 @@ def render_resume_markdown_template(session: Session, template: ResumeMdTemplate
         "education": _render_education(ctx["education"]),
         "skills": _render_skills(ctx["skills_by_category"], section_formats.get("skills", "list")),
         "certifications": _render_certifications(ctx["certifications"], section_formats.get("certifications", "list")),
+        "activities": _render_activities(ctx["activities"]),
+        "personal_values": _render_self_pr(ctx["personal_values"]),
     }
 
     text = Path(template.file_path).read_text(encoding="utf-8")

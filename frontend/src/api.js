@@ -193,6 +193,18 @@ export const api = {
       body: JSON.stringify({ include_in_resume: includeInResume }),
     }),
 
+  getPersonalValues: () => request('/personal-values'),
+  updatePersonalValues: (content) =>
+    request('/personal-values', {
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    }),
+  setPersonalValuesResumeInclusion: (includeInResume) =>
+    request('/personal-values/resume-inclusion', {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
+    }),
+
   getSelfFeedback: (limit = 50, offset = 0) =>
     request(`/self-feedback?limit=${limit}&offset=${offset}`),
   addSelfFeedback: (payload) =>
@@ -226,6 +238,11 @@ export const api = {
   addLink: (label, url) =>
     request('/profile/links', { method: 'POST', body: JSON.stringify({ label, url }) }),
   deleteLink: (id) => request(`/profile/links/${id}`, { method: 'DELETE' }),
+  setLinkResumeInclusion: (id, includeInResume) =>
+    request(`/profile/links/${id}/resume-inclusion`, {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
+    }),
 
   getLearning: () => request('/learning'),
   addLearning: (payload) => request('/learning', { method: 'POST', body: JSON.stringify(payload) }),
@@ -242,6 +259,11 @@ export const api = {
   updateActivityType: (id, label) =>
     request(`/learning/types/${id}`, { method: 'PUT', body: JSON.stringify({ label }) }),
   deleteActivityType: (id) => request(`/learning/types/${id}`, { method: 'DELETE' }),
+  setActivityTypeResumeInclusion: (id, includeInResume) =>
+    request(`/learning/types/${id}/resume-inclusion`, {
+      method: 'PUT',
+      body: JSON.stringify({ include_in_resume: includeInResume }),
+    }),
 
   getPlannedCertifications: () => request('/planned-certifications'),
   addPlannedCertification: (payload) =>

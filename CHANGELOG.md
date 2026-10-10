@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-10
+
 ### Security
 - `npm ci` (CI and the Docker build) now runs with `--ignore-scripts`,
   so a compromised npm dependency can't execute arbitrary code at

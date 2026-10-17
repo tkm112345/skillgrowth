@@ -30,6 +30,13 @@ commit as the change, moved into a dated section when a release is cut).
   by default (toggleable off), since this is a brand-new field with
   nothing to accidentally expose on upgrade.
 
+### Fixed
+- Revert the `mcp` dependency to 1.30.0: a Dependabot bump to 2.3.0 broke
+  the optional MCP server (`mcp>=2.0` made `Server`'s `description`
+  argument keyword-only, which `fastapi-mcp` 0.4.0 doesn't account for)
+  and failed `backend-tests` on `main` after merge. Dependabot is now
+  configured to stop proposing `mcp>=2.0.0` until `fastapi-mcp` catches up.
+
 ## [0.5.2] - 2026-10-10
 
 ### Security

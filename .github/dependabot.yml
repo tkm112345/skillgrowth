@@ -6,6 +6,14 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+    ignore:
+      # mcp>=2.0 broke fastapi-mcp 0.4.0's Server(name, description) call
+      # (description became keyword-only) — see requirements.txt's comment
+      # on the mcp pin. Dependabot already re-proposed this bump once after
+      # it was reverted; keep it from proposing it again until fastapi-mcp
+      # catches up.
+      - dependency-name: "mcp"
+        versions: [">=2.0.0"]
 
   - package-ecosystem: "npm"
     directory: "/frontend"

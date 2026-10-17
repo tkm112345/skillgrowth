@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-17
+
 ### Added
 - Resume generation can now include your Vision and/or per-horizon Career
   Goals, each gated behind its own opt-in "include in resume" toggle

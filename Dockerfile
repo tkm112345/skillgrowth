@@ -16,7 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
     && useradd --uid 1000 --no-create-home --shell /usr/sbin/nologin app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# The base image's bundled pip can lag behind its vendored certifi/urllib3
+# security fixes; the floor keeps it at least at a known-patched release.
+RUN pip install --no-cache-dir --upgrade "pip>=26.2.2" \
+    && pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY VERSION .

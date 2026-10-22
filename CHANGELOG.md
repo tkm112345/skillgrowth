@@ -9,6 +9,13 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Security
+- The Docker runtime image now upgrades pip to at least 26.2.2 before
+  installing dependencies, replacing the base image's pip 26.2.1 whose
+  vendored `certifi` still trusted emSign root CAs with compromised
+  intermediate keys (GHSA-6q48-6c7w-9gw2). Only affects `pip install`
+  inside the image, not the running app.
+
 ## [0.7.1] - 2026-10-22
 
 ### Changed

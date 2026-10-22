@@ -9,6 +9,15 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Security
+- Bumped the Docker frontend build stage's `node:26-slim` base image from
+  Node.js 26.10.0 to 26.12.1, picking up the October 21, 2026 Node.js
+  security release (CVE-2026-111497 Brotli decoder RCE, plus TLS/DNS
+  fixes). Node.js is only used to build the frontend and is not present
+  in the runtime image, so running containers were not directly exposed;
+  rebuild your image to pick up the patched build toolchain. CI now sets
+  `check-latest: true` so it always builds on the newest Node.js 22.x.
+
 ## [0.7.0] - 2026-10-17
 
 ### Added

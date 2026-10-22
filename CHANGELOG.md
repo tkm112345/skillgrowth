@@ -9,6 +9,13 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-22
+
+### Changed
+- The Docker runtime image now uses Python 3.14 (was 3.12), along with
+  routine Dependabot dependency bumps (vite, eslint, ruff, openai,
+  vue-echarts, @vitejs/plugin-vue).
+
 ### Security
 - Bumped the Docker frontend build stage's `node:26-slim` base image from
   Node.js 26.10.0 to 26.12.1, picking up the October 21, 2026 Node.js

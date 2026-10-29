@@ -9,6 +9,10 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+### Changed
+- Routine Dependabot dependency bumps (ruff, fastapi, openai, vue,
+  vue-i18n, jsdom, dompurify).
+
 ### Security
 - The Docker runtime image now upgrades pip to at least 26.2.2 before
   installing dependencies, replacing the base image's pip 26.2.1 whose

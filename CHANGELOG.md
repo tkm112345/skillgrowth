@@ -11,7 +11,9 @@ commit as the change, moved into a dated section when a release is cut).
 
 ### Changed
 - Routine Dependabot dependency bumps (ruff, fastapi, openai, vue,
-  vue-i18n, jsdom, dompurify, marked).
+  vue-i18n, jsdom, dompurify, marked, vitest, eslint).
+- Bumped `pymupdf` from 1.28.2 to 2.0 (used for PDF text extraction in
+  resume import and first-page rasterization of certification PDFs).
 
 ### Security
 - Bumped the frontend build-time transitive dependencies `fast-uri`

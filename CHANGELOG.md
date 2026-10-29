@@ -11,9 +11,15 @@ commit as the change, moved into a dated section when a release is cut).
 
 ### Changed
 - Routine Dependabot dependency bumps (ruff, fastapi, openai, vue,
-  vue-i18n, jsdom, dompurify).
+  vue-i18n, jsdom, dompurify, marked).
 
 ### Security
+- Bumped the frontend build-time transitive dependencies `fast-uri`
+  (3.1.8 → 3.1.9; GHSA-w74x-v6f9-j3xg, GHSA-wjr9-j795-jxcr,
+  GHSA-xhq7-xmqj-769h, GHSA-333x-w4r6-6crp) and `serialize-javascript`
+  (7.1.2 → 7.1.4; GHSA-m5mm-p8h7-m29v), both pulled in via
+  `vite-plugin-pwa` → `workbox-build` as development (build-time)
+  dependencies.
 - The Docker runtime image now upgrades pip to at least 26.2.2 before
   installing dependencies, replacing the base image's pip 26.2.1 whose
   vendored `certifi` still trusted emSign root CAs with compromised

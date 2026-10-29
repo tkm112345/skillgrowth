@@ -3,7 +3,7 @@ uvicorn[standard]==0.54.0
 sqlmodel==0.0.48
 jinja2==3.1.6
 python-multipart==0.0.32
-openai==3.31.0
+openai==3.36.1
 docxtpl[subdoc]==0.20.2  # the "subdoc" extra (docxcompose) is needed by new_subdoc(), used to build table/bullet sections
 pymupdf==1.28.2  # pure wheel, no system/apt packages needed — used for PDF->image and PDF text extraction
 fastapi-mcp==0.4.0  # optional MCP server mounted at /mcp — see app/mcp_server.py, off by default

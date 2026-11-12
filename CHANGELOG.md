@@ -9,6 +9,8 @@ commit as the change, moved into a dated section when a release is cut).
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-12
+
 ### Changed
 - Routine Dependabot dependency bumps (ruff, fastapi, openai, pytest,
   vite, vue, vue-i18n, jsdom, dompurify, marked, vitest, eslint,
